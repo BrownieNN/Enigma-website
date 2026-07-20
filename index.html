@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grid Proof — Porto Rocha vs Enigma</title>
+<!-- Preload the alignment-critical display fonts so text lays out in the real font from first
+     paint (a fallback serif wraps differently and shifts sections ~8px until it swaps). -->
+<link rel="preload" href="fonts/Enigma-EnigmaLargeRoman.otf" as="font" type="font/otf" crossorigin>
+<link rel="preload" href="fonts/Enigma-EnigmaLargeItalic.otf" as="font" type="font/otf" crossorigin>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<input class="ctl" type="radio" name="tabs" id="tab-porto" checked>
+<input class="ctl" type="radio" name="tabs" id="tab-aldo">
+<input class="ctl" type="radio" name="tabs" id="tab-proposed">
+<input class="ctl" type="radio" name="tabs" id="tab-14col">
+<input class="ctl" type="checkbox" id="grid-on" checked>
+<input class="ctl" type="checkbox" id="tabs-open">
+<input class="ctl" type="checkbox" id="overlay-on">
+
+<!-- ================= PORTO ROCHA ================= -->
+<section class="view" id="view-porto">
+  <div class="grid-wrap pr-theme">
+    <aside class="sidebar w-400 pr-sidebar">
+      <div class="pr-topbar">
+        <span class="pr-pill">Show all projects</span>
+        <span class="pr-toggle"><i></i></span>
+      </div>
+      <div class="pr-brand">
+        <div class="pr-logo">PORTO&thinsp;ROCHA</div>
+        <div class="pr-datetime">Thursday, July 16<br>New York, 19:50:15</div>
+      </div>
+      <nav class="pr-nav">
+        <a class="pr-nav-card pr-about">
+          <span class="txt">
+            <span class="t">About us</span>
+            <span class="d">PORTO ROCHA is a global strategy and design agency with offices in New York and London.</span>
+          </span>
+        </a>
+        <a class="pr-nav-card">
+          <span class="thumb"></span>
+          <span class="txt">
+            <span class="t">MoMA PS1</span>
+            <span class="d">Establishing MoMA PS1 as Your Place for experimental art and culture in Queens.</span>
+          </span>
+        </a>
+        <a class="pr-nav-card">
+          <span class="thumb"></span>
+          <span class="txt">
+            <span class="t">Robinhood Market</span>
+            <span class="d">Bringing lifestyle to a finance brand through elevated merch</span>
+          </span>
+        </a>
+        <a class="pr-nav-card">
+          <span class="thumb"></span>
+          <span class="txt">
+            <span class="t">Nike Run</span>
+            <span class="d">Making Nike the running brand once again</span>
+          </span>
+        </a>
+        <a class="pr-nav-card">
+          <span class="thumb"></span>
+          <span class="txt">
+            <span class="t">YOYOYO</span>
+            <span class="d">Building a hypothetical brand for Google DeepMind with Nano Banana Pro.</span>
+          </span>
+        </a>
+        <a class="pr-nav-card">
+          <span class="thumb"></span>
+          <span class="txt">
+            <span class="t">Kunsthalle Basel</span>
+            <span class="d">Building an institutional brand with an anti-institutional spirit</span>
+          </span>
+        </a>
+        <a class="pr-nav-card">
+          <span class="thumb"></span>
+          <span class="txt">
+            <span class="t">Gemini</span>
+            <span class="d">Ushering in a new era for Google</span>
+          </span>
+        </a>
+        <a class="pr-nav-card">
+          <span class="thumb"></span>
+          <span class="txt">
+            <span class="t">MASP</span>
+            <span class="d">Evolving a modernist icon to meet its global future</span>
+          </span>
+        </a>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="hero pr-hero" style="aspect-ratio:1496/998;"></div>
+      <div class="pr-columns">
+        <div class="pr-news-card">
+          <div class="date">14 July 2026</div>
+          <h2>Tinder&rsquo;s first rebrand in nearly a decade</h2>
+          <p>For its first rebrand in nearly a decade, Tinder brought on the team at PORTO ROCHA to convince a new generation to swipe right on one of the first dating apps. In this conversation with It&rsquo;s Nice That, Strategy &amp; Copy Director Natalee Ranii-Dropcho and Senior Designer Yedo Han get into the expressive new design system.</p>
+          <div class="nimg" style="aspect-ratio:461/307"></div>
+        </div>
+        <div class="pr-news-card">
+          <div class="date">10 July 2026</div>
+          <h2>It&rsquo;s Nice That: The Weekend With PORTO ROCHA</h2>
+          <p>Leo and Felipe in conversation with It&rsquo;s Nice That about what they are getting up to in their time off &mdash; from finding the best food spots in Rio to summer music festivals and the films on their watch list!</p>
+          <div class="nimg" style="aspect-ratio:461/576"></div>
+        </div>
+        <div class="pr-news-card">
+          <div class="date">24 June 2026</div>
+          <h2>PORTO ROCHA to Design Hans Ulrich Obrist Catalogue Raisonn&eacute;</h2>
+          <p>We are excited to announce that PORTO ROCHA has been selected to design the forthcoming Hans Ulrich Obrist Catalogue Raisonn&eacute;, to be published by Ivorypress in collaboration with Norman Foster Foundation Press.</p>
+          <div class="nimg" style="aspect-ratio:461/600"></div>
+        </div>
+      </div>
+    </main>
+    <div class="full-grid-overlay">
+      <div class="fg-side w-400">
+        <i class="col is-side"><span class="num">1</span></i>
+        <i class="col is-side"><span class="num">2</span></i>
+        <i class="col is-side"><span class="num">3</span></i>
+      </div>
+      <div class="fg-main" style="--mcols:11">
+        <i class="col is-main"><span class="num">4</span></i>
+        <i class="col is-main"><span class="num">5</span></i>
+        <i class="col is-main"><span class="num">6</span></i>
+        <i class="col is-main"><span class="num">7</span></i>
+        <i class="col is-main"><span class="num">8</span></i>
+        <i class="col is-main"><span class="num">9</span></i>
+        <i class="col is-main"><span class="num">10</span></i>
+        <i class="col is-main"><span class="num">11</span></i>
+        <i class="col is-main"><span class="num">12</span></i>
+        <i class="col is-main"><span class="num">13</span></i>
+        <i class="col is-main"><span class="num">14</span></i>
+      </div>
+    </div>
+    <div class="grid-legend">
+      <span class="lg-side">Sidebar = 3 col</span>
+      <span class="lg-main">Content = 11 col</span>
+      <span class="lg-total">14 columns total</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENIGMA — ALDO (WRONG) ================= -->
+<section class="view" id="view-aldo">
+  <div class="grid-wrap">
+    <aside class="sidebar w-470 al-sidebar">
+      <div class="al-parade">
+        <div class="al-topbar">
+          <span class="al-cta"><span class="cap">ALL WORK</span></span>
+          <button type="button" class="al-toggle" aria-label="Toggle dark mode" aria-pressed="false"><span class="al-toggle-knob"></span></button>
+        </div>
+        <div class="al-logo"><img src="assets/aldo/sidebar-logo.png" alt="Enigma"></div>
+        <div class="al-date"><span class="cap">WEDNESDAY 20 MAY</span><span class="cap">02:43:05 PM</span></div>
+      </div>
+      <nav class="al-nav">
+        <div class="al-menu-item c-pink"><span class="cap">Hello</span></div>
+        <div class="al-menu-item c-blue"><span class="cap">APPROACH</span></div>
+        <div class="al-menu-item c-red"><span class="cap">Work</span></div>
+        <div class="al-menu-item c-yellow"><span class="cap">TALENT</span></div>
+        <div class="al-menu-item c-green"><span class="cap">CAREERS</span></div>
+        <div class="al-menu-item c-dark"><span class="cap">CONTACT</span></div>
+      </nav>
+    </aside>
+    <main class="main">
+
+      <!-- Main hero -->
+      <div class="al-hero"><img src="assets/aldo/main-hero.png" alt=""></div>
+
+      <!-- Welcome -->
+      <div class="al-welcome">
+        <div class="bigbg-wrap" aria-hidden="true"><div class="bigbg"><span class="cap">Unignorability<span class="reg">&reg;</span></span><span class="cap">Unignorability<span class="reg">&reg;</span></span></div></div>
+        <h1 class="cap">Welcome<br>to the home of<br>Unignorability<span class="reg">&reg;</span></h1>
+        <p class="cap">Enigma is a creative agency and a media agency both driven by a singular focus:<br>to make our clients&rsquo; brands Unignorable.</p>
+      </div>
+
+      <!-- Hello section -->
+      <div class="al-section">
+        <div class="al-divider c-pink"><span class="cap">HELLO SECTION / 01</span></div>
+        <div class="al-title c-pink al-hello-title">
+          <h2 class="cap jp">こんにちは</h2>
+          <div class="num70 right cap" style="color:var(--dark-grey)">&#x24FF;&#x2776;</div>
+        </div>
+        <div class="al-graphic">
+          <video class="bg" src="assets/aldo/whack-shape.mp4" poster="assets/aldo/text03-bg.png" autoplay muted loop playsinline></video>
+          <div class="inner">
+            <div class="title">
+              <div class="line cap">UNIGNORABLE<br>WORK</div>
+              <div class="line by cap">BY</div>
+              <div class="line cap">UNIGNORABLE<br>PEOPLE</div>
+            </div>
+            <div class="num70 right cap">&#x24FF;&#x2776;</div>
+          </div>
+        </div>
+        <div class="al-textcomp al-tc-hello">
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          <div class="inner">
+            <div class="row">
+              <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+              <div class="rightcol vcenter">
+                <div class="bigtext">
+                  <p>Born of the hardworking city of Newcastle we&rsquo;re a diverse collective of some of the smartest and most experienced <em class="c-red-t rc-word">strategic</em>, <em class="c-pink-t rc-word">creative</em> and <em class="c-blue-t rc-word">media</em> thinkers in Australia, united by a commitment to creating and growing Unignorable brands and connecting them with customers in <em class="c-green-t rc-word">Unignorable ways</em>.</p>
+                </div>
+              </div>
+            </div>
+            <div class="num70 cap" style="color:var(--dark-grey)">&#x24FF;&#x2776;</div>
+          </div>
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Approach section -->
+      <div class="al-section">
+        <div class="al-divider c-blue"><span class="cap">APPROACH SECTION / 02</span></div>
+        <div class="al-title c-blue">
+          <h2 class="cap">Approach</h2>
+          <div class="num70 right cap">&#x24FF;&#x2777;</div>
+        </div>
+        <div class="al-cell">
+          <div class="al-constel" aria-hidden="true"></div>
+        </div>
+        <div class="al-content">
+          <div class="al-textcomp al-tc-appr1">
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+            <div class="inner">
+              <div class="row">
+                <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+                <div class="rightcol">
+                  <div class="bigtext">
+                    <p>We drive brand <span class="c-blue-t">Unignorability<span class="reg60">&reg;</span></span> through emotional connection, distinctiveness and ideas that get their audience talking.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          </div>
+          <div class="al-textcomp al-tc-appr2">
+            <div class="inner">
+              <div class="row">
+                <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+                <div class="rightcol vcenter">
+                  <div class="bigtext">
+                    <p>Our <span class="c-blue-t">Unignorability<span class="reg60">&reg;</span> </span>practice encompasses a complete range of complementary disciplines, integrated by a centralised strategy department that provides the strategic True North to how, where and to who a brand manifests itself in the world.&nbsp;</p>
+                  </div>
+                </div>
+              </div>
+              <div class="num70 cap" style="color:var(--black)">&#x24FF;&#x2777;</div>
+            </div>
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capabilities -->
+      <div class="al-capabilities"><span class="mono14 cap">CAPABILITIES TBC</span></div>
+
+      <!-- Work section -->
+      <div class="al-section">
+        <div class="al-divider c-red"><span class="cap" style="color:var(--dark-grey)">WORK SECTION / 03</span></div>
+        <div class="al-title c-red">
+          <h2 class="cap">Work</h2>
+          <div class="num70 right cap" style="color:var(--black)">&#x24FF;&#x2778;</div>
+        </div>
+        <div class="al-workgrid">
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg tall"><video class="cover" src="assets/aldo/videos/mobile-muster.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">MOBILE MUSTER</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg mid"><video class="cover" src="assets/aldo/videos/woo-up.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">WOO UP</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><video class="cover" src="assets/aldo/videos/new-holland.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">NEW HOLLAND</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg mid"><video class="cover" src="assets/aldo/videos/perm.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">HEAD &amp; HEART</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><img class="crop-sydney" src="assets/aldo/work-sydney.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">SYDNEY AIRPORT</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg tall"><img class="cover" src="assets/aldo/work-landcom.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">LANDCOM ANNANDALE</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg tall"><img class="cover" src="assets/aldo/work-hepb.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">LIVE WELL WITH HEP B</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><video class="cover" src="assets/aldo/videos/kennards.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">KEN OATH</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg mid"><img class="cover" src="assets/aldo/work-realking.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">THE REAL KING</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Talent section -->
+      <div class="al-section">
+        <div class="al-divider c-yellow"><span class="cap">TALENT SECTION / 04</span></div>
+        <div class="al-title c-yellow">
+          <h2 class="cap">Talent</h2>
+          <div class="num70 right cap" style="color:var(--black)">&#x24FF;&#x2779;</div>
+        </div>
+        <div class="al-snippet">
+          <img class="bg" src="assets/aldo/html-snippet.png" alt="">
+          <div class="headline cap">A Culture of&nbsp; Fearless Play<span class="tm">&trade;</span></div>
+        </div>
+        <div class="al-textcomp al-tc-talent">
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          <div class="inner">
+            <div class="row">
+              <div class="leftcol"><span class="mono14 cap">A Culture of Fearless Play&trade;</span></div>
+              <div class="rightcol">
+                <div class="bigtext">
+                  <p>We know that the most Unignorable work comes not from work, but from play.&nbsp; So together, we&rsquo;re creating&nbsp; a culture built on values and behaviours that give our people the freedom to express themselves fully, collaborate fearlessly and&nbsp; do the best work of their careers.&nbsp;</p>
+                </div>
+              </div>
+            </div>
+            <div class="num70 cap" style="color:var(--dark-grey)">&#x24FF;&#x2779;</div>
+          </div>
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Large image -->
+      <div class="al-large"><img src="assets/aldo/party.png" alt=""></div>
+
+    </main>
+    <div class="full-grid-overlay">
+      <div class="fg-side w-470">
+        <i class="col is-side"><span class="num">1</span></i>
+        <i class="col is-side"><span class="num">2</span></i>
+        <i class="col is-side"><span class="num">3</span></i>
+      </div>
+      <div class="fg-main" style="--mcols:9">
+        <i class="col is-main"><span class="num">4</span></i>
+        <i class="col is-main"><span class="num">5</span></i>
+        <i class="col is-main"><span class="num">6</span></i>
+        <i class="col is-main"><span class="num">7</span></i>
+        <i class="col is-main"><span class="num">8</span></i>
+        <i class="col is-main"><span class="num">9</span></i>
+        <i class="col is-main"><span class="num">10</span></i>
+        <i class="col is-main"><span class="num">11</span></i>
+        <i class="col is-main"><span class="num">12</span></i>
+      </div>
+    </div>
+    <div class="grid-legend">
+      <span class="lg-side">Sidebar = 3 col</span>
+      <span class="lg-main">Content = 9 col</span>
+      <span class="lg-total">12 columns total</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENIGMA — PROPOSED (FIX) ================= -->
+<section class="view" id="view-proposed">
+  <div class="grid-wrap">
+    <aside class="sidebar w-310 al-sidebar">
+      <div class="al-parade">
+        <div class="al-topbar">
+          <span class="al-cta"><span class="cap">ALL WORK</span></span>
+          <button type="button" class="al-toggle" aria-label="Toggle dark mode" aria-pressed="false"><span class="al-toggle-knob"></span></button>
+        </div>
+        <div class="al-logo"><img src="assets/aldo/sidebar-logo.png" alt="Enigma"></div>
+        <div class="al-date"><span class="cap">WEDNESDAY 20 MAY</span><span class="cap">02:43:05 PM</span></div>
+      </div>
+      <nav class="al-nav">
+        <div class="al-menu-item c-pink"><span class="cap">Hello</span></div>
+        <div class="al-menu-item c-blue"><span class="cap">APPROACH</span></div>
+        <div class="al-menu-item c-red"><span class="cap">Work</span></div>
+        <div class="al-menu-item c-yellow"><span class="cap">TALENT</span></div>
+        <div class="al-menu-item c-green"><span class="cap">CAREERS</span></div>
+        <div class="al-menu-item c-dark"><span class="cap">CONTACT</span></div>
+      </nav>
+    </aside>
+    <main class="main">
+
+      <!-- Main hero -->
+      <div class="al-hero"><img src="assets/aldo/main-hero.png" alt=""></div>
+
+      <!-- Welcome -->
+      <div class="al-welcome">
+        <div class="bigbg-wrap" aria-hidden="true"><div class="bigbg"><span class="cap">Unignorability<span class="reg">&reg;</span></span><span class="cap">Unignorability<span class="reg">&reg;</span></span></div></div>
+        <h1 class="cap">Welcome<br>to the home of<br>Unignorability<span class="reg">&reg;</span></h1>
+        <p class="cap">Enigma is a creative agency and a media agency both driven by a singular focus:<br>to make our clients&rsquo; brands Unignorable.</p>
+      </div>
+
+      <!-- Hello section -->
+      <div class="al-section">
+        <div class="al-divider c-pink"><span class="cap">HELLO SECTION / 01</span></div>
+        <div class="al-title c-pink al-hello-title">
+          <h2 class="cap jp">こんにちは</h2>
+          <div class="num70 right cap" style="color:var(--dark-grey)">&#x24FF;&#x2776;</div>
+        </div>
+        <div class="al-graphic">
+          <video class="bg" src="assets/aldo/whack-shape.mp4" poster="assets/aldo/text03-bg.png" autoplay muted loop playsinline></video>
+          <div class="inner">
+            <div class="title">
+              <div class="line cap">UNIGNORABLE<br>WORK</div>
+              <div class="line by cap">BY</div>
+              <div class="line cap">UNIGNORABLE<br>PEOPLE</div>
+            </div>
+            <div class="num70 right cap">&#x24FF;&#x2776;</div>
+          </div>
+        </div>
+        <div class="al-textcomp al-tc-hello">
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          <div class="inner">
+            <div class="row">
+              <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+              <div class="rightcol vcenter">
+                <div class="bigtext">
+                  <p>Born of the hardworking city of Newcastle we&rsquo;re a diverse collective of some of the smartest and most experienced <em class="c-red-t rc-word">strategic</em>, <em class="c-pink-t rc-word">creative</em> and <em class="c-blue-t rc-word">media</em> thinkers in Australia, united by a commitment to creating and growing Unignorable brands and connecting them with customers in <em class="c-green-t rc-word">Unignorable ways</em>.</p>
+                </div>
+              </div>
+            </div>
+            <div class="num70 cap" style="color:var(--dark-grey)">&#x24FF;&#x2776;</div>
+          </div>
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Approach section -->
+      <div class="al-section">
+        <div class="al-divider c-blue"><span class="cap">APPROACH SECTION / 02</span></div>
+        <div class="al-title c-blue">
+          <h2 class="cap">Approach</h2>
+          <div class="num70 right cap">&#x24FF;&#x2777;</div>
+        </div>
+        <div class="al-cell">
+          <div class="al-constel" aria-hidden="true"></div>
+        </div>
+        <div class="al-content">
+          <div class="al-textcomp al-tc-appr1">
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+            <div class="inner">
+              <div class="row">
+                <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+                <div class="rightcol">
+                  <div class="bigtext">
+                    <p>We drive brand <span class="c-blue-t">Unignorability<span class="reg60">&reg;</span></span> through emotional connection, distinctiveness and ideas that get their audience talking.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          </div>
+          <div class="al-textcomp al-tc-appr2">
+            <div class="inner">
+              <div class="row">
+                <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+                <div class="rightcol vcenter">
+                  <div class="bigtext">
+                    <p>Our <span class="c-blue-t">Unignorability<span class="reg60">&reg;</span> </span>practice encompasses a complete range of complementary disciplines, integrated by a centralised strategy department that provides the strategic True North to how, where and to who a brand manifests itself in the world.&nbsp;</p>
+                  </div>
+                </div>
+              </div>
+              <div class="num70 cap" style="color:var(--black)">&#x24FF;&#x2777;</div>
+            </div>
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capabilities -->
+      <div class="al-capabilities"><span class="mono14 cap">CAPABILITIES TBC</span></div>
+
+      <!-- Work section -->
+      <div class="al-section">
+        <div class="al-divider c-red"><span class="cap" style="color:var(--dark-grey)">WORK SECTION / 03</span></div>
+        <div class="al-title c-red">
+          <h2 class="cap">Work</h2>
+          <div class="num70 right cap" style="color:var(--black)">&#x24FF;&#x2778;</div>
+        </div>
+        <div class="al-workgrid">
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg tall"><video class="cover" src="assets/aldo/videos/mobile-muster.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">MOBILE MUSTER</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg mid"><video class="cover" src="assets/aldo/videos/woo-up.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">WOO UP</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><video class="cover" src="assets/aldo/videos/new-holland.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">NEW HOLLAND</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg mid"><video class="cover" src="assets/aldo/videos/perm.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">HEAD &amp; HEART</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><img class="crop-sydney" src="assets/aldo/work-sydney.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">SYDNEY AIRPORT</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg tall"><img class="cover" src="assets/aldo/work-landcom.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">LANDCOM ANNANDALE</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg tall"><img class="cover" src="assets/aldo/work-hepb.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">LIVE WELL WITH HEP B</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><video class="cover" src="assets/aldo/videos/kennards.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">KEN OATH</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg mid"><img class="cover" src="assets/aldo/work-realking.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">THE REAL KING</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Talent section -->
+      <div class="al-section">
+        <div class="al-divider c-yellow"><span class="cap">TALENT SECTION / 04</span></div>
+        <div class="al-title c-yellow">
+          <h2 class="cap">Talent</h2>
+          <div class="num70 right cap" style="color:var(--black)">&#x24FF;&#x2779;</div>
+        </div>
+        <div class="al-snippet">
+          <img class="bg" src="assets/aldo/html-snippet.png" alt="">
+          <div class="headline cap">A Culture of&nbsp; Fearless Play<span class="tm">&trade;</span></div>
+        </div>
+        <div class="al-textcomp al-tc-talent">
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          <div class="inner">
+            <div class="row">
+              <div class="leftcol"><span class="mono14 cap">A Culture of Fearless Play&trade;</span></div>
+              <div class="rightcol">
+                <div class="bigtext">
+                  <p>We know that the most Unignorable work comes not from work, but from play.&nbsp; So together, we&rsquo;re creating&nbsp; a culture built on values and behaviours that give our people the freedom to express themselves fully, collaborate fearlessly and&nbsp; do the best work of their careers.&nbsp;</p>
+                </div>
+              </div>
+            </div>
+            <div class="num70 cap" style="color:var(--dark-grey)">&#x24FF;&#x2779;</div>
+          </div>
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Large image -->
+      <div class="al-large"><img src="assets/aldo/party.png" alt=""></div>
+
+    </main>
+    <div class="full-grid-overlay">
+      <div class="fg-side w-310">
+        <i class="col is-side"><span class="num">1</span></i>
+        <i class="col is-side"><span class="num">2</span></i>
+      </div>
+      <div class="fg-main" style="--mcols:10">
+        <i class="col is-main"><span class="num">3</span></i>
+        <i class="col is-main"><span class="num">4</span></i>
+        <i class="col is-main"><span class="num">5</span></i>
+        <i class="col is-main"><span class="num">6</span></i>
+        <i class="col is-main"><span class="num">7</span></i>
+        <i class="col is-main"><span class="num">8</span></i>
+        <i class="col is-main"><span class="num">9</span></i>
+        <i class="col is-main"><span class="num">10</span></i>
+        <i class="col is-main"><span class="num">11</span></i>
+        <i class="col is-main"><span class="num">12</span></i>
+      </div>
+    </div>
+    <div class="grid-legend">
+      <span class="lg-side">Sidebar = 2 col</span>
+      <span class="lg-main">Content = 10 col</span>
+      <span class="lg-total">12 columns total</span>
+    </div>
+  </div>
+</section>
+<!-- ================= ENIGMA — 14-COL GRID ================= -->
+<section class="view" id="view-14col">
+  <div class="grid-wrap">
+    <aside class="sidebar w-400 al-sidebar">
+      <div class="al-parade">
+        <div class="al-topbar">
+          <span class="al-cta"><span class="cap">ALL WORK</span></span>
+          <button type="button" class="al-toggle" aria-label="Toggle dark mode" aria-pressed="false"><span class="al-toggle-knob"></span></button>
+        </div>
+        <div class="al-logo"><img src="assets/aldo/sidebar-logo.png" alt="Enigma"></div>
+        <div class="al-date"><span class="cap">WEDNESDAY 20 MAY</span><span class="cap">02:43:05 PM</span></div>
+      </div>
+      <nav class="al-nav">
+        <div class="al-menu-item c-pink"><span class="cap">Hello</span></div>
+        <div class="al-menu-item c-blue"><span class="cap">APPROACH</span></div>
+        <div class="al-menu-item c-red"><span class="cap">Work</span></div>
+        <div class="al-menu-item c-yellow"><span class="cap">TALENT</span></div>
+        <div class="al-menu-item c-green"><span class="cap">CAREERS</span></div>
+        <div class="al-menu-item c-dark"><span class="cap">CONTACT</span></div>
+      </nav>
+    </aside>
+    <main class="main">
+
+      <!-- Main hero -->
+      <div class="al-hero"><img src="assets/aldo/main-hero.png" alt=""></div>
+
+      <!-- Welcome -->
+      <div class="al-welcome">
+        <div class="bigbg-wrap" aria-hidden="true"><div class="bigbg"><span class="cap">Unignorability<span class="reg">&reg;</span></span><span class="cap">Unignorability<span class="reg">&reg;</span></span></div></div>
+        <h1 class="cap">Welcome<br>to the home of<br>Unignorability<span class="reg">&reg;</span></h1>
+        <p class="cap">Enigma is a creative agency and a media agency both driven by a singular focus:<br>to make our clients&rsquo; brands Unignorable.</p>
+      </div>
+
+      <!-- Hello section -->
+      <div class="al-section">
+        <div class="al-divider c-pink"><span class="cap">HELLO SECTION / 01</span></div>
+        <div class="al-title c-pink al-hello-title">
+          <h2 class="cap jp">こんにちは</h2>
+          <div class="num70 right cap" style="color:var(--dark-grey)">&#x24FF;&#x2776;</div>
+        </div>
+        <div class="al-graphic">
+          <video class="bg" src="assets/aldo/whack-shape.mp4" poster="assets/aldo/text03-bg.png" autoplay muted loop playsinline></video>
+          <div class="inner">
+            <div class="title">
+              <div class="line cap">UNIGNORABLE<br>WORK</div>
+              <div class="line by cap">BY</div>
+              <div class="line cap">UNIGNORABLE<br>PEOPLE</div>
+            </div>
+            <div class="num70 right cap">&#x24FF;&#x2776;</div>
+          </div>
+        </div>
+        <div class="al-textcomp al-tc-hello">
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          <div class="inner">
+            <div class="row">
+              <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+              <div class="rightcol vcenter">
+                <div class="bigtext">
+                  <p>Born of the hardworking city of Newcastle we&rsquo;re a diverse collective of some of the smartest and most experienced <em class="c-red-t rc-word">strategic</em>, <em class="c-pink-t rc-word">creative</em> and <em class="c-blue-t rc-word">media</em> thinkers in Australia, united by a commitment to creating and growing Unignorable brands and connecting them with customers in <em class="c-green-t rc-word">Unignorable ways</em>.</p>
+                </div>
+              </div>
+            </div>
+            <div class="num70 cap" style="color:var(--dark-grey)">&#x24FF;&#x2776;</div>
+          </div>
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Approach section -->
+      <div class="al-section">
+        <div class="al-divider c-blue"><span class="cap">APPROACH SECTION / 02</span></div>
+        <div class="al-title c-blue">
+          <h2 class="cap">Approach</h2>
+          <div class="num70 right cap">&#x24FF;&#x2777;</div>
+        </div>
+        <div class="al-cell">
+          <div class="al-constel" aria-hidden="true"></div>
+        </div>
+        <div class="al-content">
+          <div class="al-textcomp al-tc-appr1">
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+            <div class="inner">
+              <div class="row">
+                <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+                <div class="rightcol">
+                  <div class="bigtext">
+                    <p>We drive brand <span class="c-blue-t">Unignorability<span class="reg60">&reg;</span></span> through emotional connection, distinctiveness and ideas that get their audience talking.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          </div>
+          <div class="al-textcomp al-tc-appr2">
+            <div class="inner">
+              <div class="row">
+                <div class="leftcol"><span class="mono14 cap">Tag headline</span></div>
+                <div class="rightcol vcenter">
+                  <div class="bigtext">
+                    <p>Our <span class="c-blue-t">Unignorability<span class="reg60">&reg;</span> </span>practice encompasses a complete range of complementary disciplines, integrated by a centralised strategy department that provides the strategic True North to how, where and to who a brand manifests itself in the world.&nbsp;</p>
+                  </div>
+                </div>
+              </div>
+              <div class="num70 cap" style="color:var(--black)">&#x24FF;&#x2777;</div>
+            </div>
+            <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capabilities -->
+      <div class="al-capabilities"><span class="mono14 cap">CAPABILITIES TBC</span></div>
+
+      <!-- Work section -->
+      <div class="al-section">
+        <div class="al-divider c-red"><span class="cap" style="color:var(--dark-grey)">WORK SECTION / 03</span></div>
+        <div class="al-title c-red">
+          <h2 class="cap">Work</h2>
+          <div class="num70 right cap" style="color:var(--black)">&#x24FF;&#x2778;</div>
+        </div>
+        <div class="al-workgrid">
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg tall"><video class="cover" src="assets/aldo/videos/mobile-muster.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">MOBILE MUSTER</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg mid"><video class="cover" src="assets/aldo/videos/woo-up.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">WOO UP</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><video class="cover" src="assets/aldo/videos/new-holland.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">NEW HOLLAND</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg mid"><video class="cover" src="assets/aldo/videos/perm.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">HEAD &amp; HEART</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><img class="crop-sydney" src="assets/aldo/work-sydney.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">SYDNEY AIRPORT</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg tall"><img class="cover" src="assets/aldo/work-landcom.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">LANDCOM ANNANDALE</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+          <div class="al-col g12">
+            <div class="al-tile">
+              <div class="timg tall"><img class="cover" src="assets/aldo/work-hepb.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">LIVE WELL WITH HEP B</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg small"><video class="cover" src="assets/aldo/videos/kennards.mp4" autoplay muted loop playsinline></video></div>
+              <div class="tcontent">
+                <span class="mono14 cap">KEN OATH</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+            <div class="al-tile">
+              <div class="timg mid"><img class="cover" src="assets/aldo/work-realking.png" alt=""></div>
+              <div class="tcontent">
+                <span class="mono14 cap">THE REAL KING</span>
+                <p class="cap">Here goes an idea write up that talks about The most important bit of it. Here goes an idea write up that talks about&nbsp;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Talent section -->
+      <div class="al-section">
+        <div class="al-divider c-yellow"><span class="cap">TALENT SECTION / 04</span></div>
+        <div class="al-title c-yellow">
+          <h2 class="cap">Talent</h2>
+          <div class="num70 right cap" style="color:var(--black)">&#x24FF;&#x2779;</div>
+        </div>
+        <div class="al-snippet">
+          <img class="bg" src="assets/aldo/html-snippet.png" alt="">
+          <div class="headline cap">A Culture of&nbsp; Fearless Play<span class="tm">&trade;</span></div>
+        </div>
+        <div class="al-textcomp al-tc-talent">
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+          <div class="inner">
+            <div class="row">
+              <div class="leftcol"><span class="mono14 cap">A Culture of Fearless Play&trade;</span></div>
+              <div class="rightcol">
+                <div class="bigtext">
+                  <p>We know that the most Unignorable work comes not from work, but from play.&nbsp; So together, we&rsquo;re creating&nbsp; a culture built on values and behaviours that give our people the freedom to express themselves fully, collaborate fearlessly and&nbsp; do the best work of their careers.&nbsp;</p>
+                </div>
+              </div>
+            </div>
+            <div class="num70 cap" style="color:var(--dark-grey)">&#x24FF;&#x2779;</div>
+          </div>
+          <div class="hl"><svg class="hl-line" height="2" aria-hidden="true"><rect width="100%" height="2" rx="1" ry="1" fill="#000"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Large image -->
+      <div class="al-large"><img src="assets/aldo/party.png" alt=""></div>
+
+    </main>
+    <div class="full-grid-overlay">
+      <div class="fg-side w-400">
+        <i class="col is-side"><span class="num">1</span></i>
+        <i class="col is-side"><span class="num">2</span></i>
+        <i class="col is-side"><span class="num">3</span></i>
+      </div>
+      <div class="fg-main" style="--mcols:11">
+        <i class="col is-main"><span class="num">4</span></i>
+        <i class="col is-main"><span class="num">5</span></i>
+        <i class="col is-main"><span class="num">6</span></i>
+        <i class="col is-main"><span class="num">7</span></i>
+        <i class="col is-main"><span class="num">8</span></i>
+        <i class="col is-main"><span class="num">9</span></i>
+        <i class="col is-main"><span class="num">10</span></i>
+        <i class="col is-main"><span class="num">11</span></i>
+        <i class="col is-main"><span class="num">12</span></i>
+        <i class="col is-main"><span class="num">13</span></i>
+        <i class="col is-main"><span class="num">14</span></i>
+      </div>
+    </div>
+    <div class="grid-legend">
+      <span class="lg-side">Sidebar = 3 col</span>
+      <span class="lg-main">Content = 11 col</span>
+      <span class="lg-total">14 columns total</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MOBILE BOTTOM NAV (populated by JS per active view) ================= -->
+<nav class="m-nav" id="m-nav" aria-label="Section navigation">
+  <div class="m-nav-track" id="m-nav-track"></div>
+</nav>
+
+<!-- Design overlay for measurement QA (Aldo only, 1920 wide, native size, never scaled) -->
+<img class="al-overlay" src="assets/aldo/overlay-homepage.svg" alt="" aria-hidden="true">
+
+<!-- ================= FLOATING CONTROLS ================= -->
+
+<label class="fab-grid" for="grid-on" title="Toggle grid overlay">
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+    <rect x="3"    y="3" width="4.5" height="18" rx="1" />
+    <rect x="9.75" y="3" width="4.5" height="18" rx="1" />
+    <rect x="16.5" y="3" width="4.5" height="18" rx="1" />
+  </svg>
+</label>
+
+<label class="fab-overlay" for="overlay-on" title="Toggle design overlay (align at 1920 wide)">
+  <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true">
+    <path d="M12 3 3 8l9 5 9-5-9-5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M3 16l9 5 9-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  </svg>
+</label>
+
+<div class="fab-tabs">
+  <div class="fab-options">
+    <label for="tab-porto">Porto Rocha<span class="sub">14-column reference</span></label>
+    <label for="tab-aldo">Enigma — Aldo<span class="sub">12 col · 3-col sidebar (470px)</span></label>
+    <label for="tab-proposed">Enigma — Proposed<span class="sub">12 col · 2-col sidebar (310px)</span></label>
+    <label for="tab-14col">Enigma — 14-col<span class="sub">14 col · 3-col sidebar (400px)</span></label>
+  </div>
+  <label class="fab-current" for="tabs-open">
+    <span class="cur cur-porto">Porto Rocha</span>
+    <span class="cur cur-aldo">Enigma — Aldo</span>
+    <span class="cur cur-proposed">Enigma — Proposed</span>
+    <span class="cur cur-14col">Enigma — 14-col</span>
+    <svg class="chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </label>
+</div>
+
+<div class="fab-size">
+  <div class="size-options" id="size-options">
+    <button data-w="2560" data-h="1440">2560 × 1440<span class="sub">27&Prime; QHD monitor</span></button>
+    <button data-w="1920" data-h="1080">1920 × 1080<span class="sub">Full HD — most common</span></button>
+    <button data-w="1728" data-h="1117">1728 × 1117<span class="sub">MacBook Pro 16&Prime;</span></button>
+    <button data-w="1512" data-h="982">1512 × 982<span class="sub">MacBook Pro 14&Prime;</span></button>
+    <button data-w="1536" data-h="864">1536 × 864<span class="sub">Windows laptop @ 125%</span></button>
+    <button data-w="1440" data-h="900">1440 × 900<span class="sub">MacBook Air 13&Prime;</span></button>
+    <button data-w="1366" data-h="768">1366 × 768<span class="sub">Budget laptop</span></button>
+    <button data-w="1280" data-h="800">1280 × 800<span class="sub">Small laptop</span></button>
+    <button data-w="430" data-h="932">430 × 932<span class="sub">iPhone Pro Max</span></button>
+    <button data-w="390" data-h="844">390 × 844<span class="sub">iPhone (mobile)</span></button>
+    <button data-w="360" data-h="800">360 × 800<span class="sub">Android (small)</span></button>
+  </div>
+  <button class="size-current" id="size-current">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <rect x="2" y="4" width="20" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M8 20.5h8M12 17v3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    Screen size
+  </button>
+</div>
+
+<div class="sim-stage" id="sim-stage" hidden>
+  <div class="sim-bar">
+    <span class="sim-label" id="sim-label"></span>
+    <button class="sim-close" id="sim-close">&times;&nbsp; Exit preview</button>
+  </div>
+  <div class="sim-frame-wrap" id="sim-frame-wrap">
+    <iframe id="sim-frame" title="Viewport preview"></iframe>
+  </div>
+</div>
+
+<script src="js/gsap.min.js"></script>
+<script src="js/ScrollTrigger.min.js"></script>
+<script src="js/ScrollToPlugin.min.js"></script>
+<script src="js/constel-data.js"></script>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+
+  /* Muted autoplay videos inside a hidden (display:none) tab never start —
+     kick them whenever a tab is shown. */
+  function kickVideos() {
+    document.querySelectorAll("video[autoplay]").forEach(function (v) {
+      if (v.paused) v.play().catch(function () {});
+    });
+  }
+  document.querySelectorAll('input[name="tabs"]').forEach(function (r) {
+    r.addEventListener("change", kickVideos);
+  });
+  window.addEventListener("load", kickVideos);
+
+  /* ---- Set active tab / grid from embed params (simulator drives these) ---- */
+  if (params.has("embed")) {
+    document.body.classList.add("embed");
+    var tab = params.get("tab");
+    if (tab) {
+      var radio = document.getElementById("tab-" + tab);
+      if (radio) radio.checked = true;
+    }
+    if (params.get("grid") === "0") {
+      document.getElementById("grid-on").checked = false;
+    }
+    if (params.get("overlay") === "1") {
+      document.getElementById("overlay-on").checked = true;
+    }
+  }
+
+  /* ---- Mobile bottom nav: a horizontal-scroll minimap of the active view.
+     Each pill's width is proportional to its section's height, and the nav
+     scrolls horizontally to map the page's vertical scroll position. ---- */
+  (function mobileNav() {
+    var mq = window.matchMedia("(max-width: 600px)");
+    var nav = document.getElementById("m-nav");
+    var track = document.getElementById("m-nav-track");
+    var PILLS = [
+      { label: "00", home: true },
+      { label: "Hello",    bg: "#ff9eed", fg: "#ff0008" },
+      { label: "Approach", bg: "#0029a4", fg: "#ffffff" },
+      { label: "Work",     bg: "#ff0008", fg: "#000000" },
+      { label: "Talent",   bg: "#ffff83", fg: "#000000" },
+      { label: "Contact",  bg: "#2b2b2b", fg: "#ffffff" }
+    ];
+    var marks = [];
+
+    function activeView() {
+      var views = document.querySelectorAll(".view");
+      for (var i = 0; i < views.length; i++) {
+        if (getComputedStyle(views[i]).display !== "none") return views[i];
+      }
+      return null;
+    }
+
+    function build() {
+      var view = activeView();
+      var secs = view ? view.querySelectorAll(".al-section") : [];
+      if (!mq.matches || !view || secs.length < 4) { nav.style.display = "none"; return; }
+      nav.style.display = "block";
+      var contact = view.querySelector(".al-large");
+      var targets = [null, secs[0], secs[1], secs[2], secs[3], contact];
+      var heights = targets.map(function (t) { return t ? t.offsetHeight : 0; });
+      var total = 0; heights.forEach(function (h, i) { if (i > 0) total += h; });
+      var trackTotal = Math.max(2.6 * window.innerWidth, 1000); // proportional spread
+      track.innerHTML = "";
+      marks = [];
+      PILLS.forEach(function (p, i) {
+        var b = document.createElement("button");
+        b.className = "m-pill" + (p.home ? " m-home" : "");
+        b.textContent = p.label;
+        if (!p.home) {
+          b.style.background = p.bg;
+          b.style.color = p.fg;
+          b.style.width = Math.max(120, Math.round(heights[i] / total * trackTotal)) + "px";
+        }
+        var tgt = targets[i];
+        b.addEventListener("click", function () {
+          var y = tgt ? (tgt.getBoundingClientRect().top + window.scrollY - 8) : 0;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        });
+        track.appendChild(b);
+        marks.push({ el: tgt, btn: b });
+      });
+      onScroll();
+    }
+
+    function onScroll() {
+      if (!mq.matches || nav.style.display === "none") return;
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var prog = max > 0 ? window.scrollY / max : 0;
+      track.scrollLeft = prog * (track.scrollWidth - track.clientWidth);
+      var atBottom = (max - window.scrollY) < 4;
+      var probe = window.scrollY + window.innerHeight * 0.5;
+      var active = 0;
+      marks.forEach(function (m, i) {
+        if (m.el && (m.el.getBoundingClientRect().top + window.scrollY) <= probe) active = i;
+      });
+      if (atBottom) active = marks.length - 1;   // pin Contact at the very bottom
+      marks.forEach(function (m, i) { m.btn.classList.toggle("is-active", i === active); });
+    }
+
+    var raf = false;
+    window.addEventListener("scroll", function () {
+      if (raf) return; raf = true;
+      requestAnimationFrame(function () { raf = false; onScroll(); });
+    }, { passive: true });
+    window.addEventListener("resize", build);
+    document.querySelectorAll('input[name="tabs"]').forEach(function (r) { r.addEventListener("change", build); });
+    if (mq.addEventListener) mq.addEventListener("change", build);
+    window.addEventListener("load", function () { build(); setTimeout(build, 800); });
+    build();
+  })();
+
+  /* ---- Desktop sidebar interaction (GSAP): scrollspy expand/collapse + anchor links.
+     As you scroll into a labelled section, its sidebar link expands (flex-grow 0->1)
+     and the previously-open one collapses. Clicking a link smooth-scrolls to its
+     section and expands it. Enigma views only; desktop only. ---- */
+  (function sidebarNav() {
+    if (!window.gsap) return;
+    if (window.ScrollToPlugin) gsap.registerPlugin(ScrollToPlugin);
+
+    var desktop = window.matchMedia("(min-width: 601px)");
+    var EASE = "expo.inOut", DUR = 0.72;
+    var links = [], map = [], current = -1, clickScrolling = false, rafPending = false, scrollBound = false;
+    var readyToShowDot = false, dotShown = false;
+
+    function activeEnigmaView() {
+      var ids = ["view-aldo", "view-proposed", "view-14col"];
+      for (var i = 0; i < ids.length; i++) {
+        var v = document.getElementById(ids[i]);
+        if (v && getComputedStyle(v).display !== "none") return v;
+      }
+      return null;
+    }
+
+    function setActive(i, animate) {
+      if (i === current) return;
+      // fade out the outgoing tile's dot
+      if (current >= 0 && links[current] && links[current]._dot) {
+        gsap.to(links[current]._dot, { autoAlpha: 0, duration: 0.2, overwrite: "auto" });
+      }
+      current = i;
+      readyToShowDot = false;   // dot is armed once the tile has expanded (below)
+      dotShown = false;
+      links.forEach(function (link, idx) {
+        var open = idx === i;
+        link.classList.toggle("is-open", open);
+        if (animate === false) {
+          gsap.set(link, { flexGrow: open ? 1 : 0 });
+          if (link._dot) gsap.set(link._dot, { autoAlpha: 0 });
+          if (open) readyToShowDot = true;               // load default: tile already expanded
+        } else if (open) {
+          gsap.to(link, {
+            flexGrow: 1, duration: DUR, ease: EASE, overwrite: "auto",
+            onComplete: function () { readyToShowDot = true; updateDot(); }  // arm dot after expand
+          });
+        } else {
+          gsap.to(link, { flexGrow: 0, duration: DUR, ease: EASE, overwrite: "auto" });
+        }
+      });
+      updateDot();
+    }
+
+    function firstIdx() { for (var k = 0; k < map.length; k++) { if (map[k]) return k; } return 0; }
+    function absTop(el) { return el.getBoundingClientRect().top + window.pageYOffset; }
+
+    // The scroll dot maps progress across the tile's ACTIVE window — from this
+    // section's top down to the NEXT labelled section's top (the exact points at
+    // which this tile opens and hands off) — so it hits top on entry and bottom
+    // right before the next section takes over, in both directions.
+    function nextActiveTop(i) {
+      for (var k = i + 1; k < map.length; k++) { if (map[k]) return absTop(map[k]); }
+      return (document.documentElement.scrollHeight - window.innerHeight) + window.innerHeight * 0.42; // last: page end
+    }
+    function updateDot() {
+      if (current < 0) return;
+      var link = links[current], sec = map[current], dot = link && link._dot;
+      if (!link || !sec || !dot) return;
+      // Progress referenced to the VIEWPORT TOP: p = 0 when the section's top is
+      // at the top of the viewport, p = 1 at the handoff (next section reaches the
+      // 42% probe that deactivates this one).
+      var thisTop = absTop(sec);
+      var span = Math.max(1, (nextActiveTop(current) - thisTop) - window.innerHeight * 0.42);
+      var p = (window.pageYOffset - thisTop) / span;
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      dot.style.top = (16 + p * (link.offsetHeight - 40)) + "px"; // 16px pad top -> 16px pad bottom
+      // Show the dot only once the tile has expanded AND the scroll has reached the
+      // section (its top past the 42% probe). So Hello (expanded on load) keeps its
+      // dot hidden until you scroll to it, and scroll-opened tiles wait for the expand.
+      var reached = (window.pageYOffset + window.innerHeight * 0.42) >= thisTop;
+      var show = readyToShowDot && reached;
+      if (show && !dotShown) { dotShown = true; gsap.to(dot, { autoAlpha: 1, duration: 0.35, ease: "power2.out", overwrite: "auto" }); }
+      else if (!show && dotShown) { dotShown = false; gsap.to(dot, { autoAlpha: 0, duration: 0.2, ease: "power2.out", overwrite: "auto" }); }
+    }
+
+    function onScroll() {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(function () {
+        rafPending = false;
+        if (!desktop.matches || !links.length) return;
+        if (!clickScrolling) {
+          // active = the last labelled section whose top has passed the probe (42% down);
+          // defaults to the first section (Hello) at the top of the page.
+          var probe = window.pageYOffset + window.innerHeight * 0.42;
+          var idx = firstIdx();
+          for (var k = 0; k < map.length; k++) { if (map[k] && absTop(map[k]) <= probe) idx = k; }
+          setActive(idx, true);
+        }
+        updateDot();   // track the section even during click-scroll
+      });
+    }
+
+    function init() {
+      links.forEach(function (l) { if (l._nav) l.removeEventListener("click", l._nav); });
+      links = []; map = []; current = -1;
+      if (!desktop.matches) return;
+      var view = activeEnigmaView(); if (!view) return;
+      var nav = view.querySelector(".al-nav"); if (!nav) return;
+      links = [].slice.call(nav.querySelectorAll(".al-menu-item"));
+      var secs = [].slice.call(view.querySelectorAll(".al-section")); // Hello, Approach, Work, Talent
+      var large = view.querySelector(".al-large");
+      // sidebar order: Hello, Approach, Work, Talent, Careers(no section), Contact
+      map = [secs[0], secs[1], secs[2], secs[3], null, large];
+
+      // ensure each link has its scroll dot
+      links.forEach(function (link) {
+        var dot = link.querySelector(".al-scroll-dot");
+        if (!dot) { dot = document.createElement("span"); dot.className = "al-scroll-dot"; link.appendChild(dot); }
+        link._dot = dot;
+      });
+
+      gsap.set(links, { flexGrow: 0 });
+      links.forEach(function (link, idx) {
+        var target = map[idx];
+        if (!target) return;                       // Careers has no section to anchor
+        var onClick = function () {
+          setActive(idx, true);
+          clickScrolling = true;
+          gsap.to(window, {
+            duration: 0.9, ease: "power3.inOut",
+            scrollTo: { y: target, offsetY: 8 },
+            onComplete: function () { clickScrolling = false; }
+          });
+        };
+        link._nav = onClick;
+        link.addEventListener("click", onClick);
+      });
+
+      setActive(firstIdx(), false);                 // Hello expanded at load (dot stays hidden until scrolled to)
+      updateDot();
+      if (!scrollBound) { window.addEventListener("scroll", onScroll, { passive: true }); scrollBound = true; }
+      onScroll();
+    }
+
+    document.querySelectorAll('input[name="tabs"]').forEach(function (r) {
+      r.addEventListener("change", function () { setTimeout(init, 60); });
+    });
+    if (desktop.addEventListener) desktop.addEventListener("change", init);
+    window.addEventListener("load", function () { setTimeout(init, 120); });
+    init();
+  })();
+
+  /* ---- "Born of" accent words: click any one -> ALL of them randomise together ---- */
+  (function randomiseWords() {
+    // brand colours that read on the cream ground (yellow/white excluded for contrast)
+    var palette = ["#ff0008", "#ff9eed", "#0029a4", "#00e592", "#2b2b2b"];
+    function shuffle(a) {
+      a = a.slice();
+      for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+      return a;
+    }
+    document.querySelectorAll(".rc-word").forEach(function (el) {
+      el.addEventListener("click", function () {
+        var scope = el.closest(".al-textcomp") || document;
+        var words = scope.querySelectorAll(".rc-word");
+        var cols = shuffle(palette);                       // distinct colours per click
+        var dark = document.body.classList.contains("dark");
+        words.forEach(function (w, i) {
+          var c = cols[i % cols.length];
+          if (dark && c === "#2b2b2b") c = "#f9f6e6";      // grey is invisible on the black tile -> cream
+          w.style.color = c;
+        });
+      });
+    });
+  })();
+
+  /* ---- Hello title: cycle "hello" through languages (Apple-OS style fade) ---- */
+  (function cycleGreetings() {
+    if (!window.gsap) return;
+    var greetings = ["こんにちは", "Hello", "Hola", "Kia ora", "Ciao", "Bonjour",
+      "Xin chào", "你好", "Hallo", "Hei", "Grüezi", "olá", "Namaste",
+      "안녕하세요", "Merhaba", "Ahoj", "Salam", "Hej"];
+    // Aldo + Proposed use the fade cycle; 14-col uses the typewriter (below).
+    document.querySelectorAll("#view-aldo .al-hello-title h2, #view-proposed .al-hello-title h2").forEach(function (el) {
+      var i = 0;
+      el.textContent = greetings[0];
+      gsap.set(el, { autoAlpha: 1 });
+      gsap.timeline({ repeat: -1 })
+        .to({}, { duration: 1.7 })                                  // hold current greeting
+        .to(el, { autoAlpha: 0, duration: 0.45, ease: "power2.in",
+          onComplete: function () { i = (i + 1) % greetings.length; el.textContent = greetings[i]; } })
+        .to(el, { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
+    });
+  })();
+
+  /* ---- 14-col Hello title: typewriter with blinking cursor, triggered when the
+     section scrolls into view. Types "Hello" first, then cycles the greetings. ---- */
+  (function typeGreetings() {
+    var h2 = document.querySelector("#view-14col .al-hello-title h2");
+    if (!h2) return;
+    // NB: no "Hei" here — a trailing cursor makes it read "Heil". Fine in the fade version.
+    var greetings = ["Hello", "Hola", "こんにちは", "Kia ora", "Ciao", "Bonjour",
+      "Xin chào", "你好", "Hallo", "Aloha", "Grüezi", "olá", "Namaste"];
+    h2.textContent = "";
+    var textEl = document.createElement("span");
+    var cursorEl = document.createElement("span");
+    cursorEl.className = "type-cursor";
+    cursorEl.setAttribute("aria-hidden", "true");
+    h2.appendChild(textEl);
+    h2.appendChild(cursorEl);
+
+    var TYPE = 95, DEL = 45, HOLD = 1500, GAP = 380;
+    var i = 0, started = false;
+
+    function typeWord(w, done) {
+      var n = 0;
+      (function step() {
+        textEl.textContent = w.slice(0, ++n);
+        setTimeout(n < w.length ? step : function () { setTimeout(done, HOLD); }, TYPE);
+      })();
+    }
+    function delWord(done) {
+      (function step() {
+        textEl.textContent = textEl.textContent.slice(0, -1);
+        if (textEl.textContent.length) setTimeout(step, DEL);
+        else setTimeout(done, GAP);
+      })();
+    }
+    function loop() {
+      typeWord(greetings[i], function () {
+        delWord(function () { i = (i + 1) % greetings.length; loop(); });
+      });
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting && !started) { started = true; io.disconnect(); loop(); }
+    }, { threshold: 0.35 });
+    io.observe(h2.closest(".al-hello-title") || h2);
+  })();
+
+  /* ---- Big background word: slow seamless looping pan (all Enigma welcome panels) ---- */
+  (function bigWordPan() {
+    if (!window.gsap) return;
+    var tracks = document.querySelectorAll(".al-welcome .bigbg");
+    if (!tracks.length) return;
+    // Pixel-based marquee (not xPercent): x anchors the first copy's left edge, so when the
+    // random font swap below changes the word width the visible copy does NOT jump. Two identical
+    // copies + wrapping x by the current copy width keeps the loop seamless at any width.
+    tracks.forEach(function (track) {
+      var x = 0;
+      gsap.ticker.add(function (time, dt) {
+        if (track.offsetParent === null) return;   // skip hidden tabs
+        var w = track.scrollWidth / 2 || 1;        // width of one of the two copies
+        x -= (w / 72) * (dt / 1000);               // one copy width per 72s, leftward
+        if (x <= -w) x += w;                       // seamless wrap
+        gsap.set(track, { x: x });
+      });
+    });
+  })();
+
+  /* ---- "Unignorability" randomly flips a FEW characters' font (not the whole word). Applies to
+          BOTH the headline word (front) AND the two background scroll copies (back), all in sync
+          per welcome panel -- like the art director's mockup (e.g. "ab" -> italic). ---- */
+  (function bigWordFonts() {
+    var panels = document.querySelectorAll(".al-welcome");
+    if (!panels.length) return;
+    var FONTS = [ // alternates only — non-selected chars stay the base Enigma Large
+      ['"ABC Favorit Mono", monospace', "normal"],
+      ['"ABC Gaisyr", serif', "italic"],
+      ['"ABC Gaisyr", serif', "normal"],
+      ['"Enigma Large Extended", serif', "normal"],
+      ['"Helvetica Neue", sans-serif', "normal"]
+    ];
+    // Split the "Unignorability" text node that sits right before a .reg (®) into .ch char spans.
+    function splitWord(reg) {
+      var parent = reg.parentNode;
+      var textNode = reg.previousSibling;
+      if (!textNode || textNode.nodeType !== 3) return [];
+      var text = textNode.textContent;
+      parent.removeChild(textNode);
+      var chars = [];
+      text.split("").forEach(function (chr) {
+        var s = document.createElement("span");
+        s.className = "ch";
+        s.textContent = chr;
+        parent.insertBefore(s, reg);
+        chars.push(s);
+      });
+      return chars;
+    }
+    panels.forEach(function (panel) {
+      var regs = [];
+      var h1reg = panel.querySelector("h1 .reg");              // the headline word (front)
+      if (h1reg) regs.push(h1reg);
+      panel.querySelectorAll(".bigbg span.cap > .reg, .bigbg span.cap .reg").forEach(function (r) { regs.push(r); }); // the 2 background copies (back)
+      var charCols = regs.map(splitWord).filter(function (a) { return a.length; });
+      if (!charCols.length) return;
+      var n = charCols.reduce(function (m, a) { return Math.min(m, a.length); }, Infinity);
+      (function tick() {
+        charCols.forEach(function (chars) { chars.forEach(function (c) { c.style.fontFamily = ""; c.style.fontStyle = ""; }); });
+        var count = 2 + Math.floor(Math.random() * 3); // 2-4 characters at a time
+        for (var k = 0; k < count; k++) {
+          var idx = Math.floor(Math.random() * n);
+          var f = FONTS[Math.floor(Math.random() * FONTS.length)];
+          charCols.forEach(function (chars) { // same index+font across headline + both bg copies -> synced
+            chars[idx].style.fontFamily = f[0];
+            chars[idx].style.fontStyle = f[1];
+          });
+        }
+        setTimeout(tick, 1000 + Math.random() * 1300); // slower, calmer cadence
+      })();
+    });
+  })();
+
+  (function kineticLetters() {
+    if (!window.gsap || !window.CONSTEL) return;
+    var hosts = document.querySelectorAll(".al-constel");
+    if (!hosts.length) return;
+
+    // Exact Figma vectors (frame 1494 x 799.4): 15 glyph paths + 14 line segments,
+    // each line's endpoints attached to the nearest glyph (data pre-computed).
+    var FW = 1494, FH = 799.4, SOFT = 110, HITPAD = 16, NS = "http://www.w3.org/2000/svg";
+    var PATHS = window.CONSTEL.paths, LINES = window.CONSTEL.lines;
+    // Exact Figma glyph bounding boxes [x,y,w,h] (get_metadata) -> padded invisible grab handles.
+    var BBOX = [
+      [42.704, 46.2, 135.3, 117.096], [217.592, 236.176, 122.016, 92.824], [413.592, 44.08, 51.66, 127.92],
+      [468.28, 318.368, 105.944, 139.564], [163.592, 590.176, 122.016, 92.824], [561.608, 581.176, 97.58, 95.284],
+      [697.592, 253.816, 78.556, 91.184], [869.248, 87.176, 103.539, 95.448], [844.92, 320, 103.484, 125.624],
+      [772.592, 594.08, 51.66, 127.92], [1018.788, 515, 51.66, 123], [1101.592, 168.08, 51.66, 127.92],
+      [1274.148, 308.728, 71.679, 108.896], [1288.572, 531.8, 115.128, 125.627], [1407.641, 724.788, 46.002, 46.002]
+    ];
+    var constels = [];
+
+    function curScale(host) {
+      var r = host.getBoundingClientRect();
+      return Math.min(r.width / FW, r.height / FH) || 1; // "meet" scale, px per frame-unit
+    }
+
+    hosts.forEach(function (host) {
+      var svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("viewBox", "0 0 " + FW + " " + FH);
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.setAttribute("class", "al-constel-svg");
+      host.appendChild(svg);
+
+      // Lines first so glyphs paint on top.
+      var lines = LINES.map(function (L) {
+        var ln = document.createElementNS(NS, "line");
+        ln.setAttribute("class", "al-bond");
+        svg.appendChild(ln);
+        return { def: L, el: ln };
+      });
+
+      // Glyphs: each is a <g> carrying its exact path, translated for drift + drag.
+      var glyphs = PATHS.map(function (d, idx) {
+        var g = document.createElementNS(NS, "g");
+        g.setAttribute("class", "al-glyph");
+        // Invisible padded rect = a generous grab handle (thin glyph outlines are hard to hit).
+        var bb = BBOX[idx];
+        var hit = document.createElementNS(NS, "rect");
+        hit.setAttribute("class", "al-hit");
+        hit.setAttribute("x", bb[0] - HITPAD); hit.setAttribute("y", bb[1] - HITPAD);
+        hit.setAttribute("width", bb[2] + HITPAD * 2); hit.setAttribute("height", bb[3] + HITPAD * 2);
+        hit.setAttribute("rx", 8);
+        g.appendChild(hit);
+        var p = document.createElementNS(NS, "path");
+        p.setAttribute("d", d);
+        g.appendChild(p);
+        svg.appendChild(g);
+        var st = { el: g, tx: 0, ty: 0, drift: { dx: 0, dy: 0 }, dragX: 0, dragY: 0, dragging: false };
+        // Floating-in-space: each axis runs an independent, continuous random walk toward fresh
+        // random targets (~+/-26 frame units => ~50px of wander), so the letter constantly
+        // changes direction and never snaps. Stays bounded around its exact Figma home.
+        var wander = function (axis) {
+          var vars = { duration: gsap.utils.random(2.4, 4.4), ease: "sine.inOut", onComplete: function () { wander(axis); } };
+          vars[axis] = gsap.utils.random(-26, 26);
+          gsap.to(st.drift, vars);
+        };
+        wander("dx"); wander("dy");
+        // Drag: bounded to MAXR px, elastic snap-back on release.
+        g.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          st.dragging = true;
+          st.px = e.clientX; st.py = e.clientY;
+          st.dragX0 = st.dragX; st.dragY0 = st.dragY;
+          st.scaleAt = curScale(host);
+          gsap.killTweensOf(st);
+          g.classList.add("is-grabbing");
+          try { g.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+        g.addEventListener("pointermove", function (e) {
+          if (!st.dragging) return;
+          var s = st.scaleAt || 1;
+          var nx = st.dragX0 + (e.clientX - st.px) / s; // px delta -> frame units
+          var ny = st.dragY0 + (e.clientY - st.py) / s;
+          // Rubber-band: ~1:1 near home, resistance grows smoothly. A soft tanh knee at SOFT px
+          // PLUS a small residual (raw*0.12) so it never fully flatlines -> no wall/border feel;
+          // the further you pull, the stronger it resists but it always keeps giving a little.
+          var raw = Math.hypot(nx, ny);
+          if (raw > 0.0001) {
+            var lim = SOFT / s;
+            var out = lim * Math.tanh(raw / lim) + raw * 0.12;
+            var k = out / raw;
+            nx *= k; ny *= k;
+          }
+          st.dragX = nx; st.dragY = ny;
+        });
+        var release = function () {
+          if (!st.dragging) return;
+          st.dragging = false;
+          g.classList.remove("is-grabbing");
+          gsap.to(st, { dragX: 0, dragY: 0, duration: 1.15, ease: "elastic.out(1, 0.4)" });
+        };
+        g.addEventListener("pointerup", release);
+        g.addEventListener("pointercancel", release);
+        return st;
+      });
+
+      constels.push({ el: host, glyphs: glyphs, lines: lines });
+    });
+
+    function render() {
+      for (var c = 0; c < constels.length; c++) {
+        var con = constels[c];
+        if (con.el.offsetParent === null) continue; // skip hidden tabs
+        var G = con.glyphs, i;
+        for (i = 0; i < G.length; i++) {
+          var st = G[i];
+          st.tx = st.drift.dx + st.dragX;
+          st.ty = st.drift.dy + st.dragY;
+          st.el.setAttribute("transform", "translate(" + st.tx + " " + st.ty + ")");
+        }
+        for (i = 0; i < con.lines.length; i++) {
+          var L = con.lines[i], d = L.def, A = G[d.e1], B = G[d.e2];
+          // Endpoints ride their attached glyph -> exact gaps at rest, flex when letters move.
+          L.el.setAttribute("x1", d.x1 + A.tx);
+          L.el.setAttribute("y1", d.y1 + A.ty);
+          L.el.setAttribute("x2", d.x2 + B.tx);
+          L.el.setAttribute("y2", d.y2 + B.ty);
+        }
+      }
+    }
+    gsap.ticker.add(render);
+    render();
+  })();
+
+  (function darkToggle() {
+    var toggles = document.querySelectorAll(".al-toggle");
+    if (!toggles.length) return;
+    function apply(on) {
+      document.body.classList.toggle("dark", on);
+      toggles.forEach(function (t) { t.setAttribute("aria-pressed", on ? "true" : "false"); });
+    }
+    toggles.forEach(function (t) {
+      t.addEventListener("click", function () {
+        apply(!document.body.classList.contains("dark"));
+      });
+    });
+  })();
+
+  if (params.has("embed")) return; // the simulator itself doesn't run inside the iframe
+
+  /* ---- Simulator (top window only) ---- */
+  var stage = document.getElementById("sim-stage");
+  var frame = document.getElementById("sim-frame");
+  var wrap = document.getElementById("sim-frame-wrap");
+  var label = document.getElementById("sim-label");
+  var options = document.getElementById("size-options");
+  var current = document.getElementById("size-current");
+  var simW = 0, simH = 0;
+
+  function currentTab() {
+    if (document.getElementById("tab-aldo").checked) return "aldo";
+    if (document.getElementById("tab-proposed").checked) return "proposed";
+    if (document.getElementById("tab-14col").checked) return "14col";
+    return "porto";
+  }
+
+  function fit() {
+    if (!simW) return;
+    var availW = wrap.clientWidth - 32;
+    var availH = wrap.clientHeight - 32;
+    var scale = Math.min(availW / simW, availH / simH, 1);
+    frame.style.width = simW + "px";
+    frame.style.height = simH + "px";
+    frame.style.transform = "scale(" + scale + ")";
+    label.textContent = simW + " × " + simH + "  ·  shown at " + Math.round(scale * 100) + "%";
+  }
+
+  current.addEventListener("click", function () {
+    options.classList.toggle("open");
+  });
+
+  options.addEventListener("click", function (e) {
+    var btn = e.target.closest("button");
+    if (!btn) return;
+    simW = +btn.dataset.w;
+    simH = +btn.dataset.h;
+    var grid = document.getElementById("grid-on").checked ? "1" : "0";
+    var overlay = document.getElementById("overlay-on").checked ? "1" : "0";
+    frame.src = "index.html?embed=1&tab=" + currentTab() + "&grid=" + grid + "&overlay=" + overlay;
+    stage.hidden = false;
+    options.classList.remove("open");
+    requestAnimationFrame(fit);
+  });
+
+  document.getElementById("sim-close").addEventListener("click", function () {
+    stage.hidden = true;
+    frame.src = "about:blank";
+    simW = 0;
+  });
+
+  window.addEventListener("resize", fit);
+})();
+</script>
+
+</body>
+</html>

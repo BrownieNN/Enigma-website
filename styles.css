@@ -1,0 +1,1744 @@
+/* ============================================================
+   Grid Proof — Porto Rocha vs Enigma
+   Static comparison. No frameworks, no JS — tabs and toggles
+   are CSS-only via hidden radio/checkbox inputs.
+   ============================================================ */
+
+@font-face {
+  font-family: "Enigma Large";
+  src: url("fonts/Enigma-EnigmaLargeRoman.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Enigma Large";
+  src: url("fonts/Enigma-EnigmaLargeItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Enigma Large Extended";
+  src: url("fonts/Enigma-EnigmaLargeExtended.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "ABC Gaisyr";
+  src: url("fonts/ABCGaisyr-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "ABC Gaisyr";
+  src: url("fonts/ABCGaisyr-LightItalic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "ABC Favorit Mono";
+  src: url("fonts/ABCFavoritMono-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+:root {
+  --cream: #f9f6e6;
+  --black: #000000;
+  --white: #ffffff;
+  --red: #ff0008;
+  --pink: #ff9eed;
+  --blue: #0029a4;
+  --yellow: #ffff83;
+  --green: #00e592;
+  --dark-grey: #2b2b2b;
+  --light-grey: #646464;
+
+  --gap: 8px;
+  --radius: 12px;
+
+  /* Display type scales proportionally with the viewport, capped at the
+     exact Figma sizes at the 1920px design width. Body/CTA/label sizes
+     (24/14px) stay fixed. 164/1920 = 8.5417vw, 60/1920 = 3.125vw,
+     70/1920 = 3.6458vw. */
+  --h1-size: min(8.5417vw, 164px);
+  --t60: min(3.125vw, 60px);
+  --t70: min(3.6458vw, 70px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--cream);
+  color: var(--black);
+  font-family: "ABC Favorit Mono", monospace;
+  /* Match Figma's grayscale smoothing -- the browser default (subpixel) renders text heavier. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+/* ---------------- Hidden control inputs ---------------- */
+
+.ctl {
+  position: fixed;   /* pinned in the viewport so label-focus doesn't scroll the page to the top */
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------------- View visibility ---------------- */
+
+.view { display: none; }
+#tab-porto:checked ~ #view-porto,
+#tab-aldo:checked ~ #view-aldo,
+#tab-proposed:checked ~ #view-proposed,
+#tab-14col:checked ~ #view-14col {
+  display: block;
+}
+
+/* ---------------- Layout shell ---------------- */
+
+.grid-wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  padding: var(--gap);
+}
+
+.sidebar {
+  flex-shrink: 0;
+  position: sticky;
+  top: var(--gap);
+  height: calc(100vh - 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar.w-400 { width: 400px; }
+.sidebar.w-470 { width: 470px; }
+.sidebar.w-310 { width: 310px; }
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* Responsive display type — the Enigma views size all display type in
+   container-query units relative to the MAIN column (not the viewport),
+   because the sidebar is a fixed width. This keeps the text-to-column
+   ratio identical at every screen size, so headline stacks/wrapping never
+   change — the type just scales. At the 1920 reference (main = 1426px) each
+   value resolves to the exact Figma px. Body/labels/CTA stay fixed. */
+#view-aldo .main,
+#view-proposed .main,
+#view-14col .main {
+  container-type: inline-size;
+  container-name: maincol;
+}
+
+/* Each concept normalises its cqw coefficients to ITS OWN reference main
+   width (Aldo main = 1426, Proposed main = 1586), so both resolve to the
+   exact Figma px at the 1920 canvas and scale proportionally from there —
+   Aldo's H1 = 164px @1426, Proposed's H1 = 164px @1586. */
+/* --u = one Figma px expressed in container units, normalised per view to
+   its own reference main width. Any measurement that should zoom with the
+   column is written calc(<figma-px> * var(--u)) — exact Figma px at 1920. */
+#view-aldo .main     { --u: 0.070126cqw; } /* 100 / 1426 */
+#view-proposed .main { --u: 0.063052cqw; } /* 100 / 1586 */
+#view-14col .main    { --u: 0.066845cqw; } /* 100 / 1496 */
+
+#view-aldo .main,
+#view-proposed .main,
+#view-14col .main {
+  --h1-size: calc(164 * var(--u));
+  --t60: calc(60 * var(--u));
+  --t70: max(14px, calc(70 * var(--u)));       /* numeral: never below 14px */
+  --bigbg-size: calc(1115.96 * var(--u));
+  --leftcol-w: clamp(310px, calc(441 * var(--u)), 441px); /* floor 2 cols */
+  --snip-w: calc(1318 * var(--u));
+}
+
+/* ---------------- Grid-line overlay (toggleable, spans sidebar + main) ----------------
+   Built with the SAME layout mechanics as the page itself:
+   a fixed-width block subdivided into the sidebar's columns, an 8px gutter,
+   and a flexed block subdivided into the main columns. This guarantees the
+   sidebar edge and every gutter land exactly on grid lines at ANY viewport
+   width — matching how the Figma frames are constructed (fixed sidebar +
+   fluid main), rather than only aligning at exactly 1920px. */
+
+.full-grid-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: var(--gap);
+  padding: var(--gap);
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+#grid-on:checked ~ .view .full-grid-overlay { opacity: 1; }
+
+.fg-side {
+  flex-shrink: 0;
+  display: grid;
+  gap: var(--gap);
+}
+
+/* Sidebar column regions — widths identical to each view's .sidebar */
+.fg-side.w-400 { width: 400px; grid-template-columns: repeat(3, 1fr); } /* unit: (400−16)/3 = 128px */
+.fg-side.w-470 { width: 470px; grid-template-columns: repeat(3, 1fr); } /* unit: (470−16)/3 = 151.33px */
+.fg-side.w-310 { width: 310px; grid-template-columns: repeat(2, 1fr); } /* unit: (310−8)/2 = 151px */
+
+.fg-main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--mcols), 1fr);
+  gap: var(--gap);
+}
+
+.full-grid-overlay .col {
+  background: rgba(255, 42, 0, 0.10);
+  border-left: 2px solid rgba(255, 20, 0, 0.85);
+  border-right: 2px solid rgba(255, 20, 0, 0.85);
+}
+
+.full-grid-overlay .col.is-side {
+  background: rgba(0, 90, 255, 0.16);
+  border-color: rgba(0, 60, 255, 0.9);
+}
+
+.full-grid-overlay .col.is-main {
+  background: rgba(255, 140, 0, 0.12);
+  border-color: rgba(255, 120, 0, 0.85);
+}
+
+.full-grid-overlay .col .num {
+  position: sticky;
+  top: 10px;
+  display: block;
+  width: 22px;
+  height: 22px;
+  margin: 6px auto 0;
+  border-radius: 50%;
+  background: var(--black);
+  color: var(--white);
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 11px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.full-grid-overlay .col.is-side .num { background: #0038ff; }
+.full-grid-overlay .col.is-main .num { background: #ff5c00; }
+
+/* ---------------- Grid legend (floating, bottom-left next to the grid button) ---------------- */
+
+.grid-legend {
+  position: fixed;
+  bottom: 24px;
+  left: 76px;
+  z-index: 200;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+#grid-on:checked ~ .view .grid-legend { opacity: 1; }
+
+.grid-legend span {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-radius: 100px;
+  color: var(--white);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.grid-legend .lg-side { background: #0038ff; }
+.grid-legend .lg-main { background: #ff5c00; }
+.grid-legend .lg-total { background: var(--black); }
+
+/* ---------------- Floating grid toggle (bottom-left) ---------------- */
+
+/* Design-overlay QA layer: the Figma homepage SVG at NATIVE 1920x15121 (never scaled/warped),
+   pinned to the page top-left so it aligns with the Aldo layout at a 1920-wide viewport. */
+.al-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 15121px;
+  max-width: none;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 205;
+}
+#tab-aldo:checked ~ #overlay-on:checked ~ .al-overlay { display: block; }
+
+.fab-overlay {
+  display: none;               /* only shown on the Aldo tab */
+  position: fixed;
+  bottom: 76px;
+  left: 16px;
+  z-index: 210;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--dark-grey);
+  color: var(--cream);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: background 0.15s ease;
+}
+#tab-aldo:checked ~ .fab-overlay { display: flex; }
+#overlay-on:checked ~ .fab-overlay { background: var(--green); color: var(--black); }
+
+.fab-grid {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 210;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--dark-grey);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: background 0.15s ease;
+}
+
+.fab-grid svg rect {
+  fill: none;
+  stroke: var(--white);
+  stroke-width: 1.5;
+  transition: fill 0.15s ease, stroke 0.15s ease;
+}
+
+#grid-on:checked ~ .fab-grid { background: var(--red); }
+#grid-on:checked ~ .fab-grid svg rect {
+  stroke: var(--black);
+  fill: rgba(0, 0, 0, 0.35);
+}
+
+/* ---------------- Floating tab switcher (bottom-right) ---------------- */
+
+.fab-tabs {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  font-family: "ABC Favorit Mono", monospace;
+}
+
+.fab-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 100px;
+  background: var(--black);
+  color: var(--white);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.fab-current .cur { display: none; }
+#tab-porto:checked ~ .fab-tabs .cur-porto { display: block; }
+#tab-aldo:checked ~ .fab-tabs .cur-aldo { display: block; }
+#tab-proposed:checked ~ .fab-tabs .cur-proposed { display: block; }
+#tab-14col:checked ~ .fab-tabs .cur-14col { display: block; }
+
+.fab-current .chev {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+#tabs-open:checked ~ .fab-tabs .fab-current .chev { transform: rotate(180deg); }
+
+.fab-options {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 20px;
+  background: var(--black);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+#tabs-open:checked ~ .fab-tabs .fab-options { display: flex; }
+
+.fab-options label {
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--dark-grey);
+  color: var(--white);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.fab-options label .sub {
+  display: block;
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: 2px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#tab-porto:checked ~ .fab-tabs .fab-options label[for="tab-porto"],
+#tab-aldo:checked ~ .fab-tabs .fab-options label[for="tab-aldo"],
+#tab-proposed:checked ~ .fab-tabs .fab-options label[for="tab-proposed"],
+#tab-14col:checked ~ .fab-tabs .fab-options label[for="tab-14col"] {
+  background: var(--red);
+  color: var(--black);
+}
+
+.fab-options label .sub { color: inherit; }
+
+/* ---------------- Sidebar internals ---------------- */
+
+.sb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.pill {
+  border: 1.5px solid var(--black);
+  border-radius: 100px;
+  padding: 8px 18px;
+  font-size: 13px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pill-icon {
+  border: 1.5px solid var(--black);
+  border-radius: 100px;
+  width: 34px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill-icon i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--black);
+}
+
+.sb-image {
+  width: 100%;
+  aspect-ratio: 400 / 210;
+  border-radius: var(--radius);
+  background:
+    repeating-linear-gradient(135deg, #cfcabb 0 12px, #d9d5c8 12px 24px);
+}
+
+.sb-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 0 2px;
+}
+
+.nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.nav-item.hero-item {
+  height: 140px;
+  align-items: flex-start;
+}
+
+.nav-item.c-pink   { background: var(--pink);      color: var(--red); }
+.nav-item.c-blue   { background: var(--blue);      color: var(--white); }
+.nav-item.c-red    { background: var(--red);       color: var(--black); }
+.nav-item.c-yellow { background: var(--yellow);    color: var(--black); }
+.nav-item.c-green  { background: var(--green);     color: var(--yellow); }
+.nav-item.c-dark   { background: var(--dark-grey); color: var(--white); }
+.nav-item.c-plain  { border-top: 1px solid rgba(0,0,0,0.15); padding: 14px 4px; border-radius: 0; }
+
+.nav-item.c-plain .num { opacity: 0.4; margin-right: 8px; }
+
+/* ---------------- Main content blocks (shared across Enigma views) ---------------- */
+
+.hero {
+  width: 100%;
+  aspect-ratio: 1426 / 926;
+  border-radius: var(--radius);
+  background:
+    repeating-linear-gradient(135deg, #e7e2cf 0 18px, #efebdd 18px 36px);
+}
+
+.welcome-panel {
+  width: 100%;
+  border-radius: var(--radius);
+  background: var(--dark-grey);
+  color: var(--white);
+  padding: 64px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  min-height: 60vh;
+}
+
+.welcome-panel h1 {
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: var(--h1-size);
+  line-height: 1;
+  margin: 0;
+}
+
+.welcome-panel .reg { font-size: 0.32em; vertical-align: super; }
+
+.welcome-panel p {
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 1.35;
+  max-width: 440px;
+  margin: 0;
+}
+
+.divider {
+  width: 100%;
+  background: var(--pink);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--black);
+}
+
+/* ---------------- Enigma Aldo view (pixel-perfect from Figma) ----------------
+   Geometry from Figma node 39:3968 + guide overlay in node 1:2
+   ("Homepage_Enigma_Agency 1": yellow 8px gutter bars at 151.33px column
+   units, 16PX/32PX measure markers, "2PX line Round corners" hairlines).
+   1920 canvas: 8 + 470 sidebar + 8 + 1426 main + 8. All panel paddings
+   64 top / 32 sides+bottom; dividers & menu items 42 tall via cap-trimmed
+   14px mono (16px padding); all radii 12; hairlines 1420 wide. */
+
+/* Cap-height trimming — Figma text boxes are cap/alphabetic trimmed.
+   Supported in Chrome 128+/Safari 18.2+; falls back gracefully. */
+.cap {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* Squircle corner smoothing (Figma-style continuous corners).
+   Chrome 139+; older browsers keep plain rounded corners. */
+.al-hero, .al-large, .al-welcome, .al-divider, .al-title, .al-graphic,
+.al-cell, .al-capabilities, .al-snippet, .al-menu-item, .al-tile .timg {
+  corner-shape: squircle;
+}
+
+.mono14 {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.num70 {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: var(--t70);
+  line-height: 1;
+  letter-spacing: 0.08em; /* 5.6px at 70px */
+  color: var(--white);
+}
+
+.num70.right { width: 100%; text-align: right; }
+.num70:not(.right) { width: 100%; }
+
+
+
+/* ----- Sidebar ----- */
+
+/* Sidebar fills the viewport height (8px top + bottom margins); the open
+   pink menu panel flexes to absorb the remaining space so everything fits. */
+.al-sidebar { gap: 8px; overflow: hidden; }
+
+.al-parade {
+  width: 100%;
+  padding: 0 0 8px; /* + 8px sidebar gap = 16px below date/time */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.al-topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.al-cta {
+  height: 30px;
+  border: 2px solid var(--black); /* box-sizing: border-box → stroke sits inside */
+  border-radius: 100px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.al-cta .cap {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.al-toggle {
+  position: relative;
+  width: 49px;
+  height: 30px;
+  border: 2px solid var(--black); /* inside stroke via border-box */
+  border-radius: 100px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.4s ease;
+}
+.al-toggle-knob {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--black);
+  transform: translateY(-50%);
+  /* soft, slow slide */
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.7s ease;
+}
+
+/* ===== Dark mode — Enigma concepts only =====
+   Only the site backdrop changes (cream -> solid black); brand tile colours are
+   untouched. Backdrop is BLACK (not dark grey) so the dark-grey Contact tile and
+   the dark-grey Welcome section stay distinct. Neutral right-column sections stay
+   cream and read as rounded cards. Toggle lives top-right of each Enigma sidebar. */
+body.dark:has(#tab-aldo:checked),
+body.dark:has(#tab-proposed:checked),
+body.dark:has(#tab-14col:checked) {
+  background: var(--black);
+}
+/* soft, slow crossfade when switching light <-> dark */
+body,
+.al-hero, .al-capabilities, .al-large,
+.al-cta, .al-date, .al-toggle {
+  transition: background-color 0.7s ease, color 0.7s ease, border-color 0.7s ease;
+}
+/* neutral sections -> cream cards (branded coloured tiles + the grey sections keep their colour) */
+body.dark .al-hero,
+body.dark .al-capabilities,
+body.dark .al-large {
+  background: var(--cream);
+}
+/* text components carry top/bottom divider hairlines that cut a rounded corner, so in dark mode
+   they go BLACK (blend into the backdrop) with WHITE dividers + white text -- the hairlines
+   define them per the grid, no cut-corner. Coloured accent words are kept (see randomiseWords). */
+body.dark .al-textcomp {
+  background: var(--black);
+  color: var(--white);
+}
+body.dark .al-textcomp .bigtext { color: var(--white); }
+body.dark .al-textcomp .num70 { color: var(--white) !important; }
+body.dark .al-textcomp .hl rect { fill: var(--white); }
+/* sidebar top bar text/borders stay readable on the dark backdrop */
+body.dark .al-cta { border-color: var(--cream); color: var(--cream); }
+body.dark .al-date { color: var(--cream); }
+/* work-tile captions sit on the backdrop -> white in dark mode */
+body.dark .al-tile .tcontent { color: var(--white); }
+/* toggle: knob slides right + flips to cream */
+body.dark .al-toggle { border-color: var(--cream); }
+body.dark .al-toggle-knob {
+  transform: translate(21px, -50%);
+  background: var(--cream);
+}
+.al-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.al-toggle img { width: 19px; height: 19px; }
+
+.al-logo {
+  width: 100%;
+  padding: 8px 0;
+  overflow: hidden;
+}
+
+.al-logo img {
+  display: block;
+  width: 88.86%;
+  height: auto;
+  margin: 0 auto;
+  transition: filter 0.7s ease;
+}
+/* dark mode: whiten the black parade art in place -> identical position, no crop */
+body.dark .al-logo img { filter: brightness(0) invert(1); }
+
+.al-date {
+  width: 100%;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.al-nav {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.al-menu-item {
+  position: relative;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;   /* label pins top-left; identical to centre when collapsed (no free space) */
+  overflow: hidden;
+  cursor: pointer;
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: filter 0.25s ease;
+  min-height: 0;
+}
+
+/* Per-section scroll-progress indicator (desktop): an 8px dot on the right of
+   the expanded tile that travels top->bottom as you scroll through the section.
+   Colour = the tile's text colour (currentColor) so it always contrasts.
+   `top` is set by JS; only shown on the open tile. */
+.al-scroll-dot {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;                       /* fade + visibility handled by GSAP (autoAlpha) */
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Expansion is driven by GSAP (inline flex-grow). This is the no-JS fallback:
+   the first link (Hello) opens by default. Figma open height = 400px, but it
+   flexes to fill the sidebar. */
+.al-nav > .al-menu-item:first-child { flex-grow: 1; }
+
+.al-menu-item:hover { filter: brightness(1.06); }
+.al-menu-item.is-open:hover { filter: none; }
+
+.al-menu-item.c-pink   { background: var(--pink);      color: var(--red); }
+.al-menu-item.c-blue   { background: var(--blue);      color: var(--white); }
+.al-menu-item.c-red    { background: var(--red);       color: var(--black); }
+.al-menu-item.c-yellow { background: var(--yellow);    color: var(--black); }
+.al-menu-item.c-green  { background: var(--green);     color: var(--yellow); }
+.al-menu-item.c-dark   { background: var(--dark-grey); color: var(--white); }
+
+/* ----- Main hero / large image ----- */
+
+.al-hero, .al-large {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--white);
+  flex-shrink: 0;
+}
+
+/* Exact design heights (Figma px via --u) so they line up with the overlay at 1920,
+   deterministically -- NOT 100vh, which drifts with window height. */
+.al-hero  { height: calc(926.5 * var(--u)); }
+.al-large { height: calc(800 * var(--u)); }
+
+.al-hero img, .al-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+}
+
+/* ----- Welcome panel ----- */
+
+.al-welcome {
+  width: 100%;
+  height: calc(927 * var(--u));
+  background: var(--dark-grey);
+  border-radius: 12px;
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+/* Big background "Unignorability(R)" — a slow, seamless looping horizontal pan.
+   The wrapper owns the vertical position (CSS transform), and the inner .bigbg
+   track (two copies) is panned by GSAP via xPercent so the transforms don't
+   collide. Two identical copies + a -50% loop = a seamless marquee at any size. */
+.al-welcome .bigbg-wrap {
+  position: absolute;
+  left: 0;
+  top: calc(879 * var(--u));
+  transform: translateY(-100%);
+  white-space: nowrap;
+  pointer-events: none;
+  overflow: visible;
+}
+.al-welcome .bigbg {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.al-welcome .bigbg > span {   /* direct children only (the 2 word copies) -- NOT the per-char .ch spans */
+  display: block;
+  padding-right: 0.18em;   /* gap between the two copies */
+  font-family: "Enigma Large", serif;
+  font-size: var(--bigbg-size);
+  line-height: 1;
+  color: var(--light-grey);
+  white-space: nowrap;
+}
+.al-welcome .bigbg .reg {
+  display: inline;
+  font-size: 0.3225em;      /* superscript registered mark */
+  vertical-align: super;
+  padding-right: 0;
+}
+
+.al-welcome h1 {
+  position: relative;
+  margin: 0;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: var(--h1-size);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.al-welcome h1 .reg { font-size: 0.3225em; vertical-align: super; }
+
+.al-welcome p {
+  position: relative;
+  margin: 0;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 28px;
+  width: 438px;
+  max-width: 100%;
+  white-space: pre-wrap;
+}
+
+/* ----- Sections / dividers / titles ----- */
+
+.al-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.al-divider {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.al-divider .cap {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.al-divider.c-pink   { background: var(--pink);   color: var(--black); }
+.al-divider.c-blue   { background: var(--blue);   color: var(--white); }
+.al-divider.c-red    { background: var(--red); }
+.al-divider.c-yellow { background: var(--yellow); color: var(--black); }
+
+.al-title {
+  width: 100%;
+  height: calc(800 * var(--u));
+  border-radius: 12px;
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.al-title h2 {
+  margin: 0;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: var(--h1-size);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.al-title.c-pink   { background: var(--pink); }
+.al-title.c-pink h2 { color: var(--red); }
+.al-title.c-blue   { background: var(--blue); }
+.al-title.c-blue h2 { color: var(--white); }
+.al-title.c-blue .num70 { color: var(--white); }
+.al-title.c-red    { background: var(--red); }
+.al-title.c-red h2 { color: var(--black); }
+.al-title.c-yellow { background: var(--yellow); }
+.al-title.c-yellow h2 { color: var(--black); }
+
+.al-hello-title h2.jp { font-family: "Enigma Large", "Hiragino Mincho ProN", serif; }
+
+/* 14-col Hello title: blinking typewriter cursor */
+#view-14col .al-hello-title h2 .type-cursor {
+  display: inline-block;
+  width: 0.07em;
+  height: 0.82em;
+  margin-left: 0.05em;
+  vertical-align: baseline;
+  background: currentColor;
+  animation: type-blink 1.05s steps(1, end) infinite;
+}
+@keyframes type-blink { 0%, 50% { opacity: 1; } 50.001%, 100% { opacity: 0; } }
+
+/* ----- HTML Graphic (Text 03) ----- */
+
+.al-graphic {
+  width: 100%;
+  height: calc(831 * var(--u));
+  border-radius: 12px;
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.al-graphic .bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;   /* video (and poster fallback) cover the whole graphic tile */
+}
+
+.al-graphic .inner {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--white);
+  width: 100%;
+}
+
+.al-graphic .title {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: center;
+}
+
+.al-graphic .line {
+  width: 100%;
+  font-family: "Enigma Large", serif;
+  font-size: var(--h1-size);
+  line-height: 1;
+}
+
+.al-graphic .line.by {
+  font-family: "Enigma Large Extended", serif;
+  font-size: calc(var(--h1-size) * 0.5);
+}
+
+/* ----- Text components ----- */
+
+.al-textcomp {
+  width: 100%;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.al-textcomp .inner {
+  width: 100%;
+  padding: calc(160 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(96 * var(--u));
+}
+
+.al-textcomp .row {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.al-textcomp .leftcol {
+  width: var(--leftcol-w); /* fluid; never below 2 grid cols (310) */
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+/* Stack the two columns a little earlier (below ~880px of main) and
+   left-align both to the container edge instead of the right column. */
+@container maincol (max-width: 880px) {
+  .al-textcomp .row { flex-direction: column; gap: 32px; }
+  .al-textcomp .leftcol { width: 100%; align-self: auto; text-align: left; }
+  .al-textcomp .leftcol .mono14 { text-align: left; }
+  .al-textcomp .rightcol { align-self: auto; align-items: flex-start; }
+}
+
+.al-textcomp .rightcol {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.al-textcomp .rightcol.vcenter { justify-content: center; }
+
+.al-textcomp .bigtext {
+  width: 100%;
+  font-family: "Enigma Large", serif;
+  font-size: var(--t60);
+  line-height: 1.2;
+  color: var(--black);
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-textcomp .bigtext p { margin: 0; }
+
+.al-textcomp .bigtext em {
+  font-family: "Enigma Large", serif;
+  font-style: italic;
+}
+
+.reg60 { font-size: 0.645em; vertical-align: super; }
+
+.c-red-t   { color: var(--red); }
+.c-pink-t  { color: var(--pink); }
+.c-blue-t  { color: var(--blue); }
+.c-green-t { color: var(--green); }
+
+/* Click any of the "Born of" accent words -> all of them randomise together */
+.rc-word {
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+/* per-component variants (heights/paddings from Figma metadata).
+   min-height (not height): exact at the 1920 design width, but cannot
+   overflow when the fluid main column is narrower. */
+.al-tc-hello  { padding: 1px 0; }
+.al-tc-hello .inner { gap: calc(151 * var(--u)); padding-bottom: calc(32 * var(--u)); }
+/* Aldo overlay-alignment (scoped to Aldo only): trim/grow inner spacing + heights so each
+   section boundary lands on the SVG overlay's horizontal guide lines. */
+/* Hello card: PIN the height to the design box so alignment is DPR-independent (its wrapped text
+   height varies ~18px by device-pixel-ratio; a fixed height locks the boundary either way). The
+   inner flexes so the bottom hairline still sits at the card's bottom edge. */
+#view-aldo .al-tc-hello        { height: calc(1220.4 * var(--u)); }
+#view-aldo .al-tc-hello .inner { gap: calc(125 * var(--u)); flex: 1 1 auto; }
+#view-aldo .al-tc-appr2 .inner { gap: calc(68 * var(--u)); }          /* appr2 card -60px */
+#view-aldo .al-capabilities    { height: calc(873 * var(--u)); }      /* Capabilities +60px */
+#view-aldo .al-workgrid        { padding-bottom: 6px; }               /* Talent block +6px onto its line */
+.al-tc-appr1  { margin-bottom: -1px; padding-top: 1px; }
+.al-tc-appr1 .inner { padding: calc(160 * var(--u)) calc(32 * var(--u)) calc(96 * var(--u)); }
+.al-tc-appr2 .inner { padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u)); gap: calc(128 * var(--u)); }
+
+/* hairlines: 2px everywhere, drawn as an SVG rounded rect (rx=1) so the
+   end caps are geometrically round and cannot be distorted by stretching. */
+.hl {
+  position: relative;
+  width: 100%;
+  height: 0;
+  flex-shrink: 0;
+}
+
+.hl svg.hl-line {
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 100%;
+  height: 2px;
+  display: block;
+  max-width: none;
+}
+
+/* ----- Approach cell concept ----- */
+
+.al-cell {
+  width: 100%;
+  height: calc(799.4 * var(--u));
+  border-radius: 12px;
+  background: var(--blue);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.al-cell img {
+  position: absolute;
+  left: 2.33%;
+  top: 2.44%;
+  width: 95.34%;
+  height: 94.66%;
+  max-width: none;
+  object-fit: contain;
+}
+
+/* Kinetic letter constellation (replaces the flat cell-concept.png).
+   Exact Figma vectors: node 45:882, viewBox 1494 x 799.4, cream #f9f6e6. */
+.al-constel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;    /* only the letter grab-handles are interactive */
+}
+.al-constel-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;    /* blank areas let the page scroll through */
+  overflow: visible;
+}
+.al-bond {
+  stroke: #f9f6e6;
+  stroke-width: 2;         /* exact Figma stroke (frame units) */
+  pointer-events: none;
+}
+.al-glyph {
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+}
+.al-glyph path {
+  fill: #f9f6e6;
+  pointer-events: none;    /* the padded rect below is the grab target, not the thin outline */
+}
+.al-hit {
+  fill: transparent;
+  pointer-events: all;     /* generous invisible grab handle around each letter */
+}
+.al-glyph.is-grabbing { cursor: grabbing; }
+
+.al-content { width: 100%; display: flex; flex-direction: column; }
+
+/* ----- Capabilities ----- */
+
+.al-capabilities {
+  width: 100%;
+  height: calc(813 * var(--u));
+  background: var(--white);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ----- Work grid ----- */
+
+.al-workgrid {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.al-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* All columns 12px tile gaps — the Figma file has 16px on Col3 (a slip),
+   normalized here so the bottom row of media aligns across columns. */
+.al-col.g12 { gap: 12px; }
+
+.al-tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.al-tile .timg {
+  width: 100%;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.al-tile .timg.tall  { aspect-ratio: 470 / 705; }
+.al-tile .timg.mid   { aspect-ratio: 470 / 423; }
+.al-tile .timg.small { aspect-ratio: 312.5625 / 416.75; }
+
+.al-tile .timg img.cover,
+.al-tile .timg video.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+  display: block;
+}
+
+.al-tile .timg img.crop-sydney {
+  position: absolute;
+  left: -97.36%;
+  top: -13.13%;
+  width: 294.73%;
+  height: 165.48%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.al-tile .tcontent {
+  width: 100%;
+  padding: 0 32px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--black);
+}
+
+.al-tile .tcontent p {
+  margin: 0;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* ----- Talent snippet ----- */
+
+.al-snippet {
+  width: 100%;
+  height: calc(800 * var(--u));
+  border-radius: 12px;
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(72 * var(--u));
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.al-snippet img.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+}
+
+.al-snippet .headline {
+  position: relative;
+  width: var(--snip-w);
+  max-width: 100%;
+  font-family: "Enigma Large", serif;
+  font-size: var(--h1-size);
+  line-height: 1;
+  color: var(--yellow);
+  white-space: pre-wrap;
+}
+
+.al-snippet .headline .tm { font-size: 0.645em; }
+
+/* ---------------- Porto Rocha view (faithful mockup) ----------------
+   Geometry from the Figma trace of portorocha.com:
+   sidebar 400px (header 299 = topbar 40 + brand 259; nav cards 400×98,
+   8px gaps, 65px thumbs), main hero 1496×998, news = 3 cols of 493.33px. */
+
+.pr-theme {
+  background: #f0efec;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #111;
+}
+
+.pr-topbar {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pr-pill {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 100px;
+  background: #e4e2dd;
+  font-size: 13px;
+}
+
+.pr-toggle {
+  position: relative;
+  width: 62px;
+  height: 38px;
+  border-radius: 100px;
+  background: #e4e2dd;
+}
+
+.pr-toggle i {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #111;
+}
+
+.pr-brand {
+  height: 259px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  flex-shrink: 0;
+}
+
+.pr-logo {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.pr-datetime {
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+  color: #111;
+}
+
+.pr-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.pr-nav-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 98px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #e4e2dd;
+  text-decoration: none;
+  color: #111;
+}
+
+.pr-nav-card .thumb {
+  flex-shrink: 0;
+  width: 65px;
+  height: 65px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(135deg, #cfccc3 0 8px, #dbd8d0 8px 16px);
+}
+
+.pr-nav-card .txt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pr-nav-card .t {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.pr-nav-card .d {
+  font-size: 13px;
+  line-height: 17.5px;
+  color: #555;
+}
+
+.pr-hero {
+  background: repeating-linear-gradient(135deg, #dedbd2 0 18px, #e7e4dc 18px 36px);
+}
+
+.pr-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+  align-items: start;
+}
+
+.pr-news-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #fafaf8;
+}
+
+.pr-news-card .date { font-size: 13px; line-height: 18px; color: #888; }
+
+.pr-news-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 27px;
+  margin: 0;
+}
+
+.pr-news-card p {
+  font-size: 14px;
+  line-height: 25px;
+  margin: 0;
+  color: #333;
+}
+
+.pr-news-card .nimg {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 2px;
+  background: repeating-linear-gradient(135deg, #dedbd2 0 14px, #e7e4dc 14px 28px);
+}
+
+/* ---------------- Floating screen-size switcher (bottom-center) ---------------- */
+
+.fab-size {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: "ABC Favorit Mono", monospace;
+}
+
+.embed .fab-size { display: none; }
+
+.size-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--black);
+  color: var(--white);
+  font-family: inherit;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.size-options {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 20px;
+  background: var(--black);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.size-options.open { display: flex; }
+
+.size-options button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--dark-grey);
+  color: var(--white);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.size-options button:hover { background: var(--red); color: var(--black); }
+
+.size-options button .sub {
+  display: block;
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+/* ---------------- Viewport simulator stage ---------------- */
+
+.sim-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a1a;
+}
+
+.sim-stage[hidden] { display: none; }
+
+.sim-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  font-family: "ABC Favorit Mono", monospace;
+  color: var(--white);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sim-close {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--red);
+  color: var(--black);
+  font-family: inherit;
+  font-size: 12px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.sim-frame-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sim-frame-wrap iframe {
+  flex-shrink: 0;
+  border: 0;
+  background: var(--cream);
+  transform-origin: center center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   MOBILE — Enigma concepts (single column + fixed bottom nav)
+   Figma node 13:784 (390 wide, main 374). Display type scales
+   down on narrow phones via min(px, cqw); caps at the Figma px.
+   The sidebar collapses: its parade moves to the top, the menu
+   becomes the fixed bottom nav (a horizontal scroll minimap).
+   ============================================================ */
+
+.m-nav { display: none; }
+
+@media (max-width: 600px) {
+
+  /* ----- layout reflow: single column ----- */
+  #view-aldo .grid-wrap,
+  #view-proposed .grid-wrap,
+  #view-14col .grid-wrap {
+    flex-direction: column;
+    padding: 8px 8px 116px;   /* room for the fixed bottom nav */
+  }
+
+  #view-aldo .al-sidebar,
+  #view-proposed .al-sidebar,
+  #view-14col .al-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .al-nav { display: none; }              /* desktop menu -> becomes bottom nav */
+
+  #view-aldo .main,
+  #view-proposed .main,
+  #view-14col .main {
+    width: 100%;
+    /* mobile type scale (Figma 374 ref); caps at Figma px, shrinks on narrow phones */
+    --h1-size: min(40px, 10.70cqw);
+    --t60: min(28px, 7.49cqw);
+    --t70: 28px;  /* numbered labels — matches the section label per inspect */
+    --bigbg-size: min(296.941px, 79.40cqw);
+    --leftcol-w: 100%;
+    --snip-w: 100%;
+  }
+
+  /* ----- panel heights (mobile) ----- */
+  #view-aldo .al-hero, #view-proposed .al-hero, #view-14col .al-hero,
+  #view-aldo .al-large, #view-proposed .al-large, #view-14col .al-large {
+    height: min(286px, 76.47cqw);
+  }
+  .al-welcome  { height: min(345px, 92.25cqw); padding: 24px 16px 16px; }
+  .al-title    { height: min(209.8px, 56.10cqw); padding: 24px 16px 16px; }
+  .al-graphic  { height: min(277px, 74.06cqw); padding: 24px 16px 16px; }
+  .al-cell     { height: min(207px, 55.35cqw); }
+  .al-snippet  { height: min(358px, 95.72cqw); padding: 24px 16px 24px; }
+
+  /* welcome bigbg + body (mobile) */
+  .al-welcome .bigbg-wrap { left: 0; top: auto; bottom: -18px; transform: none; }
+  .al-welcome p { font-size: 16px; line-height: normal; width: 100%; }
+
+  /* ----- text sections (mobile spacing) ----- */
+  .al-textcomp .inner { padding: 80px 16px 24px; gap: 64px; }
+  .al-tc-hello .inner, .al-tc-appr1 .inner, .al-tc-appr2 .inner { padding: 80px 16px 24px; gap: 64px; }
+  .al-textcomp .row { flex-direction: column; gap: 64px; }
+  .al-textcomp .leftcol { width: 100%; align-self: auto; text-align: left; }
+  .al-textcomp .rightcol { align-self: auto; align-items: flex-start; }
+
+  /* ----- work grid: 3 columns -> single column of 9 tiles ----- */
+  .al-workgrid { flex-direction: column; }
+  .al-col { width: 100%; }
+
+  /* ----- hide desktop proof chrome + FABs on mobile ----- */
+  .full-grid-overlay,
+  .grid-legend,
+  .fab-grid,
+  .fab-tabs,
+  .fab-size { display: none !important; }
+
+  /* ----- fixed bottom nav (horizontal-scroll minimap) ----- */
+  .m-nav {
+    display: block;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 320;
+    background: var(--cream);
+    border-top: 2px solid var(--black);
+    padding: 16px 0;   /* edge to edge horizontally */
+    overflow: hidden;
+  }
+  .m-nav-track {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .m-nav-track::-webkit-scrollbar { display: none; }
+  .m-pill {
+    flex-shrink: 0;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 0;
+    font-family: "ABC Favorit Mono", monospace;
+    font-size: 14px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .m-pill.m-home {
+    width: 64px;
+    justify-content: center;
+    background: #fff;
+    color: #000;
+  }
+}
