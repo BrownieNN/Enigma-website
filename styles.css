@@ -54,7 +54,7 @@
   --light-grey: #646464;
 
   --gap: 8px;
-  --radius: 12px;
+  --radius: 15px;   /* AD: +3px, Illustrator vectors read smoother than the old 12px */
 
   /* Display type scales proportionally with the viewport, capped at the
      exact Figma sizes at the 1920px design width. Body/CTA/label sizes
@@ -157,6 +157,18 @@ img, svg { display: block; max-width: 100%; }
 #view-aldo .main     { --u: 0.070126cqw; } /* 100 / 1426 */
 #view-proposed .main { --u: 0.063052cqw; } /* 100 / 1586 */
 #view-14col .main    { --u: 0.066845cqw; } /* 100 / 1496 */
+
+/* AD: sidebar is 3 columns (470px) normally, and drops to 2 columns (310px) at 1512px and below.
+   These are the exact numbers the old "Proposed" view used, folded in as Aldo's small-screen state:
+   narrower sidebar -> wider main (1586 ref) -> --u normalised to 1586. The grid overlay follows.
+   Hard switch at the breakpoint (not a smooth shrink) -- matches the AD's "1512 and below". */
+@media (min-width: 601px) and (max-width: 1512px) {
+  /* min-width floor: this 2-col sidebar rule (specificity 1,2,0) otherwise beats the mobile
+     `#view-aldo .al-sidebar {width:100%}` (1,1,0) and forced the mobile header to 310px. */
+  #view-aldo .sidebar.w-470 { width: 310px; }
+  #view-aldo .main { --u: 0.063052cqw; } /* 100 / 1586, the 2-col main reference */
+  #view-aldo .fg-side.w-470 { width: 310px; grid-template-columns: repeat(2, 1fr); }
+}
 
 #view-aldo .main,
 #view-proposed .main,
@@ -702,16 +714,19 @@ body.dark .al-large {
    define them per the grid, no cut-corner. Coloured accent words are kept (see randomiseWords). */
 body.dark .al-textcomp {
   background: var(--black);
-  color: var(--white);
+  color: var(--cream);
 }
-body.dark .al-textcomp .bigtext { color: var(--white); }
-body.dark .al-textcomp .num70 { color: var(--white) !important; }
-body.dark .al-textcomp .hl rect { fill: var(--white); }
+body.dark .al-textcomp .bigtext { color: var(--cream); }
+body.dark .al-textcomp .num70 { color: var(--cream) !important; }
+body.dark .al-textcomp .hl rect { fill: var(--cream); }
+/* AD: the blue "Unignorability" words sit on the black textcomp in dark mode -> use green instead
+   (blue is hard to read on black). Matches the born-of accent-word remap in randomiseWords(). */
+body.dark .al-textcomp .c-blue-t { color: var(--green); }
 /* sidebar top bar text/borders stay readable on the dark backdrop */
 body.dark .al-cta { border-color: var(--cream); color: var(--cream); }
 body.dark .al-date { color: var(--cream); }
-/* work-tile captions sit on the backdrop -> white in dark mode */
-body.dark .al-tile .tcontent { color: var(--white); }
+/* work-tile captions sit on the backdrop -> cream in dark mode (AD: use cream, not white) */
+body.dark .al-tile .tcontent { color: var(--cream); }
 /* toggle: knob slides right + flips to cream */
 body.dark .al-toggle { border-color: var(--cream); }
 body.dark .al-toggle-knob {
@@ -733,10 +748,13 @@ body.dark .al-toggle-knob {
   width: 88.86%;
   height: auto;
   margin: 0 auto;
-  transition: filter 0.7s ease;
 }
-/* dark mode: whiten the black parade art in place -> identical position, no crop */
-body.dark .al-logo img { filter: brightness(0) invert(1); }
+/* dark mode: swap the black parade art for the cream one. logo-cream.png is the EXACT same crop
+   (2840x1427) as sidebar-logo.png, so a display toggle keeps identical position -- no filter, no
+   clipping (the old parade-white.png was a different crop, hence the retired filter hack). */
+.al-logo .logo-dark { display: none; }
+body.dark .al-logo .logo-light { display: none; }
+body.dark .al-logo .logo-dark { display: block; }
 
 .al-date {
   width: 100%;
@@ -763,7 +781,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   position: relative;
   width: 100%;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   display: flex;
   align-items: flex-start;   /* label pins top-left; identical to centre when collapsed (no free space) */
   overflow: hidden;
@@ -812,7 +830,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 
 .al-hero, .al-large {
   width: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius);
   overflow: hidden;
   background: var(--white);
   flex-shrink: 0;
@@ -836,7 +854,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   width: 100%;
   height: calc(927 * var(--u));
   background: var(--dark-grey);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
   position: relative;
   overflow: hidden;
@@ -918,7 +936,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 .al-divider {
   width: 100%;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -939,7 +957,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 .al-title {
   width: 100%;
   height: calc(800 * var(--u));
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
   display: flex;
   flex-direction: column;
@@ -971,23 +989,23 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 .al-hello-title h2.jp { font-family: "Enigma Large", "Hiragino Mincho ProN", serif; }
 
 /* 14-col Hello title: blinking typewriter cursor */
-#view-14col .al-hello-title h2 .type-cursor {
+/* SVG I-beam caret (assets/aldo/cursor.svg, red). Scoped to Aldo (14-col was stripped). Height is
+   matched to the greeting's cap height; blinking is JS-controlled (opacity), so no CSS animation. */
+#view-aldo .al-hello-title h2 .type-cursor {
   display: inline-block;
-  width: 0.07em;
-  height: 0.82em;
-  margin-left: 0.05em;
+  height: 0.72em;          /* ~cap height of the Enigma Large greeting */
+  width: auto;
+  margin-left: 0.08em;
   vertical-align: baseline;
-  background: currentColor;
-  animation: type-blink 1.05s steps(1, end) infinite;
+  transition: opacity 0.08s linear;
 }
-@keyframes type-blink { 0%, 50% { opacity: 1; } 50.001%, 100% { opacity: 0; } }
 
 /* ----- HTML Graphic (Text 03) ----- */
 
 .al-graphic {
   width: 100%;
   height: calc(831 * var(--u));
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
   position: relative;
   overflow: hidden;
@@ -1004,14 +1022,28 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   object-fit: cover;   /* video (and poster fallback) cover the whole graphic tile */
 }
 
+/* AD: the "Unignorable Work by Unignorable People" wordmark is now the lockup SVG (cream, 2:1),
+   scaled to reach the tile bounds, sitting over the red swirl video. inset gives a little breathing
+   room; object-fit:contain keeps its aspect (fills width, centres vertically on the video). */
+.al-graphic .lockup {
+  position: absolute;
+  inset: calc(24 * var(--u));
+  width: calc(100% - (48 * var(--u)));
+  height: calc(100% - (48 * var(--u)));
+  object-fit: contain;
+  object-position: center;
+  z-index: 1;
+}
+
 .al-graphic .inner {
   position: relative;
+  z-index: 2;              /* badge above the lockup + video */
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;  /* title removed -> keep the 02 badge at the bottom */
   color: var(--white);
   width: 100%;
 }
@@ -1163,7 +1195,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 .al-cell {
   width: 100%;
   height: calc(799.4 * var(--u));
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--blue);
   position: relative;
   overflow: hidden;
@@ -1193,7 +1225,9 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   width: 100%;
   height: 100%;
   pointer-events: none;    /* blank areas let the page scroll through */
-  overflow: visible;
+  /* Clip to the cell. A dragged letter can travel outside the viewBox, and `visible` drew it on
+     top of the rest of the page (a stray glyph appeared below the tile, over the page chrome). */
+  overflow: hidden;
 }
 .al-bond {
   stroke: #f9f6e6;
@@ -1223,7 +1257,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   width: 100%;
   height: calc(813 * var(--u));
   background: var(--white);
-  border-radius: 12px;
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1261,7 +1295,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 
 .al-tile .timg {
   width: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius);
   position: relative;
   overflow: hidden;
 }
@@ -1291,7 +1325,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 
 .al-tile .tcontent {
   width: 100%;
-  padding: 0 32px 16px;
+  padding: 0 0 16px;   /* AD: remove L/R padding so caption text runs full tile width */
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -1311,7 +1345,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
 .al-snippet {
   width: 100%;
   height: calc(800 * var(--u));
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(72 * var(--u));
   position: relative;
   overflow: hidden;
@@ -1670,23 +1704,149 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   }
 
   /* ----- panel heights (mobile) ----- */
-  #view-aldo .al-hero, #view-proposed .al-hero, #view-14col .al-hero,
-  #view-aldo .al-large, #view-proposed .al-large, #view-14col .al-large {
-    height: min(286px, 76.47cqw);
+  /* AD: these five sections are a 3:4 (portrait) ratio on mobile. height:auto lets aspect-ratio
+     drive the box off the full-column width. */
+  #view-aldo .al-hero,
+  #view-aldo .al-welcome,
+  #view-aldo .al-graphic,
+  #view-aldo .al-cell,
+  #view-aldo .al-snippet {
+    aspect-ratio: 3 / 4;
+    height: auto;
   }
-  .al-welcome  { height: min(345px, 92.25cqw); padding: 24px 16px 16px; }
+  .al-welcome  { padding: 24px 16px 16px; }
+  .al-graphic  { padding: 24px 16px 16px; }
+  .al-snippet  { padding: 24px 16px 24px; }
+  /* not in the 3:4 list — keep their own heights */
+  #view-aldo .al-large { height: min(286px, 76.47cqw); }
   .al-title    { height: min(209.8px, 56.10cqw); padding: 24px 16px 16px; }
-  .al-graphic  { height: min(277px, 74.06cqw); padding: 24px 16px 16px; }
-  .al-cell     { height: min(207px, 55.35cqw); }
-  .al-snippet  { height: min(358px, 95.72cqw); padding: 24px 16px 24px; }
+
+  /* AD fix: the Born-of text overflowed into Approach because the desktop-pinned
+     `.al-tc-hello { height: calc(1220.4*--u) }` leaked to mobile. Let it size to content. */
+  #view-aldo .al-tc-hello { height: auto; }
+
+  /* ---- Snake game: on mobile the Unignorability cell becomes the game (desktop keeps the
+     constellation train). Cream-on-blue Nokia-LCD look, ABC Favorit Mono, on-screen D-pad. ---- */
+  #view-aldo .al-cell { position: relative; }
+  #view-aldo .al-cell .al-constel { display: none; }
+  .snk-wrap {
+    position: absolute; inset: 14px; z-index: 2;
+    display: flex; flex-direction: column; gap: 8px;
+    font-family: "ABC Favorit Mono", monospace; color: var(--cream);
+    touch-action: manipulation;
+  }
+  /* progress = row of chips: collected letters fill in as solid cream tiles, remaining are dim outlines */
+  .snk-progress { flex: 0 0 auto; display: flex; justify-content: center; gap: 2px; padding: 0 2px; }
+  .snk-progress span {
+    flex: 0 1 21px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 3px; font-size: 13px; line-height: 1;
+    background: var(--cream); color: var(--blue);
+  }
+  .snk-progress span.dim { background: transparent; color: rgba(249,246,230,0.4); box-shadow: inset 0 0 0 1.5px rgba(249,246,230,0.3); }
+  .snk-board { position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  .snk-canvas { display: block; }
+  .snk-board::after {   /* LCD scanlines (over the canvas, under the overlay) */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.16) 0 1px, transparent 1px 3px);
+  }
+  .snk-overlay {
+    position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px; text-align: center;
+    padding: 14px; background: rgba(0,41,164,0.88); cursor: pointer;
+  }
+  .snk-overlay.hidden { display: none; }
+  /* idle cover art (title + pixel snake + legend + START) vs end screen (dead/win) */
+  .snk-cover, .snk-end {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; width: 100%; text-align: center;
+  }
+  .snk-cover.hidden, .snk-end.hidden { display: none; }
+  .snk-title {
+    font: 700 clamp(20px, 9cqw, 38px)/0.9 "ABC Favorit Mono", monospace;
+    letter-spacing: -0.5px; text-transform: uppercase; color: var(--cream); white-space: nowrap;
+    text-shadow: 2px 2px 0 #001a63, 4px 4px 0 #001149;
+  }
+  .snk-art { width: 60%; max-width: 190px; aspect-ratio: 5 / 4; image-rendering: pixelated; }
+  .snk-legend { display: flex; align-items: center; gap: 6px; max-width: 94%; }
+  .snk-lkey {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 24px; border: 1.5px solid rgba(249,246,230,0.5); border-radius: 3px;
+    font: 13px/1 "ABC Favorit Mono", monospace; color: var(--cream);
+  }
+  .snk-ltext {
+    font: 10px/1.45 "ABC Favorit Mono", monospace; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--cream); opacity: 0.85; text-align: left;
+  }
+  .snk-start {
+    -webkit-appearance: none; appearance: none; margin-top: 4px; cursor: pointer;
+    background: var(--cream); color: var(--blue); border: none; border-radius: 6px;
+    padding: 12px 42px; font: 22px/1 "ABC Favorit Mono", monospace; letter-spacing: 3px; text-transform: uppercase;
+    box-shadow: 0 5px 0 #b7b39a; transition: transform 0.08s ease, box-shadow 0.08s ease;
+    touch-action: manipulation;
+  }
+  .snk-start:active { transform: translateY(4px) scale(0.96); box-shadow: 0 1px 0 #b7b39a; }
+  .snk-otitle { font-size: 24px; letter-spacing: 3px; text-transform: uppercase; }
+  .snk-osub { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.85; max-width: 16em; line-height: 1.6; }
+  /* win screen: free-coffee email capture (prototype — no backend wired) */
+  .snk-form { display: flex; flex-direction: column; gap: 8px; width: 86%; max-width: 240px; margin-top: 2px; }
+  .snk-form.hidden { display: none; }
+  .snk-email {
+    -webkit-appearance: none; appearance: none; width: 100%; box-sizing: border-box; text-align: center;
+    padding: 11px 12px; border: 2px solid var(--cream); border-radius: 8px;
+    background: transparent; color: var(--cream); font: 13px/1 "ABC Favorit Mono", monospace;
+  }
+  .snk-email::placeholder { color: rgba(249,246,230,0.5); }
+  .snk-email.err { border-color: #ff6a6a; }
+  .snk-claim {
+    -webkit-appearance: none; appearance: none; width: 100%; padding: 11px; cursor: pointer;
+    border: none; border-radius: 8px; background: var(--cream); color: var(--blue);
+    font: 14px/1 "ABC Favorit Mono", monospace; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .snk-replay {
+    -webkit-appearance: none; appearance: none; background: transparent; border: none; cursor: pointer;
+    color: var(--cream); font: 11px/1 "ABC Favorit Mono", monospace; letter-spacing: 1px;
+    text-transform: uppercase; text-decoration: underline; opacity: 0.8; margin-top: 4px;
+  }
+  .snk-replay.hidden { display: none; }
+  .snk-dpad {
+    flex: 0 0 auto; display: grid; gap: 8px; width: 246px; margin: 4px auto 0;
+    grid-template-columns: repeat(3, 1fr); grid-template-rows: 68px 68px; touch-action: none;
+  }
+  .snk-btn {
+    -webkit-appearance: none; appearance: none; margin: 0; padding: 0;
+    border: 2.5px solid var(--cream); background: transparent; color: var(--cream);
+    border-radius: 12px; font: 32px/1 "ABC Favorit Mono", monospace;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; touch-action: none; -webkit-user-select: none; user-select: none;
+  }
+  .snk-btn:active { background: var(--cream); color: var(--blue); }
+  .snk-up { grid-area: 1 / 2 / 2 / 3; }
+  .snk-left { grid-area: 2 / 1 / 3 / 2; }
+  .snk-down { grid-area: 2 / 2 / 3 / 3; }
+  .snk-right { grid-area: 2 / 3 / 3 / 4; }
 
   /* welcome bigbg + body (mobile) */
-  .al-welcome .bigbg-wrap { left: 0; top: auto; bottom: -18px; transform: none; }
+  /* AD: big background word centred vertically in the grey tile (was pinned to the bottom) */
+  .al-welcome .bigbg-wrap { left: 0; top: 50%; bottom: auto; transform: translateY(-50%); }
   .al-welcome p { font-size: 16px; line-height: normal; width: 100%; }
 
-  /* ----- text sections (mobile spacing) ----- */
-  .al-textcomp .inner { padding: 80px 16px 24px; gap: 64px; }
-  .al-tc-hello .inner, .al-tc-appr1 .inner, .al-tc-appr2 .inner { padding: 80px 16px 24px; gap: 64px; }
+  /* AD: grey title expands to fill the tile width; Approach/Work/Talent + the Fearless Play
+     headline matched to the same size (all already Enigma Large). */
+  /* 11cqw is the size at which the grey title's longest (nowrap) line "Unignorability®" fills the
+     tile content width WITHOUT overflowing the 16px side padding on the narrowest phones; all five
+     titles share it so they're matched. (12.4cqw overflowed the grey title's long line.) */
+  #view-aldo .al-welcome h1,
+  #view-aldo .al-title.c-blue h2,
+  #view-aldo .al-title.c-red h2,
+  #view-aldo .al-title.c-yellow h2,
+  #view-aldo .al-snippet .headline { font-size: min(46px, 11cqw); }
+
+  /* ----- text sections (mobile spacing) -----
+     ID-scoped (1,2,0) so it BEATS the desktop overlay-alignment rules
+     `#view-aldo .al-tc-hello/.al-tc-appr2 .inner` that were leaking their gaps into mobile
+     (measured: hello 36px, appr2 20px, vs appr1/talent 64px). Now every text section matches. */
+  #view-aldo .al-textcomp .inner { padding: 80px 16px 24px; gap: 64px; }
+  #view-aldo .al-tc-appr1 { margin-bottom: 0; padding-top: 0; }   /* drop the desktop hairline hack */
   .al-textcomp .row { flex-direction: column; gap: 64px; }
   .al-textcomp .leftcol { width: 100%; align-self: auto; text-align: left; }
   .al-textcomp .rightcol { align-self: auto; align-items: flex-start; }
@@ -1695,7 +1855,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   .al-workgrid { flex-direction: column; }
   .al-col { width: 100%; }
 
-  /* ----- hide desktop proof chrome + FABs on mobile ----- */
+  /* ----- hide desktop proof chrome + FABs on mobile (dark-mode toggle stays — AD wants it) ----- */
   .full-grid-overlay,
   .grid-legend,
   .fab-grid,
@@ -1710,9 +1870,13 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
     z-index: 320;
     background: var(--cream);
     border-top: 2px solid var(--black);
-    padding: 16px 0;   /* edge to edge horizontally */
+    padding: 16px 0;   /* AD: bar/mask is edge-to-edge... */
     overflow: hidden;
   }
+  /* ...with 8px only before the first ("00") pill and after the last ("Contact") pill.
+     Margins on the flex items (not track padding) so the end gutter survives horizontal scroll. */
+  .m-nav-track > :first-child { margin-left: 8px; }
+  .m-nav-track > :last-child { margin-right: 8px; }
   .m-nav-track {
     display: flex;
     gap: 8px;
@@ -1724,7 +1888,7 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
   .m-pill {
     flex-shrink: 0;
     height: 64px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     display: flex;
     align-items: center;
     padding: 16px;
@@ -1740,5 +1904,16 @@ body.dark .al-logo img { filter: brightness(0) invert(1); }
     justify-content: center;
     background: #fff;
     color: #000;
+  }
+
+  /* dark mode: the bottom nav blends into the black backdrop and the coloured section pills float
+     on it like the work tiles; the home square + top divider flip to cream so they read on black. */
+  body.dark .m-nav {
+    background: var(--black);
+    border-top-color: rgba(249, 246, 230, 0.22);
+  }
+  body.dark .m-pill.m-home {
+    background: var(--cream);
+    color: var(--black);
   }
 }
