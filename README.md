@@ -146,16 +146,29 @@ custom-coded feature components — leave them hardcoded.
 | Work cards | `.al-tile` inside `.al-workgrid` | 9 project cards (image + title + caption). A **repeatable collection** — the best CMS candidate |
 | "Fearless Play" snippet | `.al-snippet` | Headline + body + background image |
 | Hero / final image | `.al-hero`, `.al-large` | Single image swaps |
+| **Sidebar content** | `.al-logo`, `.al-cta`, `.al-nav` `.al-menu-item`s | Logo image, the "ALL WORK" CTA label, and the **nav items** (labels + colours). See the ⚠️ wiring note below |
 
-### 🔒 NOT simple snippets — bespoke JS / interactive (keep hardcoded)
+### 🔒 Behaviours that are code, not content (keep hardcoded)
 
-| Section | Selector | Why |
+These are **interactions**, not blocks to swap. Their *content* may be CMS-driven (above), but the JS
+that animates them stays.
+
+| Behaviour | Selector | What it does |
 | --- | --- | --- |
-| Sidebar nav | `.al-nav` | Scrollspy expand/collapse + smooth-scroll anchors (GSAP) |
+| Sidebar scrollspy + scroll | `sidebarNav()` on `.al-nav` | Expands the current nav item, smooth-scrolls to its section |
 | Hello greeting | `.al-hello-title` | Typewriter that cycles greetings with a blinking cursor |
 | Grey "Welcome" | `.al-welcome` | Giant background word with a slow horizontal marquee pan |
 | Unignorability cell | `.al-cell` | Kinetic letter "constellation" — custom physics (GSAP) |
-| Chrome | dark-mode toggle, date/time, divider hairline SVGs | Small hardcoded UI |
+| Chrome | dark-mode toggle, live date/time, divider hairline SVGs | Small hardcoded UI |
+
+> ⚠️ **Making the sidebar nav fully CMS-driven — read this.** The nav *items* are editable content
+> (labels, colours via the `c-pink`/`c-blue`/… classes), so a CMS can drive them. **But** `sidebarNav()`
+> currently maps each item to its section **by position** (a hardcoded index array
+> `map = [Hello, Approach, Work, Talent, null /*Careers*/, Contact→final image]`), not by an `href` or
+> `data-target`. So: **editing labels/colours is safe as-is**; **adding / removing / reordering items
+> will break the scroll wiring** unless you first refactor that mapping to read a per-item anchor
+> (e.g. give each `.al-menu-item` a `data-target="#section-id"` and have `sidebarNav()` use it). That
+> refactor is small and is the recommended step before wiring the nav to a CMS.
 
 > ⚠️ In the "Born of…" text component, four accent words (`.rc-word`) recolour on click via JS. The
 > **words are editable copy**, but that click-to-recolour interaction is code — keep the class.
