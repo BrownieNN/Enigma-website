@@ -1,5 +1,0 @@
-# Static site — no build step. Serve the repo root as-is.
-[build]
-  publish = "."
-
-# MP4s stream fine on Netlify's CDN (it supports HTTP Range natively, unlike python http.server).
