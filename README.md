@@ -128,6 +128,12 @@ Single column: the sidebar becomes a full-width "parade" (logo / CTA / date) at 
 desktop nav is hidden, and a **fixed bottom-nav minimap** appears. Several sections are set to a
 **3:4 aspect ratio** (hero, grey welcome, video graphic, Unignorability cell, Fearless-Play).
 
+### 📏 Spacing & padding rules → see [`SPACING.md`](SPACING.md)
+
+Every gap, inner padding and corner radius on the site follows a system (8px structural grid; 32px
+tile side-padding that scales via `--u`; fixed-px chrome; 15px radii). **[`SPACING.md`](SPACING.md)**
+is the authoritative per-component reference — read it before adjusting any spacing.
+
 ---
 
 ## Which sections are CMS-insertable HTML snippets
