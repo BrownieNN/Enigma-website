@@ -1,6 +1,7 @@
 # Internal working docs — keep OUT of the repo and the public site
 # (they'd otherwise be reachable at /SAVE_STATE.md etc. and contain candid notes)
 SAVE_STATE.md
+SAVE_STATE_CASESTUDY.md
 PRODUCT.md
 
 # OS / editor cruft
@@ -14,3 +15,7 @@ PRODUCT.md
 node_modules/
 .env
 .env.*
+
+# Review-layer comment store (local dev adapter) — not part of the site
+review-comments.json
+review-comments.json.tmp

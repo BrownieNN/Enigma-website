@@ -44,6 +44,9 @@
 :root {
   --cream: #f9f6e6;
   --black: #000000;
+  /* AD: the site has NO pure white — the light ink/surface is --cream everywhere. This token is
+     retained only for the dev chrome (grid overlay, fab controls, simulator bar), which is not
+     shipped UI. Do not use it in an .al-* rule. */
   --white: #ffffff;
   --red: #ff0008;
   --pink: #ff9eed;
@@ -52,8 +55,18 @@
   --green: #00e592;
   --dark-grey: #2b2b2b;
   --light-grey: #646464;
+  --off-white: #eeefe7;
+  /* Case-study result tiles (node 2629:3550) -- a warm grey that reads as a step down from
+     --off-white on the same panel. Only used there so far. */
+  --stone: #d3d1c7;
 
   --gap: 8px;
+  /* Shared height for the top-bar controls: the All Work page's search field, its close
+     button, and the homepage's ALL WORK button + dark-mode toggle. The value comes from the
+     search field -- 2*16px padding + its 11.22px arrow icon, which is TALLER than the 9.8px
+     cap-trimmed label and is what actually sets that field's height. The homepage button
+     crossfades into the search field from an identical origin, so these must not drift. */
+  --ctl-h: 43.22px;
   --radius: 15px;   /* AD: +3px, Illustrator vectors read smoother than the old 12px */
 
   /* Display type scales proportionally with the viewport, capped at the
@@ -162,9 +175,11 @@ img, svg { display: block; max-width: 100%; }
    These are the exact numbers the old "Proposed" view used, folded in as Aldo's small-screen state:
    narrower sidebar -> wider main (1586 ref) -> --u normalised to 1586. The grid overlay follows.
    Hard switch at the breakpoint (not a smooth shrink) -- matches the AD's "1512 and below". */
-@media (min-width: 601px) and (max-width: 1512px) {
-  /* min-width floor: this 2-col sidebar rule (specificity 1,2,0) otherwise beats the mobile
-     `#view-aldo .al-sidebar {width:100%}` (1,1,0) and forced the mobile header to 310px. */
+@media (min-width: 1280px) and (max-width: 1512px) {
+  /* min-width floor is 1280, i.e. the bottom of the DESKTOP range. This 2-col sidebar rule is
+     specificity (1,2,0) and beats the stacked `#view-aldo .al-sidebar {width:100%}` (1,1,0),
+     so any overlap with the stacked range pins the full-width header back to 310px. It used
+     to floor at 601 and did exactly that across the whole tablet range. */
   #view-aldo .sidebar.w-470 { width: 310px; }
   #view-aldo .main { --u: 0.063052cqw; } /* 100 / 1586, the 2-col main reference */
   #view-aldo .fg-side.w-470 { width: 310px; grid-template-columns: repeat(2, 1fr); }
@@ -453,6 +468,10 @@ img, svg { display: block; max-width: 100%; }
   padding-top: 8px;
 }
 
+/* DEAD -- .pill / .pill-icon are the pre-pivot grid-proof sidebar; nothing in index.html uses
+   them (the mobile nav builds `.m-pill`). Left in place rather than deleted because this file
+   still carries other pre-pivot rules, but they are why a grep for `border: 1.5px` finds hits
+   that look like the Chrome rounding bug: these never render, so there is nothing to fix. */
 .pill {
   border: 1.5px solid var(--black);
   border-radius: 100px;
@@ -614,7 +633,7 @@ img, svg { display: block; max-width: 100%; }
   font-size: var(--t70);
   line-height: 1;
   letter-spacing: 0.08em; /* 5.6px at 70px */
-  color: var(--white);
+  color: var(--cream);
 }
 
 .num70.right { width: 100%; text-align: right; }
@@ -644,41 +663,506 @@ img, svg { display: block; max-width: 100%; }
   justify-content: space-between;
 }
 
+/* Node 4:53. Stroke is 1.5px and drawn as an inset box-shadow, not a border -- Chrome rounds
+   border-width down to whole device pixels and 1.5 renders as 1 at DPR 1.
+
+   PADDING IS 16px 24px, MATCHING .al-wp-search, NOT the node's own py-10. The All Work page's
+   search field sits at the identical top-left origin (8,8) and the two crossfade into each
+   other, so a height mismatch reads as a jump mid-transition. Both are now padding + a
+   cap-trimmed 14px mono label, so they derive the SAME 43.22px height by construction and
+   cannot drift apart if the label or padding is ever retuned. */
 .al-cta {
-  height: 30px;
-  border: 2px solid var(--black); /* box-sizing: border-box → stroke sits inside */
+  border: 0;
+  box-shadow: inset 0 0 0 1.5px currentColor;
   border-radius: 100px;
-  padding: 0 18px;
+  height: var(--ctl-h);
+  padding: 0 24px;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* reset, so <button class="al-cta"> matches the <span> version exactly */
+  background: none;
+  color: var(--black);
+  font: inherit;
 }
+
+button.al-cta { cursor: pointer; }
 
 .al-cta .cap {
   font-family: "ABC Favorit Mono", monospace;
   font-size: 14px;
   text-transform: uppercase;
   white-space: nowrap;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+  position: relative;      /* sits above the hover fill */
+  z-index: 1;
 }
 
+/* The top-bar ALL WORK button inverts to a black fill with white text on hover. In dark mode
+   the button is cream-on-black, so the fill (currentColor) is cream and the label goes black.
+   Scoped to its own class -- setting --cta-ink on .al-cta would override the value the
+   contact TILES set on their pills. */
+.al-cta-topbar { --cta-ink: var(--cream); }
+body.dark .al-cta-topbar { --cta-ink: var(--black); }
+
+/* Contact "Talk to ..." -- full-width pill at the foot of each contact tile (node 2022:2596). */
+/* NB: the 1.5px stroke is an inset box-shadow, NOT a border. Chrome rounds `border-width`
+   down to whole device pixels, so `1.5px` renders as 1px on a DPR-1 display (verified:
+   computed style came back "1px"). A box-shadow ring is antialiased and holds a true 1.5. */
+.al-cta.al-cta-xl {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: calc(76 * var(--u));
+  border: 0;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  padding: 0 calc(72 * var(--u));
+  color: inherit;
+  text-decoration: none;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* Hover fill. Clipped to the pill by the parent's overflow, and painted in currentColor --
+   which is already the stroke colour, so the border needs no separate tween. Faded by GSAP.
+   Lives on the BASE so both the contact pills and the top-bar ALL WORK button can use it. */
+.al-cta .al-cta-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.al-cta.al-cta-xl .cap { font-size: max(16px, calc(24 * var(--u))); }
+
+/* Careers "Apply now" -- taller, thinner-stroked variant of the CTA pill (node 2022:2442). */
+.al-cta.al-cta-lg {
+  height: 42px;
+  border: 0;
+  box-shadow: inset 0 0 0 1.5px currentColor;   /* same 1.5px rounding issue as .al-cta-xl */
+  padding: 0 24px;
+  color: var(--black);
+  text-decoration: none;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* ----- Careers (node 2022:2522) ----- */
+
+.al-careers-copy {
+  width: 100%;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.al-careers-copy > .inner {
+  width: 100%;
+  padding: calc(96 * var(--u)) calc(5 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.al-cr-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The rule is the hero of this section, so it leads the motion: it wipes in from the left,
+   and the type rises out from underneath it. Because the rule physically sits directly above
+   the copy, that relationship is real and needs no occlusion machinery to sell it. */
+.al-cr-row .hl-line { transform-origin: 0% 50%; }
+
+/* Clips the type so it can rise from behind its rule. The padding/negative-margin pair gives
+   the clip box room for descenders (the y of "Are you" hangs below the cap-trimmed box)
+   without shifting the layout by a pixel. */
+.al-cr-mask {
+  flex: 1 0 0;
+  min-width: 0;
+  overflow: hidden;
+  padding-bottom: calc(40 * var(--u));
+  margin-bottom: calc(-40 * var(--u));
+}
+
+.al-cr-bodyrow .al-cr-mask {
+  padding-bottom: calc(10 * var(--u));
+  margin-bottom: calc(-10 * var(--u));
+}
+
+.al-cr-slat {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rule sits above the copy; the copy container carries the 96px breathing room. */
+.al-cr-copy {
+  width: 100%;
+  padding: calc(96 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  align-items: center;
+}
+
+.al-cr-title {
+  margin: 0;
+  width: 100%;          /* the flex sizing now lives on .al-cr-mask */
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: var(--h1-size);
+  line-height: 1;
+  color: var(--black);
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* Body copy is pushed right by a 664px indent and fills what's left. */
+.al-cr-bodyrow {
+  justify-content: flex-end;
+  padding-left: calc(664 * var(--u));
+  padding-right: calc(32 * var(--u));
+}
+
+.al-cr-body {
+  margin: 0;
+  width: 100%;          /* the flex sizing now lives on .al-cr-mask */
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: max(16px, calc(24 * var(--u)));
+  line-height: 1.2;
+  color: var(--black);
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-cr-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* The closing rule is inset by the block's own 5px padding rather than full-bleed. */
+.al-cr-endline { width: calc(100% - calc(10 * var(--u))); }
+
+.al-careers-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.al-acc {
+  width: 100%;
+  padding-top: calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+}
+
+.al-acc-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 calc(32 * var(--u));
+  margin-bottom: calc(96 * var(--u));
+}
+
+/* Rows 2+ keep the status block's height so every row aligns, but hide it. */
+.al-acc-status.is-spacer { visibility: hidden; }
+
+/* AD 2026-07-30: the "current openings" dot pulses gently — a slow breath on the halo ring, not
+   the dot itself, so the 10px core stays crisp and the row's layout never moves. Animating the
+   box-shadow spread costs no reflow (it paints outside the element's box), which is why this can
+   run indefinitely on a page already carrying a physics sim and a WebGL scene. */
+@keyframes al-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(0, 229, 146, 0.38); }
+  50%      { box-shadow: 0 0 0 8px rgba(0, 229, 146, 0.08); }
+}
+
+.al-acc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 100px;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(0, 229, 146, 0.3);
+  flex-shrink: 0;
+  animation: al-dot-pulse 3.2s ease-in-out infinite;
+}
+
+/* The hidden twin on rows 2+ reserves height only (visibility: hidden) — no need to animate it. */
+.al-acc-status.is-spacer .al-acc-dot { animation: none; }
+
+.al-acc-h { margin: 0; }
+
+.al-acc-head {
+  width: 100%;
+  padding: 0 calc(32 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.al-acc-title {
+  flex: 1 0 0;
+  min-width: 0;
+  font-family: "ABC Favorit Mono", monospace;
+  font-weight: 400;
+  font-size: max(16px, calc(24 * var(--u)));
+  line-height: normal;
+  color: var(--black);
+  text-transform: uppercase;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-acc-arrow {
+  width: 11.52px;
+  height: 12.48px;
+  flex-shrink: 0;
+  color: var(--black);
+  transform: scaleY(-1);          /* collapsed = pointing down */
+  transform-origin: 50% 50%;
+}
+
+.al-acc.is-open .al-acc-arrow { transform: scaleY(1); }
+
+/* Height is animated by JS; overflow must clip while it does. */
+.al-acc-panel { overflow: hidden; }
+
+.al-acc-body {
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(64 * var(--u));
+}
+
+.al-acc-body p {
+  margin: 0;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: max(16px, calc(24 * var(--u)));
+  line-height: 1.2;
+  color: var(--black);
+}
+
+.al-acc > .hl { margin-top: calc(32 * var(--u)); }
+
+.al-careers-end {
+  width: 100%;
+  padding: calc(96 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.al-careers-end .num70 { color: var(--dark-grey); width: auto; }
+
+/* AD 2026-07-29 -- dark mode for the whole Careers block.
+   .al-careers-copy is a FLAT cream band (no radius), so it follows the .al-textcomp rule
+   rather than the card rule: it goes black and blends into the backdrop, with the rules and
+   type doing the defining. The openings accordion below already sits on the backdrop, so it
+   only needs its ink flipped. The .hl rules carry an inline fill="#000" on the <rect>, which a
+   CSS `fill` beats (presentation attributes lose to any rule), so no markup change is needed. */
+body.dark .al-careers-copy { background: var(--black); }
+body.dark .al-cr-title,
+body.dark .al-cr-body,
+body.dark .al-cr-link { color: var(--cream); }
+body.dark .al-careers-copy .hl rect,
+body.dark .al-careers-list .hl rect { fill: var(--cream); }
+
+/* Job listings: titles, arrows, the "current openings" label and the expanded descriptions. */
+body.dark .al-acc-status,
+body.dark .al-acc-title,
+body.dark .al-acc-arrow,
+body.dark .al-acc-body p { color: var(--cream); }
+
+/* ----- Contact (node 2111:10499) ----- */
+
+/* "Let's Talk!" -- 365px display type, first line ranged left, second ranged right. */
+.al-lets {
+  width: 100%;
+  height: calc(800 * var(--u));
+  background: var(--cream);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.al-lets-head {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(70 * var(--u));
+  flex-shrink: 0;      /* the panel has a fixed height; without this the lines get squashed */
+}
+
+.al-lets-line {
+  margin: 0;
+  width: 100%;
+  flex-shrink: 0;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: calc(365 * var(--u));
+  line-height: 1;
+  color: var(--black);
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* Ranged right, but held clear of the panel edge so the caret parked after "Talk!" has room
+   to sit and blink in full view. The caret's own right margin only bought ~17px, which read
+   as clipped. */
+.al-lets-line.right {
+  text-align: right;
+  padding-right: calc(64 * var(--u));
+}
+
+/* Caret for the "Let's Talk!" typewriter. The line box is trimmed cap-to-baseline, so the
+   caret is sized off the cap height rather than the em (1em would tower over the caps).
+   `brightness(0)` blacks out the shared red caret asset -- same trick the dark-mode logo uses,
+   so it doesn't need its own file. */
+.al-lets-line .type-cursor {
+  display: inline-block;
+  height: 0.7em;        /* == the cap height the trimmed line box measures, so parking the
+                           caret on a line doesn't nudge that line taller */
+  width: auto;
+  margin: 0 0.05em;
+  vertical-align: baseline;
+  filter: brightness(0);
+  transition: opacity 0.08s linear;
+}
+
+/* The untyped remainder: holds its space so the line keeps full width and height. */
+.al-lets-rest { visibility: hidden; }
+
+/* Fixed-width run (width pinned by JS to the finished word + caret). The line's own
+   text-align places the run; inside it the text is always ranged left, so the word types
+   left-to-right no matter which way the line itself is ranged. */
+.al-lets-run {
+  display: inline-block;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.al-lets-num { color: var(--dark-grey); width: 100%; }
+
+/* AD 2026-07-29 -- dark mode. Black, per AD call: the panel drops its card edges and reads as
+   type sitting straight on the backdrop, the same way the Careers band does. (Dark grey was
+   tried first, to keep the squircle visible; the AD preferred the type standing alone.)
+   The caret swaps to a cream copy of the asset rather than being filtered: `brightness(0)
+   invert(1)` lands on pure white, and the AD has already called cream-not-white elsewhere.
+   Same asset-swap approach as the sidebar logo. */
+body.dark .al-lets { background: var(--black); }
+body.dark .al-lets-line { color: var(--cream); }
+body.dark .al-lets-num { color: var(--cream); }
+body.dark .al-lets-line .type-cursor {
+  filter: none;
+  content: url("assets/aldo/cursor-cream.svg");
+}
+
+.al-contacts {
+  width: 100%;
+  display: flex;
+  gap: var(--gap);
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.al-contact-tile {
+  flex: 1 1 0;
+  min-width: 0;
+  height: calc(802 * var(--u));
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  padding: calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.al-contact-tile.c-red    { background: var(--red);    color: var(--black); }
+.al-contact-tile.c-blue   { background: var(--blue);   color: var(--cream); }
+.al-contact-tile.c-yellow { background: var(--yellow); color: var(--black); }
+
+/* --cta-ink = the CTA label colour once the pill fills on hover (nodes 2059:10272 / 10280 /
+   10286). Blue and yellow take their own tile colour; RED takes cream, not red -- red on
+   black vibrates, and the design says cream. Literal hex on purpose: JS reads this with
+   getPropertyValue() to tween the label, and a var() reference comes back unresolved. */
+.al-contact-tile.c-red    { --cta-ink: #f9f6e6; }
+.al-contact-tile.c-blue   { --cta-ink: #0029a4; }
+.al-contact-tile.c-yellow { --cta-ink: #ffff83; }
+
+.al-contact-top {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(32 * var(--u));
+}
+
+.al-contact-q {
+  margin: 0;
+  width: 100%;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: var(--t60);
+  line-height: 1.2;
+  color: inherit;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* Node 4:65. 1.5px stroke (inset box-shadow, same DPR reason as .al-cta), radius 140.
+   Height matches the top bar's new 43.22px, which is what finally makes the node's own numbers
+   resolve: at this height its 26.6px knob and 8.4px horizontal inset are exactly right (they
+   only looked impossible against the old 30px pill). Width keeps the original 49/30 aspect. */
 .al-toggle {
   position: relative;
-  width: 49px;
-  height: 30px;
-  border: 2px solid var(--black); /* inside stroke via border-box */
-  border-radius: 100px;
+  width: 70.6px;
+  height: var(--ctl-h);
+  border: 0;
+  color: var(--black);
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  border-radius: 140px;
   padding: 0;
   background: transparent;
   cursor: pointer;
   flex-shrink: 0;
-  transition: border-color 0.4s ease;
+  transition: color 0.4s ease;
 }
+/* AD 2026-08-04: knob enlarged to sit on a flat 6px inset all round (was 8.4px / 26.6px from
+   node 4:65). Derived from --ctl-h rather than hardcoded, so the toggle stays exactly as tall as
+   the ALL WORK button it sits beside and the two can't drift:
+     knob   = --ctl-h - 2*6                     = 31.22px
+     travel = 70.6 - 2*6 - knob = 70.6 - --ctl-h = 27.38px  (was 27.2 -- the slide is unchanged)
+   The pill width stays at the drawn 70.6px; only the circle grew. */
 .al-toggle-knob {
   position: absolute;
   top: 50%;
-  left: 4px;
-  width: 18px;
-  height: 18px;
+  left: 6px;
+  width: calc(var(--ctl-h) - 12px);
+  height: calc(var(--ctl-h) - 12px);
   border-radius: 50%;
   background: var(--black);
   transform: translateY(-50%);
@@ -709,6 +1193,10 @@ body.dark .al-capabilities,
 body.dark .al-large {
   background: var(--cream);
 }
+/* The 3D planet is its own always-blue "sky", not a neutral card -- keep it in dark mode too. */
+body.dark .al-capabilities.al-planet-host {
+  background: linear-gradient(to top, #569dd2 9%, #023184 100%);
+}
 /* text components carry top/bottom divider hairlines that cut a rounded corner, so in dark mode
    they go BLACK (blend into the backdrop) with WHITE dividers + white text -- the hairlines
    define them per the grid, no cut-corner. Coloured accent words are kept (see randomiseWords). */
@@ -722,39 +1210,68 @@ body.dark .al-textcomp .hl rect { fill: var(--cream); }
 /* AD: the blue "Unignorability" words sit on the black textcomp in dark mode -> use green instead
    (blue is hard to read on black). Matches the born-of accent-word remap in randomiseWords(). */
 body.dark .al-textcomp .c-blue-t { color: var(--green); }
+/* Solid brand-colour textcomp (c-blue, "Our practice") is a coloured tile, not a neutral card --
+   it keeps its own colour in dark mode instead of flipping to black like the others. */
+body.dark .al-textcomp.c-blue { background: var(--blue); color: var(--cream); }
 /* sidebar top bar text/borders stay readable on the dark backdrop */
-body.dark .al-cta { border-color: var(--cream); color: var(--cream); }
+body.dark .al-cta { color: var(--cream); }   /* ring is currentColor now, so this covers both */
+/* AD 2026-07-29: ...but NOT the contact tiles' pills. Those sit on branded red/blue/yellow
+   cards that don't change in dark mode, so their pills must not either. `.al-cta.al-cta-xl`
+   already sets `color: inherit` (pill takes its tile's ink) -- the blanket rule above is just
+   more specific and was overriding it, flipping the red and yellow pills from black to cream.
+   Restoring `inherit` at higher specificity makes dark identical to light. --cta-ink, which
+   drives the hover fill, is set per tile and was never touched by dark mode. */
+body.dark .al-contact-tile .al-cta { color: inherit; }
 body.dark .al-date { color: var(--cream); }
 /* work-tile captions sit on the backdrop -> cream in dark mode (AD: use cream, not white) */
 body.dark .al-tile .tcontent { color: var(--cream); }
 /* toggle: knob slides right + flips to cream */
-body.dark .al-toggle { border-color: var(--cream); }
+body.dark .al-toggle { color: var(--cream); }   /* ring is currentColor now */
 body.dark .al-toggle-knob {
-  transform: translate(21px, -50%);
+  /* travel = width - 2*inset - knob, and the insets cancel: 70.6 - --ctl-h */
+  transform: translate(calc(70.6px - var(--ctl-h)), -50%);
   background: var(--cream);
 }
 .al-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
 .al-toggle img { width: 19px; height: 19px; }
 
+/* AD 2026-08-04: the parade now carries its own breathing room. The supplied art is a 940x596
+   canvas with the lockup inset at L55/T86/R61/B87, so the spacing is baked into the asset and
+   scales with it -- the old CSS inset (88.86% width + 8px block padding) would double up on it.
+   Hence width:100% and no padding here: the rendered LOCKUP stays the size it always was, and
+   the extra canvas is the new margin. Don't "tidy" these back to the old values. */
 .al-logo {
   width: 100%;
-  padding: 8px 0;
   overflow: hidden;
 }
 
 .al-logo img {
   display: block;
-  width: 88.86%;
+  width: 100%;
   height: auto;
   margin: 0 auto;
 }
-/* dark mode: swap the black parade art for the cream one. logo-cream.png is the EXACT same crop
-   (2840x1427) as sidebar-logo.png, so a display toggle keeps identical position -- no filter, no
-   clipping (the old parade-white.png was a different crop, hence the retired filter hack). */
+/* dark mode: swap the black parade art for the cream one. parade-cream.png is the EXACT same crop
+   (940x596, pixel-identical silhouette) as parade-light.png, so a display toggle keeps identical
+   position -- no filter, no clipping (the old parade-white.png was a different crop, hence the
+   retired filter hack). */
 .al-logo .logo-dark { display: none; }
 body.dark .al-logo .logo-light { display: none; }
 body.dark .al-logo .logo-dark { display: block; }
+
+/* Short desktop windows. The sidebar is a fixed-height sticky column with `overflow: hidden`,
+   so every px the parade gains comes straight out of .al-nav -- and the baked spacing made the
+   block ~72px taller, which moved the point where the last nav item (CONTACT) gets clipped from
+   a ~530px viewport up to ~630px. Capping the art below 720px tall puts that threshold back
+   well clear. `object-fit: contain` keeps the lockup centred inside its own margin as it
+   shrinks, so the spacing stays proportional instead of being cropped off. */
+@media (min-width: 1280px) and (max-height: 720px) {
+  .al-logo img {
+    max-height: 30vh;
+    object-fit: contain;
+  }
+}
 
 .al-date {
   width: 100%;
@@ -792,6 +1309,12 @@ body.dark .al-logo .logo-dark { display: block; }
   white-space: nowrap;
   transition: filter 0.25s ease;
   min-height: 0;
+  /* A collapsed item is 41.8px of chrome (16px padding + a cap-trimmed 14px label) and must
+     never be compressed to make room for something else in the rail. Without this, anything
+     that overfills the column -- an expanded tile with real content in it, a sixth nav item --
+     is silently paid for by squashing every other item, which changes the look of the whole
+     menu far from the thing that actually grew. Only the expanded tile flexes. */
+  flex-shrink: 0;
 }
 
 /* Per-section scroll-progress indicator (desktop): an 8px dot on the right of
@@ -820,11 +1343,11 @@ body.dark .al-logo .logo-dark { display: block; }
 .al-menu-item.is-open:hover { filter: none; }
 
 .al-menu-item.c-pink   { background: var(--pink);      color: var(--red); }
-.al-menu-item.c-blue   { background: var(--blue);      color: var(--white); }
+.al-menu-item.c-blue   { background: var(--blue);      color: var(--cream); }
 .al-menu-item.c-red    { background: var(--red);       color: var(--black); }
 .al-menu-item.c-yellow { background: var(--yellow);    color: var(--black); }
 .al-menu-item.c-green  { background: var(--green);     color: var(--yellow); }
-.al-menu-item.c-dark   { background: var(--dark-grey); color: var(--white); }
+.al-menu-item.c-dark   { background: var(--dark-grey); color: var(--cream); }
 
 /* ----- Main hero / large image ----- */
 
@@ -832,7 +1355,7 @@ body.dark .al-logo .logo-dark { display: block; }
   width: 100%;
   border-radius: var(--radius);
   overflow: hidden;
-  background: var(--white);
+  background: var(--cream);
   flex-shrink: 0;
 }
 
@@ -846,6 +1369,57 @@ body.dark .al-logo .logo-dark { display: block; }
   height: 100%;
   object-fit: cover;
   max-width: none;
+}
+
+/* ----- Fearless Play -- the live Talent snippet (cursor-driven image trail) -----
+   Rides ON TOP of .al-snippet, which already supplies the panel geometry, the --snip-w
+   headline width and the mobile overrides. The export this was ported from happened to be
+   built from the very same component (its --s/1586 reference, 800 height, 64/32/72 padding,
+   1318 headline and 0.645em trademark all match exactly), so only the deltas live here. */
+
+.al-fp {
+  isolation: isolate;      /* MUST create a stacking context -- the split chars and trail run
+                              z-index 90..~400 and would otherwise punch through the FABs
+                              (z 205) and the grid/design overlays. */
+  background: var(--black);
+}
+
+.al-fp-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.al-fp-headline {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+/* Approximation -- the spec gave the glyph size but not a baseline offset. The 0.645em
+   size itself comes from .al-snippet .headline .tm. */
+.al-fp-headline .tm { vertical-align: 0.35em; }
+
+/* AD 2026-08-06: the cursor image-trail is gone, and with it every rule that served it --
+   `.al-fp-headline.is-split` (collapsed the source h2 once its chars were reparented),
+   `.al-fp-char` (the absolutely positioned split glyphs) and `.al-fp-item` / its `img` /
+   `.is-contain` (the 10-element trail pool). The headline is a plain <h2> again and the panel
+   is a single rolling <img class="al-fp-bg">, which carries its own `object-fit: cover` above.
+   Deleted rather than left commented: nothing builds those elements any more, so a stale rule
+   here would only look like a live component to the next person reading the sheet. */
+
+@media (prefers-reduced-motion: reduce) {
+  /* The openings dot's pulse is decorative; hold it at its rest ring instead. */
+  .al-acc-dot { animation: none; box-shadow: 0 0 0 4px rgba(0, 229, 146, 0.3); }
 }
 
 /* ----- Welcome panel ----- */
@@ -862,7 +1436,7 @@ body.dark .al-logo .logo-dark { display: block; }
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  color: var(--white);
+  color: var(--cream);
   flex-shrink: 0;
 }
 
@@ -950,9 +1524,11 @@ body.dark .al-logo .logo-dark { display: block; }
 }
 
 .al-divider.c-pink   { background: var(--pink);   color: var(--black); }
-.al-divider.c-blue   { background: var(--blue);   color: var(--white); }
+.al-divider.c-blue   { background: var(--blue);   color: var(--cream); }
 .al-divider.c-red    { background: var(--red); }
 .al-divider.c-yellow { background: var(--yellow); color: var(--black); }
+.al-divider.c-green  { background: var(--green);  color: var(--yellow); }
+.al-divider.c-black  { background: var(--black);  color: var(--cream); }
 
 .al-title {
   width: 100%;
@@ -979,24 +1555,52 @@ body.dark .al-logo .logo-dark { display: block; }
 .al-title.c-pink   { background: var(--pink); }
 .al-title.c-pink h2 { color: var(--red); }
 .al-title.c-blue   { background: var(--blue); }
-.al-title.c-blue h2 { color: var(--white); }
-.al-title.c-blue .num70 { color: var(--white); }
+.al-title.c-blue h2 { color: var(--cream); }
+.al-title.c-blue .num70 { color: var(--cream); }
 .al-title.c-red    { background: var(--red); }
 .al-title.c-red h2 { color: var(--black); }
 .al-title.c-yellow { background: var(--yellow); }
 .al-title.c-yellow h2 { color: var(--black); }
+/* Careers + Contact are the two title panels that are 926 tall rather than 800
+   (nodes 2020:2369 and 2022:2536). */
+.al-title.c-green { background: var(--green); height: calc(926 * var(--u)); }
+.al-title.c-green h2,
+.al-title.c-green .num70 { color: var(--yellow); }
+
+.al-title.c-black { background: var(--black); height: calc(926 * var(--u)); }
+.al-title.c-black h2,
+.al-title.c-black .num70 { color: var(--cream); }
+
+/* AD 2026-07-29: in dark mode the backdrop IS black, so the Contact title panel loses its
+   edges. Dark grey gives the card back its shape; the type is already cream. */
+body.dark .al-title.c-black { background: var(--dark-grey); }
 
 .al-hello-title h2.jp { font-family: "Enigma Large", "Hiragino Mincho ProN", serif; }
 
 /* 14-col Hello title: blinking typewriter cursor */
-/* SVG I-beam caret (assets/aldo/cursor.svg, red). Scoped to Aldo (14-col was stripped). Height is
-   matched to the greeting's cap height; blinking is JS-controlled (opacity), so no CSS animation. */
+/* SVG I-beam caret (assets/aldo/cursor.svg, red). Scoped to Aldo (14-col was stripped). Cursor is
+   taller than the copy's own line, so the h2 is a flex row that vertically centers the word +
+   cursor against each other rather than relying on baseline/vertical-align. Blinking is
+   JS-controlled (opacity), so no CSS animation. */
+#view-aldo .al-hello-title h2 {
+  display: flex;
+  align-items: center;
+}
+/* AD 2026-07-29 -- these two values were authored in PX against the 164px desktop headline:
+   `(1em + 12px) * 0.95` and `translateY(12px)`. The row is `align-items: center`, so the caret
+   is centred on the word and that 12px nudge is the ONLY thing dropping it back onto the
+   baseline. On mobile --h1-size falls to ~40px, so 12px went from ~7% of the type to ~30% --
+   the nudge no longer reached the baseline and the caret read as vertically centred.
+
+   Re-expressed in em so the same relationship holds at every size. The numbers are the desktop
+   ones converted, not retuned: 12/164 = 0.0732em, and (1em + 0.0732em) * 0.95 = 1.0195em --
+   which resolves back to 167.2px and 12px at a 164px headline, so desktop is untouched. */
 #view-aldo .al-hello-title h2 .type-cursor {
   display: inline-block;
-  height: 0.72em;          /* ~cap height of the Enigma Large greeting */
+  height: 1.0195em;          /* taller than the greeting's cap height, per the original intent */
   width: auto;
   margin-left: 0.08em;
-  vertical-align: baseline;
+  transform: translateY(0.0732em);
   transition: opacity 0.08s linear;
 }
 
@@ -1044,7 +1648,7 @@ body.dark .al-logo .logo-dark { display: block; }
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;  /* title removed -> keep the 02 badge at the bottom */
-  color: var(--white);
+  color: var(--cream);
   width: 100%;
 }
 
@@ -1139,6 +1743,15 @@ body.dark .al-logo .logo-dark { display: block; }
   font-style: italic;
 }
 
+/* The forced Unignor|ability split that lived here (AD 2026-07-29) is GONE — the markup span went
+   with it. It existed because the copy was 40px, where "Unignorability" is 63% of a 342px phone
+   column and every wrap left a hole in the rag. Reverting the copy to the shared --t60 (28px) on
+   2026-07-30 removed that problem: the word measures 215.8px in a 342px column and sits on one
+   line comfortably. The break then had nothing left to solve and just cost a short first line.
+   NB: do not re-raise this block's size in isolation either — if the copy should be bigger,
+   --t60 moves and all four text components move together. If it is ever sized back up, the rag
+   problem returns and the split comes back with it. */
+
 .reg60 { font-size: 0.645em; vertical-align: super; }
 
 .c-red-t   { color: var(--red); }
@@ -1163,13 +1776,38 @@ body.dark .al-logo .logo-dark { display: block; }
    height varies ~18px by device-pixel-ratio; a fixed height locks the boundary either way). The
    inner flexes so the bottom hairline still sits at the card's bottom edge. */
 #view-aldo .al-tc-hello        { height: calc(1220.4 * var(--u)); }
-#view-aldo .al-tc-hello .inner { gap: calc(125 * var(--u)); flex: 1 1 auto; }
-#view-aldo .al-tc-appr2 .inner { gap: calc(68 * var(--u)); }          /* appr2 card -60px */
+/* AD 2026-08-04: 96px from the last line of the sentence to the number, 32px from the number to
+   the bottom hairline -- i.e. the same gap/pb as every other textcomp (see the appr2 note below).
+   The gap was 125 to help the pinned height come out right.
+
+   `margin-top: auto` is what makes the 32 real. The height above is PINNED but the wrapped text
+   height isn't (it moves ~18px with DPR), so the inner always carries some slack -- and with the
+   default flex-start that slack landed under the number, rendering 50.4px against the hairline
+   instead of 32. Pushing the free space above the row instead makes both numbers exact and leaves
+   the pinned bottom edge untouched. It also degrades safely: if the text ever outgrows the box,
+   `auto` resolves to 0 and this behaves exactly like flex-start (overflow at the bottom, not up
+   into the Approach section). Don't swap it for `justify-content: flex-end`, which overflows up. */
+#view-aldo .al-tc-hello .inner { gap: calc(96 * var(--u)); flex: 1 1 auto; }
+#view-aldo .al-tc-hello .row   { margin-top: auto; }
 #view-aldo .al-capabilities    { height: calc(873 * var(--u)); }      /* Capabilities +60px */
 #view-aldo .al-workgrid        { padding-bottom: 6px; }               /* Talent block +6px onto its line */
-.al-tc-appr1  { margin-bottom: -1px; padding-top: 1px; }
-.al-tc-appr1 .inner { padding: calc(160 * var(--u)) calc(32 * var(--u)) calc(96 * var(--u)); }
-.al-tc-appr2 .inner { padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u)); gap: calc(128 * var(--u)); }
+/* appr1 (node 6:317) and appr2 (node 2015:1902): pt160/px32/pb32/gap96 match the shared
+   .al-textcomp .inner default exactly, so neither needs a per-component override.
+   AD 2026-08-06: appr1's 96u BOTTOM padding is gone with the override. It was standing in for
+   the section numeral this component was missing -- now that ⓿❷ is in the markup, the shared
+   pb32 puts 96 from the last line of copy to the number and 32 from the number to the closing
+   hairline, i.e. identical to "Our story" (.al-tc-hello), which is the source of truth. */
+
+/* Solid-colour textcomp variant (node 2015:1902, "Our practice") -- no hairline dividers, cream
+   text/number on the brand colour instead of black-on-cream. */
+.al-textcomp.c-blue {
+  background: var(--blue);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+}
+.al-textcomp.c-blue .mono14,
+.al-textcomp.c-blue .bigtext,
+.al-textcomp.c-blue .num70 { color: var(--cream); }
 
 /* hairlines: 2px everywhere, drawn as an SVG rounded rect (rx=1) so the
    end caps are geometrically round and cannot be distorted by stretching. */
@@ -1189,6 +1827,17 @@ body.dark .al-logo .logo-dark { display: block; }
   display: block;
   max-width: none;
 }
+
+/* Careers uses heavier rules than the 2px default: 3px for the closing rule and the accordion
+   separators (node 2022:2522). Same rounded-rect mechanism.
+   AD 2026-07-29: the copy-row rules were too thick and came down from the Figma's 8px to 4px.
+   The class name is left as `.hl-8` so the three markup hooks don't have to change — this
+   declaration is the single knob. NB the SVGs carry no viewBox, so the rect height and rx in
+   the markup had to change with it; setting only the CSS height clips the rounded ends.
+   It now sits close to the 3px closing rule, so if the two need to read differently, take
+   this to 5px rather than dropping the closing rule. */
+.hl.hl-8 svg.hl-line { height: 4px; top: -2px; }
+.hl.hl-3 svg.hl-line { height: 3px; top: -1.5px; }
 
 /* ----- Approach cell concept ----- */
 
@@ -1229,10 +1878,19 @@ body.dark .al-logo .logo-dark { display: block; }
      top of the rest of the page (a stray glyph appeared below the tile, over the page chrome). */
   overflow: hidden;
 }
-.al-bond {
-  stroke: #f9f6e6;
-  stroke-width: 2;         /* exact Figma stroke (frame units) */
+.al-strand {
+  fill: none;
+  /* stroke-width set per strand (randomised weights) as an SVG attribute -- no CSS value here,
+     a CSS rule would override the attribute and flatten the variation. */
+  stroke-linecap: round;
   pointer-events: none;
+}
+.al-bond-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 34;         /* generous invisible hover target around the rope */
+  stroke-linecap: round;
+  pointer-events: stroke;
 }
 .al-glyph {
   cursor: grab;
@@ -1249,20 +1907,370 @@ body.dark .al-logo .logo-dark { display: block; }
 }
 .al-glyph.is-grabbing { cursor: grabbing; }
 
-.al-content { width: 100%; display: flex; flex-direction: column; }
+.al-content { width: 100%; display: flex; flex-direction: column; gap: var(--gap); }
 
-/* ----- Capabilities ----- */
+/* ----- Capabilities: 3D planet (Central Intelligence / Creative / Media) ----- */
 
 .al-capabilities {
   width: 100%;
   height: calc(813 * var(--u));
-  background: var(--white);
+  background: var(--cream);
   border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
+
+.al-planet-host {
+  position: relative;
+  overflow: hidden;
+  /* same gradient sky as the Figma reference, top dark -> bottom lighter */
+  background: linear-gradient(to top, #569dd2 9%, #023184 100%);
+  /* AD's thin cream crosshair (30x30, hotspot centred) */
+  cursor: url("assets/cursor-crosshair.svg") 15 15, crosshair;
+
+  /* AD 2026-07-29 -- the interaction here IS a press-and-hold, which is exactly the gesture
+     iOS uses to start a text selection: holding to explode the globe raised the selection
+     handles and the copy/share callout over the top of it.
+       - `-webkit-touch-callout` kills the iOS long-press menu specifically
+       - `user-select` stops the drag turning into a highlight (and the blue selection wash
+          over the HUD labels)
+       - `tap-highlight-color` removes the grey flash Safari paints on tap
+     Deliberately NOT scoped to a touch media query: the pointer-type guesses in this file
+     already have a QA override for when they get it wrong, and there is nothing here worth
+     selecting -- the serial readouts are randomised decoration, not copy. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.al-planet-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Floating HUD tag per piece -- positioned via inline transform (JS, projected 3D->screen),
+   hidden until the piece explodes into view. */
+.al-planet-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--cream);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* (The HUD crosshair that sat left of each tag was removed 2026-07-29 per AD -- the dot on the
+   label already marks the piece, and on mobile it was eating width the labels needed.) */
+
+.al-planet-tag-text { display: flex; flex-direction: column; gap: 2px; }
+
+.al-planet-label,
+.al-planet-code {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+  margin: 0;
+  opacity: 0;
+  transform: translateX(-6px);
+}
+
+.al-planet-label { display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
+
+.al-planet-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.al-planet-tag[data-piece="creative"] .al-planet-dot { background: var(--pink); }
+.al-planet-tag[data-piece="media"]    .al-planet-dot { background: var(--green); }
+.al-planet-tag[data-piece="ci"]       .al-planet-dot { background: var(--cream); }
+
+/* Always-visible bottom legend, matches the Default-view key in the reference. */
+.al-planet-key {
+  position: absolute;
+  left: 50%;
+  bottom: calc(32 * var(--u));
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  color: var(--cream);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.al-planet-key span { display: flex; align-items: center; gap: 8px; }
+.al-planet-key .al-planet-dot.c-ci       { background: var(--cream); }
+.al-planet-key .al-planet-dot.c-creative { background: var(--pink); }
+.al-planet-key .al-planet-dot.c-media    { background: var(--green); }
+
+/* ----- Capabilities divider (node 2015:1927) ----- */
+
+.al-caps-divider {
+  width: 100%;
+  padding: calc(32 * var(--u));
+  background: var(--blue);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+/* AD 2026-08-06: the label SCALES with the card (both dividers -- "Our Capabilities" and
+   "A Team of Unignorable People" are the same component). It was a flat 24px while the card's
+   padding and its numeral were both on --u, so the label grew proportionally larger every time
+   the column got narrower and stranded-looking every time it got wider. 24 is the Figma value,
+   so `calc(24 * var(--u))` is 24px exactly at the 1426 design column and tracks it either way.
+   NB this is a deliberate exception to the "label type stays fixed at 14/24px" rule -- it is
+   scoped to this one component; do not generalise it to the other 24px labels.
+   Tablet keeps its flat 24px override (see the 600-1279 block): both tablet frames draw it at
+   24, and on a 752 column the formula would give 12.7px -- smaller than the phone size. */
+.al-caps-divider-label {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: calc(24 * var(--u));
+  color: var(--cream);
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-caps-num {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: var(--t70);
+  line-height: 1;
+  letter-spacing: 0.08em;      /* 5.6px at 70px */
+  color: var(--cream);
+  white-space: nowrap;
+}
+
+/* The first numeral is a hidden twin of the last: it reserves the same width, so the label
+   centres on the card rather than on the space left over beside a single numeral. */
+.al-caps-divider .al-caps-num:first-child { visibility: hidden; }
+
+/* Talent divider (node 2015:2095) -- same component, yellow card with black type. */
+.al-caps-divider.c-yellow { background: var(--yellow); }
+.al-caps-divider.c-yellow .al-caps-divider-label,
+.al-caps-divider.c-yellow .al-caps-num { color: var(--black); }
+
+/* ----- Capabilities list (node 37:8224) ----- */
+
+.al-caps {
+  width: 100%;
+  display: flex;
+  gap: var(--gap);
+  align-items: stretch;   /* equal-height tiles even with different row counts */
+  flex-shrink: 0;
+}
+
+.al-caps-tile {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--cream);
+  /* 1.5px as an inset ring, not a border: Chrome rounds border-width DOWN to whole device
+     pixels, so `border: 1.5px` really painted at 1px here. Same fix as .al-cta-xl.
+     Unlike the CTAs this tile has no fixed height, so dropping the border would have handed
+     3px back to the content box and reflowed the tile -- the 1.5px is added to the padding to
+     keep the box model identical to what was measured against the Figma. */
+  box-shadow: inset 0 0 0 1.5px var(--black);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  padding: calc(32 * var(--u) + 1.5px) calc(24 * var(--u) + 1.5px) calc(10 * var(--u) + 1.5px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(10 * var(--u));
+}
+
+.al-caps-tile h3 {
+  margin: 0;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: max(20px, calc(36 * var(--u)));
+  line-height: 1;
+  color: var(--black);
+  text-align: center;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-caps-tile ul {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Figma compensates 1-line vs 2-line rows with different paddings (46.5 vs 32) so every row
+   lands the same height. A min-height with centred content does that on its own, and keeps
+   holding when text re-wraps at narrower widths. */
+.al-caps-tile li {
+  min-height: calc(110 * var(--u));
+  padding: calc(8 * var(--u)) 0;
+  border-bottom: 1px solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: max(16px, calc(24 * var(--u)));
+  line-height: 1.2;
+  color: var(--black);
+}
+
+.al-caps-tile li:last-child { border-bottom: 0; }
+
+/* AD 2026-07-30 -- dark mode INVERTS the capability tiles: black fill, cream ring, cream rules
+   and cream type. Note this is the opposite call to the talent tiles, which take dark grey — here
+   the 1.5px cream ring is what gives the tile its edge against the black backdrop, so a fill that
+   matches the backdrop is fine and reads as a drawn outline.
+   `border-bottom-color` only, so the row rules keep their 1px weight and :last-child's `border:0`
+   still wins. */
+body.dark .al-caps-tile {
+  background: var(--black);
+  box-shadow: inset 0 0 0 1.5px var(--cream);
+}
+body.dark .al-caps-tile h3 { color: var(--cream); }
+body.dark .al-caps-tile li {
+  color: var(--cream);
+  border-bottom-color: var(--cream);
+}
+
+/* ----- Talent grid (node 2015:2160) -----
+   3x3 leadership tiles. Grid rather than three flex rows: it gives the same per-row equal
+   heights the Figma auto-layout does, without three wrapper divs. */
+
+.al-talent {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 11px;        /* as designed -- note the row gap is 8px; see SAVE_STATE */
+  row-gap: var(--gap);
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+/* AD 2026-08-06: the TILE is a fixed 705px and the IMAGE absorbs whatever the copy leaves.
+   Previously the image was pinned to the Figma 438:695 window and the tile was content-driven,
+   so a long bio pushed the whole card taller (they were running 877-906px) and the grid row
+   stretched to its worst case.
+
+   705 is a flat px, deliberately NOT calc(705 * var(--u)): everything inside is fixed-size type
+   (h3 and p are both 14px at every breakpoint), so a tile that scaled with the column would
+   squeeze the image between a shrinking box and text that never shrinks -- at the narrow end of
+   desktop the image would be reduced to a sliver. The tile holds its height and the image takes
+   the remainder, which is exactly the behaviour asked for. */
+.al-talent-tile {
+  min-width: 0;
+  height: 705px;
+  background: var(--off-white);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  padding: calc(16 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(16 * var(--u));
+}
+
+.al-talent-img {
+  width: 100%;
+  /* No aspect-ratio any more -- the height IS the flex remainder. `min-height: 0` is what makes
+     the shrink legal: a flex item's default `min-height: auto` floors it at its content size,
+     and the <img> inside would hold the box open at its intrinsic height. The img itself is
+     width/height 100% + object-fit: cover, so it fills this box and crops rather than squashing
+     however short the box gets. */
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  background: var(--cream);
+}
+
+/* The copy takes its natural height first; the image lives on what is left. */
+.al-talent-text { flex-shrink: 0; }
+
+/* James has no portrait in the design -- the container is a solid blue block. */
+.al-talent-img.is-empty { background: var(--blue); }
+
+.al-talent-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+  display: block;
+}
+
+.al-talent-text {
+  display: flex;
+  flex-direction: column;
+  gap: calc(16 * var(--u));
+}
+
+.al-talent-text h3 {
+  margin: 0;
+  font-family: "ABC Favorit Mono", monospace;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: normal;
+  color: var(--black);
+  text-transform: uppercase;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+  /* Figma sets these nowrap, but the longest name overruns a 438px tile below ~1900 and the
+     tile clips. Wrapping keeps every name readable; grid rows stay equal height regardless. */
+  text-wrap: balance;
+}
+
+.al-talent-text p {
+  margin: 0;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 14px;
+  /* AD 2026-08-06: 17px flat leading (was 1.65 = 23.1px), matching the work-tile captions.
+     px not a multiplier for the same reason as there -- the 14px is fixed at every breakpoint,
+     so a ratio would only invite the leading to drift if the size is ever changed. */
+  line-height: 17px;
+  color: var(--black);
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* Dark mode: cream tiles on the black backdrop keep their cream/black treatment (they read as
+   printed cards), matching how the other neutral cards behave. */
+body.dark .al-caps-divider { background: var(--blue); }
+
+/* AD 2026-07-29: the talent divider is yellow-with-black in light mode, but dark mode flips
+   every divider to blue (rule above) and black type on blue reads muddy -- label AND numeral
+   go cream, matching the capabilities divider's contrast. */
+body.dark .al-caps-divider.c-yellow .al-caps-divider-label,
+body.dark .al-caps-divider.c-yellow .al-caps-num { color: var(--cream); }
+
+/* AD 2026-07-29: talent tiles are rounded cards, so they take the DARK-GREY card treatment
+   rather than going black -- black would dissolve them into the backdrop (same reasoning as
+   the Contact tile and Welcome section noted in the dark-mode block). Type flips to cream. */
+body.dark .al-talent-tile { background: var(--dark-grey); }
+body.dark .al-talent-text h3,
+body.dark .al-talent-text p { color: var(--cream); }
 
 /* ----- Work grid ----- */
 
@@ -1289,7 +2297,11 @@ body.dark .al-logo .logo-dark { display: block; }
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  /* AD 2026-08-06: 8px from the image to the work title (was 24px). This is the tile's own
+     flex gap -- .tcontent starts with the mono title, so this IS the image-to-title distance.
+     8px is the page grout, so the caption now sits as close to its image as the tiles do to
+     each other. The title-to-body gap inside .tcontent is separate and stays 14px. */
+  gap: 8px;
   overflow: hidden;
 }
 
@@ -1325,7 +2337,12 @@ body.dark .al-logo .logo-dark { display: block; }
 
 .al-tile .tcontent {
   width: 100%;
-  padding: 0 0 16px;   /* AD: remove L/R padding so caption text runs full tile width */
+  /* L/R padding was removed once (AD) so the caption ran the full tile width; AD 2026-08-06 puts
+     2px back on the LEFT only. It optically aligns the caption's stem with the image edge above
+     it -- Gaisyr's left side bearing sets the glyphs a hair inside the box, so a true 0 reads as
+     a slight outdent against the image. Right stays 0: the rag is uneven, so there is nothing
+     there to align. Same 2px on the All Work page caption (.al-wp-text). */
+  padding: 0 0 16px 2px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -1337,7 +2354,24 @@ body.dark .al-logo .logo-dark { display: block; }
   font-family: "ABC Gaisyr", serif;
   font-weight: 300;
   font-size: 14px;
-  line-height: 1.55;
+  /* AD 2026-08-06: 17px flat, not a ratio (was 1.55 = 21.7px). Written in px because the
+     caption's 14px is fixed at every breakpoint -- a unitless multiplier would only invite
+     someone to "fix" the size later and silently move the leading with it. The All Work page
+     caption (.al-wp-text p) is the same component and carries the same 17px. */
+  line-height: 17px;
+  /* AD 2026-07-29 -- hover state. The caption rests at light grey and warms to full-strength
+     ink while the pointer is over the tile. Colour is set on the <p> directly rather than
+     inherited from .tcontent, so the MONO TITLE above it keeps its own black/cream and only
+     the description moves. 0.45s is the "slowly" -- and it runs on the way out too. */
+  color: var(--light-grey);
+  transition: color 0.45s ease;
+}
+
+/* Trigger is the whole tile -- image included -- not just the text block. Guarded on
+   `hover: hover` so a touchscreen doesn't latch the hover state on after a tap. */
+@media (hover: hover) {
+  .al-tile:hover .tcontent p { color: var(--black); }
+  body.dark .al-tile:hover .tcontent p { color: var(--cream); }
 }
 
 /* ----- Talent snippet ----- */
@@ -1669,7 +2703,1037 @@ body.dark .al-logo .logo-dark { display: block; }
 
 .m-nav { display: none; }
 
-@media (max-width: 600px) {
+/* ----- Footer (node 2144:1682) ----- */
+
+.al-footer {
+  width: 100%;
+  height: calc(960 * var(--u));
+  background: var(--black);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.al-footer > .inner {
+  flex: 1 0 0;
+  min-height: 0;
+  width: 100%;
+  padding: calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(96 * var(--u));
+}
+
+/* Addresses left, links right; this row flexing is what pushes the wordmark to the foot. */
+.al-foot-top {
+  flex: 1 0 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.al-foot-addr {
+  display: flex;
+  gap: calc(128 * var(--u));
+  align-items: center;
+}
+
+.al-foot-office {
+  width: calc(186 * var(--u));
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  line-height: normal;
+  color: var(--cream);
+  text-transform: uppercase;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-foot-office.is-wide { width: calc(213 * var(--u)); }
+.al-foot-office p { margin: 0; }
+
+.al-foot-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: calc(124 * var(--u));
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  line-height: normal;
+  text-transform: uppercase;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-foot-links a {
+  color: var(--cream);
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* The wordmark carries its own cream fill; aspect-ratio holds its box before the SVG loads. */
+.al-foot-mark {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1362 / 165.251;
+  flex-shrink: 0;
+}
+
+/* AD 2026-07-29: same problem as the Contact title -- a black footer card on a black backdrop
+   has no edges in dark mode. Dark grey restores them. The addresses/links are already white
+   and the wordmark carries its own cream fill, so both still read. */
+body.dark .al-footer { background: var(--dark-grey); }
+
+/* Terms sit on the page backdrop, not on a card.
+   AD 2026-07-29: they were full-bleed (0 horizontal padding, per the original design) while the
+   footer's contents -- including the Enigma wordmark -- are inset by the footer inner's 32*--u.
+   That left the terms hanging a wordmark-width further left than everything above them. Matching
+   the inset aligns the terms copy and the (c)2026 mark to the wordmark's edges. Layout, not
+   colour, so it is deliberately NOT scoped to dark mode. */
+.al-terms {
+  width: 100%;
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  gap: calc(340 * var(--u));
+  align-items: flex-end;
+  color: var(--black);
+  font-family: "ABC Favorit Mono", monospace;
+  flex-shrink: 0;
+}
+
+.al-terms-copy {
+  margin: 0;
+  flex: 1 0 0;
+  min-width: 0;
+  font-size: 10px;
+  line-height: 1.4;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-terms-mark {
+  margin: 0;
+  font-size: 14px;
+  line-height: normal;
+  white-space: nowrap;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* AD 2026-07-30: privacy policy sits UNDER the (c) line. Wrapped rather than added as a sibling
+   of .al-terms-copy because .al-terms is a flex ROW with a 340u gap -- a third child would have
+   been pushed out along that axis instead of stacking beneath the mark. */
+.al-terms-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(10 * var(--u));
+  flex-shrink: 0;
+}
+
+.al-terms-privacy {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  line-height: normal;
+  white-space: nowrap;
+  color: inherit;                 /* follows .al-terms, so dark mode is already handled */
+  text-decoration: underline;
+  text-underline-position: from-font;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+.al-terms-privacy:hover { text-decoration-thickness: 2px; }
+
+/* Dark mode: these sit directly on the backdrop, which goes black -- black ink would vanish.
+   (The Careers closing numeral has the same exposure, fixed here too.) */
+body.dark .al-terms { color: var(--cream); }
+body.dark .al-careers-end .num70 { color: var(--cream); }
+
+
+/* ----- All Work page (node 62:796) -----
+   Fixed overlay over the homepage so the two can crossfade without either reflowing. Scrolls
+   itself; body scroll is locked by JS while it is open. */
+
+.al-workpage {
+  position: fixed;
+  inset: 0;
+  /* Above the mobile bottom nav (320) as well as the FABs (210). It has to out-rank the nav
+     by STACKING rather than by a display rule: mobileNav() sets `nav.style.display = "block"`
+     inline, and no stylesheet selector can beat an inline style. */
+  z-index: 400;
+  background: var(--cream);
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  /* container for the 4-col grid's own scale, mirroring how .main works on the homepage */
+  container-type: inline-size;
+  container-name: workpage;
+}
+
+.al-workpage[hidden] { display: none; }
+
+/* ----- All Work follows the theme (AD 2026-07-30) -----
+   Was "ALWAYS dark", on the reasoning that reading `body.dark` risked desyncing the sidebar
+   toggle mid-crossfade. That reasoning doesn't hold: this only READS the body class, it never
+   writes it, so there is nothing to desync — the page simply inherits whatever mode the
+   homepage is already in. Dropped on AD instruction.
+
+   These are pure dark-mode overrides now; the light values live in the base rules above
+   (`.al-workpage` cream, `.al-wp-search` white, `.al-wp-arrow`/`.al-wp-text` black, `.al-wp-img`
+   white) and the close button's SVG carries white/black presentation attributes in the markup,
+   so light mode needs nothing added here. CSS beats presentation attributes, which is how the
+   dark close button still works without a markup change. */
+body.dark .al-workpage { background: var(--black); color: var(--cream); }
+body.dark .al-workpage .al-wp-text { color: var(--cream); }
+body.dark .al-workpage .al-wp-search {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--cream);
+  color: var(--light-grey);
+}
+body.dark .al-workpage .al-wp-arrow { color: var(--cream); }
+body.dark .al-workpage .al-wp-close svg rect { fill: var(--black); stroke: var(--cream); }
+body.dark .al-workpage .al-wp-close svg path { fill: var(--cream); }
+/* Placeholder behind a tile image before it decodes — white flashes hard against the black. */
+body.dark .al-workpage .al-wp-img { background: var(--dark-grey); }
+
+.al-wp-inner {
+  width: 100%;
+  padding: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.al-wp-top {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* Exactly one grid column wide, so it lines up with the first column at any width
+   (1904 - 3*8) / 4 = 470 at the 1920 reference. */
+.al-wp-search {
+  width: calc((100% - 3 * var(--gap)) / 4);
+  flex-shrink: 0;
+  background: var(--cream);
+  border-radius: 100px;
+  box-shadow: inset 0 0 0 1.5px var(--black);   /* 1.5px: see .al-cta-xl note */
+  height: var(--ctl-h);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--light-grey);
+  cursor: text;
+}
+
+.al-wp-search .cap {
+  flex: 1 0 0;
+  min-width: 0;
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-wp-arrow {
+  width: 13.61px;
+  height: 11.22px;
+  flex-shrink: 0;
+  color: var(--black);
+}
+
+.al-wp-close {
+  width: 43.11px;
+  height: 43.22px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: block;
+}
+
+.al-wp-close svg { width: 100%; height: 100%; display: block; }
+
+.al-wp-grid {
+  width: 100%;
+  display: flex;
+  gap: var(--gap);
+  align-items: flex-start;
+}
+
+.al-wp-col {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.al-wp-tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;   /* AD 2026-08-06 -- image to title, matching the homepage work tile */
+  overflow: hidden;
+}
+
+/* The three tile proportions in the design. */
+.al-wp-img {
+  width: 100%;
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  background: var(--cream);
+  flex-shrink: 0;
+}
+
+.al-wp-img.is-tall { aspect-ratio: 470 / 705; }
+.al-wp-img.is-mid  { aspect-ratio: 312.5625 / 416.75; }
+.al-wp-img.is-wide { aspect-ratio: 470 / 423; }
+
+.al-wp-img .cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+  display: block;
+}
+
+.al-wp-text {
+  width: 100%;
+  padding-bottom: 16px;
+  padding-left: 2px;   /* AD 2026-08-06 -- matches the homepage tile caption */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--black);
+}
+
+.al-wp-text h3 {
+  margin: 0;
+  font-size: 14px;
+  line-height: normal;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-wp-text p {
+  margin: 0;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 17px;   /* AD 2026-08-06 -- matches the homepage tile caption (was 1.65 = 23.1px) */
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* The homepage wrapper is what fades out; JS drives the opacity. */
+.grid-wrap { will-change: opacity; }
+
+/* `body.work-open` is set by workPageNav() while the overlay is up -- a state hook for
+   anything that needs to know. NB: it deliberately does NOT hide .m-nav, because that nav
+   carries an inline display set by mobileNav(); the overlay out-ranks it by z-index instead. */
+
+
+/* ============================================================================
+   CASE STUDY (nodes 2629:3523 sidebar / 2629:3984 solo / 2629:3004 mobile)
+
+   Third overlay in the stack: homepage (in flow) -> All Work (z 400) -> case study (z 500).
+   It has to out-rank All Work because you can open a case study FROM All Work, and that page
+   stays mounted underneath so "back" is instant and keeps its scroll position.
+
+   THE TWO DESKTOP VARIANTS ARE ONE LAYOUT AT TWO WIDTHS. Both frames draw the same body
+   column; the only structural difference is whether the 470 sidebar is there. So the entire
+   variant delta is the reference width --u normalises to:
+
+       sidebar variant   main = 1426   --u = 100/1426
+       body.case-solo    main = 1904   --u = 100/1904
+
+   Every hero/media height is calc(<figma px> * var(--u)), which means the solo variant's drawn
+   heights fall out for free -- 926.5u at the 1904 reference is 1237.07, exactly what node
+   2629:3984 measures, and 802u -> 1071, 925u -> 1235. No per-variant height rules exist, and
+   adding one would be a sign something has drifted.
+
+   PANEL HEIGHTS ARE THE EXCEPTION and are FIXED px (513/613/965), not --u: the Figma draws the
+   same values in both frames because they're set by 14/24px body type, which doesn't scale.
+   They're min-heights so a narrow column can grow them instead of clipping -- same reasoning as
+   the .al-textcomp note further up. ============================================================================ */
+
+/* The filter lives in a zero-size svg parked in the document; it is referenced by url(#goo)
+   and must never take up layout or catch a click. */
+.goo-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+
+/* Work tiles open a case study, so they have to read as links. caseStudyNav() gives them
+   role="link" and key handling; this is the other half of that -- without it they are the only
+   clickable things on the site that keep an arrow cursor. Lives here rather than with .al-tile
+   because it exists solely because of the case study. */
+.al-workgrid .al-tile,
+.al-wp-tile { cursor: pointer; }
+
+/* IN FLOW, as a flex item of .grid-wrap alongside .main -- not an overlay. See the markup note.
+   body.case-open swaps which of the two is displayed; body.case-solo also drops the rail. */
+.al-casestudy {
+  flex: 1;
+  min-width: 0;
+  display: none;
+}
+
+.al-casestudy[hidden] { display: none; }
+body.case-open .al-casestudy:not([hidden]) { display: block; }
+
+/* REMOVED 2026-08-12 -- `body.case-leaving #view-aldo > .grid-wrap { z-index: 500 }`.
+
+   It lifted the whole wrapper over the z-400 All Work overlay for the duration of the study's
+   exit, because otherwise that overlay covered the study instantly and there was nothing left to
+   fade. It had to be the WRAPPER and not the study: .grid-wrap carries `will-change: opacity`,
+   which creates a stacking context, so a z-index on the study is scoped inside it and can never
+   beat a sibling of the wrapper. That fact is still true and still worth knowing -- it is why the
+   veil is a child of <body> -- but nothing needs the lift any more. The study no longer fades out
+   over All Work; it is swapped while the veil covers both. See the PAGE VEIL block below. */
+
+/* The swap. .main is display:none rather than hidden-but-present so the document height belongs
+   to whichever page is showing -- the homepage is ~15,000px and the case study ~8,500px, and a
+   leftover 15,000px scroll range would let the reader scroll far past the end of the study. */
+body.case-open #view-aldo > .grid-wrap > .main { display: none; }
+
+/* Solo (opened from All Work, node 2629:3984): no rail, so the column takes the full 1904. */
+body.case-solo #view-aldo > .grid-wrap > .al-sidebar { display: none; }
+
+.al-cs-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  /* Own container name, NOT `maincol` -- the homepage's @container maincol rules restack
+     .al-textcomp, and sharing the name would let any future rule there reach in here. */
+  container-type: inline-size;
+  container-name: casecol;
+
+  /* ONE reference width for every layout: 1426, the column the study was drawn at.
+     NOT renormalised per variant, which is what the homepage does and what an earlier build
+     copied. The homepage renormalises because each of its views was independently AUTHORED at a
+     different main width, so a design px means something different in each. That is not the case
+     here -- both case-study frames carry the SAME numbers, and the wide one is simply the same
+     design scaled up: hero 926.5 -> 1237, media 802 -> 1071 and 925 -> 1235 are all exactly
+     x1.335, i.e. 1904/1426. Renormalising to 1904 cancelled that scale-up and rendered the solo
+     variant at 926px against a drawn 1237 -- a quarter too small. Leave this alone: with a single
+     reference, every width falls out of the ratio for free. */
+  --u: 0.070126cqw;        /* 100 / 1426 */
+}
+
+/* ----- solo top bar (node 2629:3984 "Top", drawn at 24,20 over the hero) -----
+   FIXED, not absolute. The frame draws it once at the top because that's the scroll-top state,
+   but this variant has no sidebar and the page runs ~10,000px -- an absolute bar would scroll
+   away and strand the reader with no way back. The sidebar variant needs none of this: its
+   sticky rail already carries ALL WORK and the red tile's close button. */
+.al-cs-topbar {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  right: 24px;
+  z-index: 205;                /* over the page, under the dev FABs */
+  display: none;               /* solo only */
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;        /* the bar is a spacer; only its controls take clicks */
+}
+
+body.case-solo .al-cs-topbar { display: flex; }
+.al-cs-topbar > * { pointer-events: auto; }
+
+/* AD: a cream ghost -- 10% fill over a blurred backdrop, cream ink and ring.
+   This bar is fixed, so it travels over the hero photography AND over the off-white text panels
+   below it. A plain cream outline vanished against those panels; a solid fill read as a button
+   sitting on top of the page rather than part of it. The frosted treatment holds on both: the
+   blur separates it from whatever is behind, and the 10% tint carries the ring even where the
+   backdrop is nearly the same colour as the ink. */
+.al-cs-back {
+  color: var(--cream);
+  background: color-mix(in srgb, var(--cream) 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--cream);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  --cta-ink: var(--black);   /* hover inverts to a cream fill, so the label flips to black */
+  gap: 10px;
+}
+
+/* ...but a cream ghost has nothing to hold on to over the off-white text panels: cream ink,
+   cream ring and a cream tint on a near-cream surface measured as all but invisible, and this is
+   the ONLY navigation the full-bleed variant has. The treatment is unchanged -- same 10% fill,
+   same blur, same ghost -- the ink and ring simply invert while it is over a light section.
+   Which section it is over is tracked in caseBackContrast(). */
+.al-cs-back.on-light {
+  color: var(--black);
+  background: color-mix(in srgb, var(--black) 6%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--black);
+  --cta-ink: var(--cream);
+}
+
+.al-cs-back-arrow {
+  width: 13.61px;
+  height: 11.22px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+/* The arrow's colour is driven by ctaInvertHover, via data-cta-ink on the svg -- not by a :hover
+   rule here. A CSS rule keys off a different signal than the module's pointerenter/focus-visible
+   decision and the two drifted out of step. */
+
+/* ----- the Work item's case-study state (node 2629:3537) -----
+   This is NOT a tile of its own -- it is the second state of the rail's red Work item, so the
+   background, radius, squircle and hover all come from .al-menu-item.c-red and are not restated
+   here. CHROME, so every value is fixed px, never --u (SPACING.md §3).
+
+   The item's padding drops 16 -> 4px 4px 16px in this state because the frame insets the pill by
+   4 and the pill carries its own 12, which comes to the same 16px chrome inset by a different
+   route. Restating it is what keeps the pill and the rows below it on one left edge. */
+.al-cs-meta { display: none; }
+
+/* NO min-height here, deliberately. The frame draws this tile at 400, and pinning that floor
+   was a mistake worth recording: the rail is a fixed-height flex column, so forcing one item to
+   400 pushed the nav 83px past the sidebar and the other five items -- which shrink by default
+   -- absorbed it, dropping from 41.8px to 32px each. The whole menu silently changed shape the
+   moment a case study opened, which is exactly what must not happen.
+
+   The open Work item takes the leftover space like any expanded item, so the rail is identical
+   in both states. 400 is simply what that leftover comes to at the 1080 the frame was drawn at.
+
+   Keyed off `#nav-work.is-case`, NOT `body.case-open`. The two are deliberately separate: the
+   body class swaps the page the moment the study is mounted, while this one is added only once
+   the study has actually rendered -- so the rail keeps showing a normal WORK tile for the whole
+   of the outgoing transition instead of gutting itself the instant the tile is clicked. */
+#nav-work { flex-direction: column; align-items: stretch; }
+#nav-work.is-case { padding: 4px 4px 16px; cursor: default; gap: 24px; }
+
+/* Plain block while collapsed so the label stays ORDINARY INLINE TEXT. That matters: `.cap`
+   trims to cap height via text-box-trim, which applies to a text box and is silently ignored on
+   a flex/inline-flex container -- making this a flex row measured the label at its 17px line box
+   instead of 9.8px and pushed the collapsed item to 49px, out of step with the other five.
+   It only becomes a row once there is a close button to put at the far end. */
+.al-mi-head { display: block; }
+#nav-work.is-case .al-mi-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; position: relative; }
+
+/* THE PERSISTENT WORD. One element in both states -- collapsed it is the rail's plain WORK
+   label, open it is the first word of the pill. It is never hidden and never faded; the pill is
+   drawn around it by transitioning background and ink only, so the word itself holds still while
+   everything else arrives. Cap-trimmed text means the glyphs land at the same 16px inset either
+   way: collapsed that is the tile's own padding, open it is 4px of tile + 12px of pill. */
+/* BLOCK, not inline. `.cap`'s text-box-trim only takes effect on a block container -- in the
+   other five items the span gets blockified for free by being a flex item, but here it sits
+   inside .al-mi-head and stayed inline, measuring its full 17px line box instead of the trimmed
+   9.8 and pushing the item to 49px. `width: fit-content` keeps the pill shrink-wrapped to the
+   label rather than spanning the tile. */
+.al-mi-label { display: block; width: fit-content; white-space: nowrap; }
+.al-mi-suffix { display: none; }
+
+/* No background of its own any more -- the black is .al-mi-goo-bar sitting behind it, so the
+   two shapes can melt together under the filter without the type going with them. The padding
+   stays here because it is what positions the word inside the bar. */
+#nav-work.is-case .al-mi-label {
+  color: var(--red);
+  padding: 11px 12px;
+  position: relative;
+  z-index: 1;
+}
+#nav-work.is-case .al-mi-suffix { display: inline; }
+
+/* ----- the goo layer (scroll-driven; see caseStudyGoo) -----
+   Absolutely positioned over the head so it takes no part in the flex layout -- the label and
+   the close button keep their normal positions and simply sit on top of it. */
+.al-mi-goo { display: none; }
+
+#nav-work.is-case .al-mi-goo {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Turned on only inside the merge window. feGaussianBlur re-rasterises the layer every frame and
+   this page is ~8,500px of heavy imagery, so there is no reason to pay for it through the first
+   two-thirds of the scroll where the shapes are nowhere near each other. Safe to toggle because
+   stdDeviation is still 0 at the crossover -- filtered and unfiltered render identically there. */
+#nav-work.is-case .al-mi-goo.is-goo { filter: url(#goo); }
+
+.al-mi-goo-bar,
+.al-mi-goo-dot {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--black);
+}
+
+/* --goo-w / --goo-r are written by GSAP. The defaults ARE frame 1 of the storyboard, so if the
+   scroll driver never runs the pill still renders correctly, just inert. */
+.al-mi-goo-bar {
+  left: 0;
+  width: var(--goo-w, 100%);
+  border-radius: var(--goo-r, 10px);
+}
+
+.al-mi-goo-dot {
+  right: 0;
+  width: var(--goo-dot, 32px);
+  aspect-ratio: 1;
+  height: auto;
+  top: 50%;
+  translate: 0 -50%;
+  border-radius: 50%;
+}
+
+#nav-work.is-case .al-cs-meta {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--black);
+}
+
+/* The expansion itself is a CSS transition on flex-grow, not a GSAP tween. It has to survive a
+   stalled ticker: the tile clips its overflow, so an expansion that never ran would leave the
+   study's details inside a 41.8px sliver. Scoped to the open state so it cannot fight
+   sidebarNav(), which drives flex-grow per-frame from GSAP during normal scroll-spying. */
+body.case-open .al-nav .al-menu-item {
+  transition: filter 0.25s ease, flex-grow 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.al-cs-meta-close { display: none; }
+#nav-work.is-case .al-cs-meta-close { display: block; }
+
+.al-cs-meta-close {
+  position: relative;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.al-cs-meta-close svg { width: 100%; height: 100%; display: block; }
+
+/* AD: the project line runs in ABC Gaisyr, not the rail's mono. It is the one piece of copy in
+   the tile rather than a label, so it takes the body face -- same 14/17 as the credits block. */
+.al-cs-meta-title {
+  padding-left: 12px;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 17px;
+  text-transform: none;   /* AD: sentence case -- the rail's blanket uppercase is for labels */
+}
+.al-cs-meta-foot { display: flex; flex-direction: column; gap: 48px; }
+
+/* ----- the tile's slow reveal (AD request) -----
+   Driven from CSS rather than GSAP ON PURPOSE -- see the long note on fadeMeta(). The resting
+   state below is FULLY VISIBLE; `.is-arming` is the only rule that hides anything, and JS adds
+   and removes it within a single synchronous block. So a stalled animation frame can cost the
+   fade, but it can never cost the content -- including the close button, which is the way out
+   of the page.
+
+   NOTE WHAT IS ABSENT: .al-mi-label. The word WORK was on screen before the study opened and
+   must not re-animate, so it is never a fade target. Only its pill arrives, by transitioning
+   background and ink underneath a word that does not move.
+
+   --fd is the per-element stagger. A transition (not an animation) because interrupting one
+   mid-flight resolves toward the current value instead of snapping back to the start. */
+.al-mi-suffix,
+.al-cs-meta-close,
+.al-cs-meta-title,
+.al-cs-meta-group { opacity: 1; }
+
+#nav-work.is-arming .al-mi-suffix,
+#nav-work.is-arming .al-cs-meta-close,
+#nav-work.is-arming .al-cs-meta-title,
+#nav-work.is-arming .al-cs-meta-group { opacity: 0; transition: none; }
+
+#nav-work.is-in .al-mi-suffix,
+#nav-work.is-in .al-cs-meta-close,
+#nav-work.is-in .al-cs-meta-title,
+#nav-work.is-in .al-cs-meta-group {
+  opacity: 1;
+  transition: opacity 1.5s ease var(--fd, 0s);
+}
+
+/* The pill forming around the stationary word. Colour only -- no opacity, no movement. */
+#nav-work.is-arming .al-mi-label {
+  background: transparent;
+  color: var(--black);
+  transition: none;
+}
+#nav-work.is-in .al-mi-label {
+  transition: background-color 1.2s ease 0.15s, color 1.2s ease 0.15s;
+}
+
+/* The bar itself now carries what the label's background used to. Opacity only: the word sits
+   above it and is untouched either way. */
+#nav-work.is-arming .al-mi-goo { opacity: 0; transition: none; }
+#nav-work.is-in .al-mi-goo { opacity: 1; transition: opacity 1.2s ease 0.15s; }
+#nav-work.is-out .al-mi-goo { opacity: 0; transition: opacity 0.45s ease; }
+
+/* ----- leaving -----
+   Closing a study does NOT collapse the tile. The reader is being returned to the Work section
+   they opened it from, so the Work item is the one that should be expanded when they land --
+   collapsing it here only to have the scroll spy expand it again a moment later reads as a
+   flinch. The tile holds its size and just empties: the details fade out, the pill drains back
+   to plain red, and what is left is the ordinary expanded WORK tile.
+   No stagger on the way out, and quicker than the way in -- an exit should get out of the way. */
+#nav-work.is-out .al-mi-suffix,
+#nav-work.is-out .al-cs-meta-close,
+#nav-work.is-out .al-cs-meta-title,
+#nav-work.is-out .al-cs-meta-group {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+#nav-work.is-out .al-mi-label {
+  background: transparent;
+  color: var(--black);
+  transition: background-color 0.45s ease, color 0.45s ease;
+}
+
+.al-mi-suffix     { --fd: 0.15s; }
+.al-cs-meta-close { --fd: 0.33s; }
+.al-cs-meta-title { --fd: 0.51s; }
+.al-cs-meta-foot > .al-cs-meta-group:nth-child(1) { --fd: 0.69s; }
+.al-cs-meta-foot > .al-cs-meta-group:nth-child(2) { --fd: 0.87s; }
+
+@media (prefers-reduced-motion: reduce) {
+  #nav-work.is-arming .al-mi-suffix,
+  #nav-work.is-arming .al-cs-meta-close,
+  #nav-work.is-arming .al-cs-meta-title,
+  #nav-work.is-arming .al-cs-meta-group { opacity: 1; }
+  #nav-work.is-arming .al-mi-label { background: var(--black); color: var(--red); }
+}
+
+.al-cs-meta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 12px;
+}
+
+.al-cs-meta-group .cap { white-space: nowrap; }
+
+/* ----- hero (node 2629:3542) ----- */
+.al-cs-hero {
+  width: 100%;
+  height: calc(926.5 * var(--u));
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  background: var(--cream);   /* placeholder before the photo decodes */
+}
+
+.al-cs-hero img { width: 100%; height: 100%; object-fit: cover; max-width: none; }
+
+/* ----- 2-up rows -----
+   flex-start, NOT stretch: node 2629:3557 pairs a 513 panel with a 965 one and the short one
+   genuinely ends early, leaving backdrop below it. Stretching would equalise them and lose that. */
+.al-cs-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  width: 100%;
+}
+
+.al-cs-row > * { flex: 1 1 0; min-width: 0; }
+
+/* ----- text panels (node 2629:3544) ----- */
+.al-cs-panel {
+  width: 100%;
+  background: var(--off-white);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.al-cs-panel.h-513 { min-height: 513px; }
+.al-cs-panel.h-613 { min-height: 613px; }
+.al-cs-panel.h-965 { min-height: 965px; }
+
+.al-cs-panel .inner {
+  width: 100%;
+  flex: 1;
+  padding: calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(48 * var(--u));
+}
+
+/* Results panel nests one level deeper: 64 between its three blocks, 48 inside the head. */
+.al-cs-panel.is-results .inner { gap: calc(64 * var(--u)); }
+.al-cs-head { display: flex; flex-direction: column; gap: calc(48 * var(--u)); }
+
+.al-cs-tag { color: var(--black); }
+
+.al-cs-body {
+  width: 100%;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 24px;             /* Body Medium -- fixed px, per SPACING.md §3 */
+  line-height: 1.2;
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;                  /* one blank line between paragraphs */
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.al-cs-body p { margin: 0; }
+.al-cs-body.is-lg { font-size: 36px; }   /* Body Large */
+.al-cs-body.is-sm { font-size: 14px; line-height: 17px; }  /* Body Small */
+
+.al-cs-credits { gap: 17px; }            /* the drawn blank line between credit groups */
+.al-cs-credits a { color: inherit; text-decoration: underline; text-underline-position: from-font; }
+
+/* ----- result tiles (node 2629:3550) -----
+   The two tiles are bottom-aligned inside columns with different top padding (130 / 50), which
+   is what produces the drawn stagger -- the tiles themselves are identical. */
+.al-cs-results {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: var(--gap);
+  width: 100%;
+}
+
+/* The columns are the measuring stick: full height, tiles pinned to the floor so they grow
+   upward. The Figma's 50u/130u top paddings are gone -- they were a static stand-in for exactly
+   this, and with the height coming off the data the stagger is the data. */
+.al-cs-rescol {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* HEIGHT IS THE PERCENTAGE, measured against the container.
+     0%   -> the tile is just its own content: the number sitting directly above its label
+     100% -> the tile fills the column
+   so the readable floor is the text itself and the ceiling is the container, and every value in
+   between is a true proportion of that span. --min-h is the measured content height (JS); the
+   min-content floor keeps it honest if that measurement never happens.
+
+   --grow defaults to the authored --pct, so with no JS at all the boxes still stand at their
+   correct heights -- the animation only ever borrows the variable to count it up from zero. */
+.al-cs-restile {
+  --grow: calc(var(--pct, 0) / 100);
+  flex: 0 0 auto;
+  height: calc(var(--min-h, 0px) + (100% - var(--min-h, 0px)) * var(--grow));
+  min-height: min-content;
+  background: var(--stone);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  padding: calc(16 * var(--u));
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.al-cs-resnum {
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: calc(60 * var(--u));   /* H2 -- display type, so it scales with the column */
+  line-height: 1.2;
+}
+
+.al-cs-reslabel {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  line-height: normal;
+  text-transform: uppercase;
+}
+
+/* ----- media tiles (nodes 2629:2796 black insert / 2627:2652 film) ----- */
+.al-cs-media {
+  position: relative;
+  width: 100%;
+  height: calc(925 * var(--u));
+  flex-shrink: 0;
+  background: var(--black);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  padding: calc(100 * var(--u)) calc(89 * var(--u));
+  display: flex;
+  flex-direction: column;
+}
+
+.al-cs-media-in { flex: 1; min-height: 0; width: 100%; }
+.al-cs-media-in img { width: 100%; height: 100%; object-fit: cover; max-width: none; }
+.al-cs-media-in img.is-contain { object-fit: contain; }
+
+/* Film tile: the poster IS the tile, so no inset padding on the image -- only the 32px the
+   play row sits on. */
+.al-cs-media.is-film {
+  height: calc(802 * var(--u));
+  padding: calc(32 * var(--u));
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.al-cs-media-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+}
+
+.al-cs-play {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cream);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Floors at 28px so the target stays usable when the column is narrow. */
+.al-cs-play svg { width: max(28px, calc(41 * var(--u))); height: max(28px, calc(41 * var(--u))); flex-shrink: 0; }
+.al-cs-play .cap { font-family: "ABC Favorit Mono", monospace; font-size: 14px; text-transform: uppercase; white-space: nowrap; }
+
+/* ----- dark mode -----
+   Same treatment as the homepage: backdrop goes black, neutral text panels go black with cream
+   ink (as .al-textcomp does), and the black media tiles are left alone because a colour tile
+   never changes. Heroes keep a cream placeholder, matching body.dark .al-hero. */
+body.dark .al-casestudy { background: var(--black); color: var(--cream); }
+body.dark .al-cs-panel { background: var(--black); color: var(--cream); }
+body.dark .al-cs-tag,
+body.dark .al-cs-body { color: var(--cream); }
+body.dark .al-cs-restile { background: var(--dark-grey); color: var(--cream); }
+body.dark .al-cs-hero { background: var(--cream); }
+
+
+/* ============================================================================
+   PAGE VEIL -- the transition between any two pages.
+
+   AD 2026-08-12: "there should be a mid point of the animation timeline where we see complete
+   cream or solid colour before the second half begins... fade out > solid colour for split
+   second > content fades in. So we don't get a messy overlap of content between pages."
+
+   So the pages themselves NO LONGER FADE. The veil closes over the current page, the swap
+   happens underneath while nothing is visible, and the veil opens on the new one. Every route
+   uses it -- home<->All Work, home<->case study, All Work<->case study.
+
+   This DELETES rather than adds: the crossfade overlap in workPageNav, `body.case-leaving` and
+   its z-index lift, the reveal-vs-replay branch in caseStudyNav's close, and the homepage-flash
+   guard all existed to manage two pages being visible at once. Covered, that problem is gone.
+
+   Z-INDEX 600, surveyed against every other value in this file rather than guessed:
+   dev FABs 210, .al-cs-topbar 205, .sim-stage 300, .m-nav 320, .al-workpage 400 (and the old
+   case-leaving 500, now removed). It must also beat them from the ROOT stacking context, which
+   is why the element is a direct child of <body>: .grid-wrap carries `will-change: opacity` and
+   is therefore a stacking context of its own, so a veil placed inside it could never rise above
+   a sibling of that wrapper however high its z-index. #view-aldo is a plain display:block
+   section and creates no context, so body-level really is top level here.
+
+   RESTING STATE IS INVISIBLE AND INERT, and getting there must never depend on an animation
+   completing -- a veil stuck opaque is a white screen over the entire site with no way out.
+   Hence `visibility: hidden` at rest (delayed to the end of the fade so the fade is watchable),
+   and `pointer-events: none` even while opaque: the busy flags in both nav modules already
+   serialise transitions, so the veil has no reason to swallow clicks, and if one ever did wedge
+   the site stays usable underneath instead of dead. JS carries a setTimeout net on both halves
+   for the same reason -- see pageVeil(). */
+.al-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: var(--cream);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--veil-out, 0.5s) ease,
+              visibility 0s linear var(--veil-out, 0.5s);
+}
+.al-veil.is-on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--veil-in, 0.42s) ease,
+              visibility 0s linear 0s;
+}
+body.dark .al-veil { background: var(--black); }
+
+/* The veil is the one thing on the site that should still do its job with motion turned off --
+   it is what stops two pages overlapping. It just does it instantly. */
+@media (prefers-reduced-motion: reduce) {
+  .al-veil { transition: none; }
+  .al-veil.is-on { transition: none; }
+}
+
+
+/* ############################################################################
+   ##                                                                        ##
+   ##   NEW COMPONENT CSS GOES ABOVE THIS LINE -- NOT AT THE END OF THE FILE ##
+   ##                                                                        ##
+   ##   Everything below is responsive overrides, and they run to EOF. CSS   ##
+   ##   of equal specificity is won by whichever rule comes last, so a       ##
+   ##   desktop rule appended after these blocks also applies at mobile and  ##
+   ##   tablet widths -- it silently beats the override that was meant to    ##
+   ##   reshape it. That failure is invisible at desktop, which is where it  ##
+   ##   usually gets checked. It has bitten twice.                           ##
+   ##                                                                        ##
+   ##   Adding a responsive override IS the exception -- put it in the       ##
+   ##   matching block below (mobile <=1279 / portrait 600-1279 /            ##
+   ##   <=1023 scrollers / landscape 1024-1279).                             ##
+   ##                                                                        ##
+   ############################################################################ */
+
+
+/* ============================================================================
+   STACKED LAYOUTS -- mobile + both tablets (everything below the desktop sidebar).
+
+   Breakpoints (AD-agreed):
+     <=599        mobile            content 374   work 1 col   contact 1 col
+     600-1023     tablet portrait   content 752   work 3 col   contact 3 col
+     1024-1279    tablet landscape  content 1008  work 3 col   contact 3 col
+     >=1280       desktop           sidebar + fluid main
+
+   Everything in THIS block is the shared stacked shell + the mobile baseline: the sidebar
+   stops being sticky and becomes a full-width header ("Parade" in the Figma), .al-nav is
+   hidden in favour of the bottom nav, and the main column goes full width. The two tablet
+   blocks that follow only override what actually differs (grid columns, type caps, panel
+   heights) rather than restating the shell.
+
+   Before this existed, 601-1279 had NO rules at all: the fixed 470px sidebar applied and the
+   main column collapsed to 267px at 601 and 434px at 768, with 86 and 28 elements overflowing.
+   ============================================================================ */
+@media (max-width: 1279px) {
 
   /* ----- layout reflow: single column ----- */
   #view-aldo .grid-wrap,
@@ -1690,6 +3754,108 @@ body.dark .al-logo .logo-dark { display: block; }
 
   .al-nav { display: none; }              /* desktop menu -> becomes bottom nav */
 
+  /* ----- all work page (Figma "All work - Mobile" 2056:9904) -----
+     ONE column: the three column frames stack, each full width. (An earlier build used a 2-up
+     masonry here -- that was a guess made before this frame existed, and it's wrong.)
+     The search pill is a FIXED 245, not a column fraction: at 374 a single column IS the full
+     width, so the fraction formula the tablets use would stretch it edge to edge. */
+  .al-wp-grid { display: flex; flex-direction: column; columns: auto; column-gap: normal; gap: 12px; }
+  .al-wp-col { display: flex; flex-direction: column; width: 100%; flex: 0 0 auto; gap: 12px; }
+  .al-wp-tile { break-inside: auto; margin-bottom: 0; gap: 8px; }
+  .al-wp-text { padding-bottom: 16px; gap: 14px; }
+  .al-wp-top { align-items: flex-start; gap: var(--gap); }
+  .al-wp-search { width: 245px; flex: 0 0 auto; padding: 0 24px; }
+
+  /* ----- case study (Figma "Mobile" 2629:3004) -----
+     BOTH desktop variants collapse to this ONE layout -- the mobile frame draws the parade
+     header and no expanded red tile regardless of where you came from, so `case-solo` stops
+     meaning anything here: the rail comes back as the full-width header and the fixed top bar
+     goes away.
+
+     The rail's menu is already hidden by the blanket `.al-nav { display: none }` above, which
+     takes the red tile's close button with it -- correct per the frame, which has no red tile,
+     but it leaves the parade's ALL WORK button as the only way out on a phone. caseStudyNav()
+     wires it as such. */
+  body.case-solo #view-aldo > .grid-wrap > .al-sidebar { display: flex; }
+  .al-casestudy .al-cs-topbar,
+  body.case-solo .al-cs-topbar { display: none; }
+
+  /* .grid-wrap turns into a COLUMN here and carries `align-items: flex-start`, so a flex child
+     shrink-wraps on the cross axis instead of stretching -- this measured 0px wide, which took
+     every cqw-based height (the hero, the media panels) to 0 with it. The stacked `.main` needs
+     the identical rule a few lines up for exactly the same reason; keep the two together. */
+  .al-casestudy { width: 100%; }
+  .al-cs-main { width: 100%; }
+
+  /* .grid-wrap reserves 116px at the foot to clear the fixed bottom nav. caseStudyNav() hides
+     that nav while a study is up, so the reservation would just be dead space under the credits. */
+  body.case-open #view-aldo .grid-wrap { padding-bottom: 8px; }
+
+  /* Panel heights are drawn per-block on mobile and every one of them is content-driven, so the
+     desktop pins are released rather than restated -- pinning 513 on a 374 column clips the
+     Challenge copy, which wraps to ~13 lines there. */
+  .al-cs-panel.h-513,
+  .al-cs-panel.h-613,
+  .al-cs-panel.h-965 { min-height: 0; }
+
+  /* Rows stack. `align-items: flex-start` is meaningless once stacked; the reset keeps the
+     panels full-bleed rather than shrink-to-fit. */
+  .al-cs-row { flex-direction: column; }
+  .al-cs-row > * { width: 100%; flex: 0 0 auto; }
+
+  /* Mobile switches to FIXED px throughout (SPACING.md §5): 16px sides, no --u. */
+  .al-cs-panel .inner { padding: 24px 16px; gap: 32px; }
+  .al-cs-panel.is-results .inner { gap: 40px; }
+  .al-cs-head { gap: 32px; }
+  .al-cs-body { font-size: 16px; }
+  .al-cs-body.is-lg { font-size: 24px; }
+  .al-cs-body.is-sm { font-size: 14px; }
+
+  /* 450 / 210 in the mobile frame, at a 374 column (ratio = frame px / 374) -- the same
+     `min(<frame px>, <ratio>cqw)` form the homepage panels use, so they cap at the drawn size
+     and shrink on narrower phones instead of growing on wider ones. */
+  .al-cs-hero { height: min(450px, 120.32cqw); }
+  .al-cs-media { height: min(450px, 120.32cqw); padding: 24px 16px; }
+  .al-cs-media.is-film { height: min(210px, 56.15cqw); padding: 16px; }
+  .al-cs-play svg { width: 32px; height: 32px; }
+  .al-cs-play { gap: 12px; }
+
+  /* The stagger is kept -- the frame still draws the 23% tile dropped below the 37% one -- but
+     scaled to the smaller tiles (30 / 0 rather than 130 / 50). */
+  .al-cs-results { gap: 8px; }
+  /* The stagger is data-driven now (see .al-cs-restile) -- no hand-set offsets at any width. */
+  .al-cs-rescol { padding-top: 0; }
+  .al-cs-restile { padding: 16px; gap: 24px; }
+  .al-cs-resnum { font-size: 40px; }
+
+  /* ----- footer ----- */
+  /* 960*--u is only ~252px on a phone, which crushes the addresses against the wordmark, and
+     the address/links row doesn't fit side by side at 374. Stack and size to content. */
+  /* 489 in the mobile frame (2052:4392). It was `height: auto` and collapsed to 333.88.
+     With a real height back, `.inner` and `.al-foot-top` can grow again — that is what pins
+     the wordmark to the foot, exactly as on desktop. (They were reset to `flex: 0 0 auto`
+     only because `height: auto` gave them nothing to grow into.) */
+  .al-footer { height: min(489px, 130.75cqw); }
+  /* `flex: 1 0 0` gives the inner a flex-basis of 0 on the column's main axis. On desktop the
+     footer has a fixed height so it grows into it; with `height: auto` there is nothing to
+     grow into and it collapses to its padding (measured 48px). Size to content instead. */
+  .al-footer > .inner { flex: 1 0 0; padding: 24px 16px; gap: 40px; }
+  .al-foot-top { flex-direction: column; align-items: flex-start; gap: 32px; flex: 1 0 0; }
+  .al-foot-addr { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .al-foot-office,
+  .al-foot-office.is-wide,
+  .al-foot-links { width: 100%; }
+  /* 279 in the mobile frame. Pinning is safe in the growing direction — the built block was
+     SHORTER (270.8) than drawn, so nothing gets clipped. NB the copy is still lorem, so this
+     height will want re-checking once real terms land. */
+  /* AD 2026-07-29: 16px horizontal to match the mobile footer inner's `24px 16px`, so the terms
+     line up with the Enigma wordmark (see the desktop rule). Narrowing the measure by 32px can
+     push the lorem an extra line, and the height was pinned with only ~8px of slack -- so the
+     pin relaxes to min-height here. It still hits 279 with the drawn copy; it just can't clip
+     if the copy runs long. The existing NB stands: re-check once real terms land. */
+  .al-terms { min-height: min(279px, 74.60cqw); flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px 16px 16px; }
+  .al-terms-copy { flex: 0 0 auto; }
+
   #view-aldo .main,
   #view-proposed .main,
   #view-14col .main {
@@ -1703,23 +3869,47 @@ body.dark .al-logo .logo-dark { display: block; }
     --snip-w: 100%;
   }
 
-  /* ----- panel heights (mobile) ----- */
-  /* AD: these five sections are a 3:4 (portrait) ratio on mobile. height:auto lets aspect-ratio
-     drive the box off the full-column width. */
+  /* ----- panel heights (mobile) -----
+     Taken from the mobile frame 2052:4222 (390 wide, 374 column). Written as
+     `min(<frame px>, <ratio>cqw)` so each panel lands EXACTLY on its drawn height at a 374
+     column and scales down below it, rather than growing on wider phones. Ratio = frame px / 374.
+
+     ⚠️ This REPLACES an earlier 3:4 aspect-ratio rule that carried the note "AD: these five
+     sections are a 3:4 (portrait) ratio on mobile". The current mobile frame contradicts it:
+     it draws hero / welcome / cell / snippet at 374×450 (ratio 0.83), not 374×498.67, and the
+     HTML graphic at 228.76 rather than matching the others at all. The frame is being treated
+     as the newer source of truth — worth confirming with the AD, since it overrides an
+     explicit past instruction. */
   #view-aldo .al-hero,
   #view-aldo .al-welcome,
-  #view-aldo .al-graphic,
   #view-aldo .al-cell,
   #view-aldo .al-snippet {
-    aspect-ratio: 3 / 4;
-    height: auto;
+    aspect-ratio: auto;
+    height: min(450px, 120.32cqw);
   }
+  #view-aldo .al-graphic { aspect-ratio: auto; height: min(228.76px, 61.17cqw); }
   .al-welcome  { padding: 24px 16px 16px; }
   .al-graphic  { padding: 24px 16px 16px; }
   .al-snippet  { padding: 24px 16px 24px; }
-  /* not in the 3:4 list — keep their own heights */
   #view-aldo .al-large { height: min(286px, 76.47cqw); }
-  .al-title    { height: min(209.8px, 56.10cqw); padding: 24px 16px 16px; }
+  /* The planet. Desktop's `calc(873 * var(--u))` was leaking down to 228.95; the mobile frame
+     draws it at 450 like the other media panels. */
+  #view-aldo .al-capabilities { height: min(450px, 120.32cqw); }
+  /* AD: the key was far too big on mobile. It is 14px with a 10px gap and `nowrap`, so the
+     three labels came to ~370px — the full width of a 374 column, reading as a band across
+     the bottom of the panel rather than a caption. */
+  .al-planet-key { font-size: 9px; gap: 8px; bottom: 12px; }
+  .al-planet-key span { gap: 5px; }
+  .al-planet-key .al-planet-dot { width: 6px; height: 6px; }
+  /* The HUD tags shrink with it, otherwise a single tag is wider than the panel. */
+  .al-planet-label,
+  .al-planet-code { font-size: 10px; }
+  .al-planet-label { gap: 5px; }
+  .al-planet-tag .al-planet-dot { width: 7px; height: 7px; }
+  /* #view-aldo needed: `.al-title.c-green/.c-black` carry the desktop 926-tall variant at
+     (0,2,0) and beat a bare `.al-title`, which left Careers and Contact at 242.86 while the
+     other four sat correctly at 209.8. The mobile frame draws all six the same. */
+  #view-aldo .al-title { height: min(209.8px, 56.10cqw); padding: 24px 16px 16px; }
 
   /* AD fix: the Born-of text overflowed into Approach because the desktop-pinned
      `.al-tc-hello { height: calc(1220.4*--u) }` leaked to mobile. Let it size to content. */
@@ -1754,6 +3944,51 @@ body.dark .al-logo .logo-dark { display: block; }
   /* ----- work grid: 3 columns -> single column of 9 tiles ----- */
   .al-workgrid { flex-direction: column; }
   .al-col { width: 100%; }
+
+  /* ----- talent grid: 3 columns -> single column of 9 tiles (same call as the work grid);
+     3 columns at 390 gave 117px tiles. ----- */
+  .al-talent { grid-template-columns: 1fr; }
+  .al-talent-tile { padding: 16px; gap: 16px; }
+  .al-talent-text { gap: 16px; }
+
+  /* ----- careers ----- */
+  /* The body copy's 664px right-indent scales to ~174px of a 374px column, leaving ~189px
+     (about 24 characters) for the text. Drop the indent and let it run full width. */
+  .al-cr-bodyrow { padding-left: 16px; padding-right: 16px; }
+  .al-cr-copy { padding: 32px 16px; }
+  .al-careers-copy > .inner { padding: 32px 8px 16px; }
+  .al-acc-status { padding: 0 16px; margin-bottom: 32px; }
+  .al-acc-head { padding: 0 16px; }
+  .al-acc-body { padding: 32px 16px 0; gap: 32px; }
+  .al-acc > .hl { margin-top: 16px; }
+  .al-careers-end { height: min(81px, 21.66cqw); padding: 32px 16px 16px; }
+
+  /* ----- contact ----- */
+  /* Three tiles side by side give 119px columns at 390, with the CTA label overflowing its
+     own pill and 28px questions in a 119px box. Stack them, same call as the work/talent
+     grids, and step the display type down. */
+  .al-contacts { flex-direction: column; }
+  /* `flex: 1 1 0` sets flex-basis on the MAIN axis, which is vertical once the container is a
+     column -- the tiles would collapse to their padding (32px). Size them to content instead. */
+  .al-contact-tile { flex: 0 0 auto; height: min(433px, 115.78cqw); padding: 16px; gap: 24px; }
+  .al-contact-top { gap: 16px; }
+  .al-contact-q { font-size: min(34px, 8.5cqw); }
+  .al-cta.al-cta-xl { height: 48px; padding: 0 24px; }
+  .al-cta.al-cta-xl .cap { font-size: 14px; }
+  .al-lets { height: min(209.82px, 56.10cqw); padding: 24px 16px 16px; }
+  .al-lets-head { gap: 16px; }
+  .al-lets-line { font-size: min(84px, 22cqw); }
+
+  /* The divider label is `nowrap` at 24px by design. "A TEAM OF UNIGNORABLE PEOPLE" is wider
+     than a 374px card, so it forced the whole PAGE to 496px of horizontal scroll. Let it wrap
+     and step it down on mobile. (Applies to both dividers -- same component; the blue
+     "OUR CAPABILITIES" one is short enough that it never overflowed, but they should match.) */
+  .al-caps-divider { height: min(42px, 11.23cqw); padding: 16px; }
+  .al-caps-divider-label {
+    white-space: normal;
+    font-size: 14px;
+    text-align: center;
+  }
 
   /* ----- hide desktop proof chrome + FABs on mobile (dark-mode toggle stays — AD wants it) ----- */
   .full-grid-overlay,
@@ -1799,10 +4034,14 @@ body.dark .al-logo .logo-dark { display: block; }
     white-space: nowrap;
     cursor: pointer;
   }
+  /* Was a white square on the cream nav bar. Now that it is cream-on-cream it needs its edge
+     back, so it takes the same inset ring the CTAs use (dark mode already flips it to cream on
+     black and reads fine without one). */
   .m-pill.m-home {
     width: 64px;
     justify-content: center;
-    background: #fff;
+    background: var(--cream);
+    box-shadow: inset 0 0 0 1.5px var(--black);
     color: #000;
   }
 
@@ -1814,6 +4053,257 @@ body.dark .al-logo .logo-dark { display: block; }
   }
   body.dark .m-pill.m-home {
     background: var(--cream);
+    box-shadow: none;   /* cream on the black nav already reads; the light-mode ring would show */
     color: var(--black);
   }
+}
+
+/* ============================================================================
+   TABLET -- 600 to 1279. Sits on top of the stacked shell above and undoes the
+   MOBILE-specific parts of it (single-column grids, the min() type caps, the 3:4 panel
+   ratios), which only ever suited a 374px column.
+
+   Figma: Tablet-Portrait 2052:6062 (768, content 752) and Tablet-Landscape 2052:4927
+   (1024, content 1008). Both are stacked with no sidebar; the difference between them is
+   only how much fits per row.
+   ============================================================================ */
+@media (min-width: 600px) and (max-width: 1279px) {
+
+  /* ----- type: restore the --u scale -----
+     The stacked block redefines --h1-size/--t60/--bigbg-size as min(px, cqw) caps tuned to a
+     374px column; at 752/1008 those caps just pin everything at phone sizes. Put the vars back
+     on the --u formula so Figma px scale with the column exactly as they do on desktop.
+     Overriding individual font-sizes does NOT work -- they all read these vars. */
+  #view-aldo .main,
+  #view-proposed .main,
+  #view-14col .main {
+    --h1-size: calc(164 * var(--u));
+    --t60: calc(60 * var(--u));
+    --t70: max(14px, calc(70 * var(--u)));
+    --bigbg-size: calc(1115.96 * var(--u));
+    --leftcol-w: clamp(200px, calc(441 * var(--u)), 441px);
+    --snip-w: calc(1318 * var(--u));
+  }
+
+  /* The Figma holds these at a FIXED height across both tablet widths rather than a ratio. */
+  #view-aldo .al-hero,
+  #view-aldo .al-welcome { aspect-ratio: auto; height: 600px; }
+
+  /* ----- case study on tablet -----
+     No tablet frame was drawn for this page, so it follows the same reasoning the rest of the
+     tablet block uses: keep the phone's STACKED shell (a 2-up row at 752 gives 372px panels,
+     i.e. phone width, which is why the homepage's own text components stack below 880px of
+     main) but stop rendering it at phone SIZE. Panels get desktop padding and type back, and
+     the media panels take the same 600px fixed height as the homepage hero above. */
+  .al-cs-hero,
+  .al-cs-media { height: 600px; padding: 32px; }
+  .al-cs-media.is-film { height: 400px; padding: 32px; }
+  .al-cs-panel .inner { padding: 32px; gap: 48px; }
+  .al-cs-panel.is-results .inner { gap: 64px; }
+  .al-cs-head { gap: 48px; }
+  .al-cs-body { font-size: 24px; }
+  .al-cs-body.is-lg { font-size: 36px; }
+  .al-cs-resnum { font-size: 60px; }
+  .al-cs-play svg { width: 41px; height: 41px; }
+  .al-cs-play { gap: 16px; }
+  /* ⚠️ The mobile block sets `font-size` DIRECTLY on the five big headlines
+     (`#view-aldo .al-welcome h1`, the three `.al-title … h2`, `.al-snippet .headline`), so
+     restoring `--h1-size` above does NOT reach them — they read a literal 46px and stayed at
+     phone size across both tablets. Everything here is a flat px from the frames rather than
+     a --u formula, because the frames hand-set these rather than scaling them: the title
+     headline box is an identical 410×57 at BOTH tablet widths, and Welcome's headline is
+     83 at portrait / 107 at landscape, neither of which is on the desktop --u curve. */
+  #view-aldo .al-title   { height: 450px; padding: 32px; }
+  #view-aldo .al-title h2 { font-size: 82px; }
+  #view-aldo .al-title .num70 { font-size: 32px; letter-spacing: 2.56px; }
+
+  /* Welcome was still on mobile padding (24/16/16) and 46px type, which overflowed its own
+     600 box by 24px at portrait and 134px at landscape — clipped silently, since the panel
+     hides overflow for the big background word. */
+  #view-aldo .al-welcome { padding: 64px 32px 32px; }
+  #view-aldo .al-welcome h1 { font-size: 83px; }   /* landscape: 107 */
+  #view-aldo .al-welcome p { font-size: 24px; line-height: 1.2; width: 438px; }
+  /* ⚠️ These three drop `aspect-ratio`, so EVERY one of them needs a replacement height.
+     Only .al-snippet had one: .al-cell was rendering at literally 0px and .al-graphic at
+     65.84 (768) / 74.64 (1024) — the whole Approach "Html Cell Concept" panel was invisible
+     at both tablet widths. Heights below are portrait (2052:6062); landscape overrides the
+     two that differ. */
+  #view-aldo .al-graphic,
+  #view-aldo .al-cell,
+  #view-aldo .al-snippet { aspect-ratio: auto; }
+  #view-aldo .al-cell    { height: 450px; }     /* Html Cell Concept — 450 at both tablets */
+  #view-aldo .al-snippet { height: 600px; }     /* HTML Snipppet — was 450, frame says 600 */
+  #view-aldo .al-graphic { height: 492.53px; }  /* landscape: 619.98 */
+  #view-aldo .al-large   { height: 478px; }     /* landscape: 600 */
+  /* The 3D planet. Was inheriting the desktop `calc(873 * var(--u))` and landing on
+     460.36 / 617.09; both tablet frames draw it at a flat 600. */
+  #view-aldo .al-capabilities { height: 600px; }
+
+  /* ----- text components: back to the --u paddings ----- */
+  #view-aldo .al-textcomp .inner { padding: calc(96 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u)); }
+  .al-textcomp .row { flex-direction: row; gap: var(--gap); }
+  .al-textcomp .leftcol { width: var(--leftcol-w); align-self: stretch; }
+
+  /* ----- grids: 3 across at both tablet widths ----- */
+  .al-workgrid { flex-direction: row; }
+  .al-col { width: auto; flex: 1 1 0; min-width: 0; }
+
+  .al-contacts { flex-direction: row; }
+  .al-contact-tile { flex: 1 1 0; height: 449px; padding: calc(32 * var(--u)); gap: 0; }
+  .al-contact-top { gap: calc(32 * var(--u)); }
+  .al-contact-q { font-size: var(--t60); }
+  .al-cta.al-cta-xl { height: calc(76 * var(--u)); padding: 0 calc(24 * var(--u)); }
+  .al-cta.al-cta-xl .cap { font-size: max(14px, calc(24 * var(--u))); }
+
+  /* ----- careers: --u paddings back ----- */
+  .al-cr-bodyrow { padding-left: calc(664 * var(--u)); padding-right: calc(32 * var(--u)); }
+  .al-cr-copy { padding: calc(96 * var(--u)) calc(32 * var(--u)); }
+  .al-careers-copy > .inner { padding: calc(96 * var(--u)) calc(5 * var(--u)) calc(32 * var(--u)); }
+  .al-acc-status { padding: 0 calc(32 * var(--u)); margin-bottom: calc(96 * var(--u)); }
+  .al-acc-head { padding: 0 calc(32 * var(--u)); }
+  .al-acc-body { padding: calc(64 * var(--u)) calc(32 * var(--u)) 0; gap: calc(64 * var(--u)); }
+  .al-acc > .hl { margin-top: calc(32 * var(--u)); }
+  /* .al-careers-end is set with the other fixed-height dividers further down this block. */
+  .al-lets { height: 600px; padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u)); }
+  .al-lets-head { gap: calc(70 * var(--u)); }
+  .al-lets-line { font-size: calc(365 * var(--u)); }
+
+  /* ----- footer: room to sit side by side again ----- */
+  .al-footer { height: 600px; }
+  .al-footer > .inner { flex: 1 0 0; padding: calc(32 * var(--u)); gap: calc(96 * var(--u)); }
+  .al-foot-top { flex-direction: row; align-items: flex-start; gap: 0; }
+  .al-foot-addr { flex-direction: row; align-items: center; gap: calc(128 * var(--u)); }
+  .al-foot-office { width: calc(186 * var(--u)); }
+  .al-foot-office.is-wide { width: calc(213 * var(--u)); }
+  .al-foot-links { width: calc(124 * var(--u)); }
+  /* AD 2026-07-29: horizontal inset matches the footer inner above, so the terms align to the
+     Enigma wordmark at tablet too. Height relaxes to min-height for the same reason as mobile --
+     a narrower measure can cost the lorem a line, and 215 was a hard pin. */
+  .al-terms { min-height: 215px; flex-direction: row; align-items: flex-end; gap: calc(340 * var(--u)); padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u)); }
+  .al-terms-copy { flex: 1 0 0; }
+
+  /* ----- divider labels can hold their 24px again ----- */
+  /* Both tablet frames draw the two full-width dividers ("Our Capabilities", "A Team of
+     Unignorable People") at a flat 113, and the Careers end divider at 129. They were
+     padding-derived and landing on 70.67 / 94.7 and 93.34 / 125.11. */
+  .al-caps-divider { height: 113px; padding: calc(32 * var(--u)); }
+  .al-careers-end { height: 129px; padding: calc(96 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u)); }
+  .al-caps-divider-label { white-space: nowrap; font-size: 24px; text-align: left; }
+
+  /* ----- all work page: 3 across (desktop is 4) -----
+     Figma "All work - Tablet Portrait" 2056:9487 (3 x 245.33) and "- Tablet Landscape"
+     2056:9066 (3 x 330.67). flex-direction and width must both be reset: the mobile rule
+     above stacks the grid into a column and gives each column width:100%. */
+  /* CSS multi-column, not flex: the markup has FOUR column wrappers (the desktop grid) and
+     flexing them just gives four narrower columns. `display: contents` promotes the tiles out
+     of their wrappers so all 12 reflow into 3 masonry columns -- the Figma drops to 9 tiles by
+     deleting the 4th column, but reflowing keeps every project rather than silently losing
+     three. Column width lands on 245.33 / 330.67, matching the frames exactly. */
+  /* NB order: `gap` is a shorthand and resets column-gap, so it must come BEFORE the
+     column-gap it is meant to leave alone. With it after, multicol fell back to its 1em
+     default and tiles came out 240/325.3 instead of 245.33/330.67. */
+  .al-wp-grid { display: block; flex-direction: row; columns: 3; gap: normal; column-gap: var(--gap); }
+  .al-wp-col { display: contents; }
+  .al-wp-tile { break-inside: avoid; margin-bottom: 12px; }
+  .al-wp-tile { break-inside: auto; margin-bottom: 0; gap: 8px; }
+  .al-wp-text { padding-bottom: 16px; gap: 14px; }
+  .al-wp-search { width: calc((100% - 2 * var(--gap)) / 3); flex: 0 0 auto; padding: 0 24px; }
+}
+
+/* MOBILE + TABLET PORTRAIT -- up to 1023. Capabilities and the talent grid are drawn WIDER
+   than their column in BOTH those Figma frames (mobile: 340 and 336 tiles inside 374;
+   portrait: 1002 and 1008 inside 760), i.e. they scroll horizontally rather than shrinking.
+   Landscape has room for them and doesn't. NB this replaces the single-column talent stack --
+   the earlier mobile build stacked them, which the new mobile frame contradicts. */
+@media (max-width: 1023px) {
+  .al-caps,
+  .al-talent {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* AD 2026-07-29 -- FULL BLEED. These scrollers sat inside .grid-wrap's 8px side padding,
+       so the scroll box ended 8px short of the screen. The second tile got ~11px of peek and
+       was then CUT by the container edge, with a strip of page background beside it, instead
+       of running off the screen.
+
+       `width: auto` matters: the base rule is `width: 100%`, and with border-box that stays
+       the parent's width no matter what the margins do -- the negative margins would only
+       shift the box, not widen it. Auto lets them actually expand it to the viewport.
+
+       Padding puts the CONTENT back on the column's 8px line so the first tile still aligns
+       with everything above it, and scroll-padding makes snapping land on that same line
+       rather than on the bleed edge. */
+    width: auto;
+    margin-inline: -8px;
+    padding-inline: 8px;
+    scroll-padding-inline: 8px;
+  }
+  /* The two scrollers are drawn at DIFFERENT widths — caps 340, talent 336 — in both frames.
+     They were sharing 336. */
+  .al-caps-tile { flex: 0 0 auto; width: 340px; height: 662px; scroll-snap-align: start; }
+  .al-talent-tile { flex: 0 0 auto; width: 336px; scroll-snap-align: start; }
+
+  /* ----- capabilities list (mobile frame 2052:4288) -----
+     The rows were on the desktop `min-height: calc(110 * var(--u))`, which at a phone column
+     collapses to ~29px — a squashed list with a large dead area under it inside the 662 box.
+     The frame instead lets the LIST fill the tile and the rows share it out.
+
+     `flex: 1 1 auto` (not `1 1 0`) is what reproduces the frame exactly: free space is split
+     equally ON TOP OF each row's content, so the six one-line rows and three two-line rows
+     end up 58 and 81 — precisely the drawn heights. 6×10 + 3×33 = 159 of content, 591 − 159
+     = 432 free, ÷9 = 48 each → 10+48 = 58 and 33+48 = 81. With `1 1 0` every row would come
+     out an identical 65.7 instead. (Landscape DOES want uniform rows — see its own block.)
+
+     Paddings carry +1.5px because the tile's stroke is an inset ring rather than a border,
+     so the frame's px-24 has to clear it. */
+  .al-caps-tile { padding: calc(31px + 1.5px) calc(24px + 1.5px) calc(10px + 1.5px); gap: 10px; }
+  .al-caps-tile h3 { font-size: 28px; }
+  .al-caps-tile ul { flex: 1 0 0; display: flex; flex-direction: column; }
+  .al-caps-tile li {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .al-caps::-webkit-scrollbar,
+  .al-talent::-webkit-scrollbar { display: none; }
+  .al-caps, .al-talent { scrollbar-width: none; }
+}
+
+/* TABLET LANDSCAPE only -- 1024 to 1279. Everything fits three across. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .al-caps { display: flex; }
+  .al-caps-tile { flex: 1 1 0; min-width: 0; width: auto; height: 798px; }
+  /* Landscape (2052:4974) draws all nine rows at a UNIFORM 81 (729 / 9), unlike mobile where
+     the two-line rows are taller. `flex: 1 1 0` zeroes the content basis so every row gets an
+     identical share. */
+  .al-caps-tile { padding: calc(32px + 1.5px) calc(24px + 1.5px) calc(10px + 1.5px); gap: 10px; }
+  .al-caps-tile h3 { font-size: 24px; }
+  .al-caps-tile ul { flex: 1 0 0; display: flex; flex-direction: column; }
+  .al-caps-tile li { flex: 1 1 0; min-height: 0; padding: 0; font-size: 14px; line-height: 1.65; }
+  .al-talent { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .al-talent-tile { flex: initial; width: auto; }
+
+  /* The two panels the landscape frame (2052:4927) draws taller than portrait. Everything
+     else on tablet is shared, which is why only these two are restated here. */
+  #view-aldo .al-graphic { height: 619.98px; }   /* portrait: 492.53 */
+  #view-aldo .al-large   { height: 600px; }      /* portrait: 478 */
+  #view-aldo .al-welcome h1 { font-size: 107px; }  /* portrait: 83 */
+}
+
+
+/* ============================================================================
+   PHONE-ONLY FIXES (AD review, 2026-07-30)
+   Last block in the file deliberately: these all need to beat same-specificity
+   rules in the `max-width: 1279px` mobile block above, and (1,2,0) vs (1,2,0)
+   is decided by source order. Capped at 599 so tablet (600-1279) is untouched.
+   ============================================================================ */
+@media (max-width: 599px) {
+  /* The `.al-tc-appr1 .inner { padding-bottom: 108px }` that lived here is GONE (AD 2026-08-06).
+     It faked the air that a section numeral would have occupied, back when "Our approach" was
+     the one text component without a .num70 in its .inner. The numeral is real now, so the
+     shared 24px bottom padding sits below it exactly as it does on every other component --
+     keeping the 108px would have stacked that air UNDER the number instead of replacing it. */
 }

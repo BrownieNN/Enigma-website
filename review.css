@@ -1,0 +1,204 @@
+/* ============================================================================
+   REVIEW LAYER — annotation UI for AD review. NOT product code.
+   Isolated on purpose: every selector is namespaced `rv-`, nothing here touches
+   a site class, and it depends on no site variable. Deleting this file plus
+   review.js plus the one <script> line in index.html removes it completely.
+
+   z-index sits at 9000+. The site's ceiling is 400 (the All Work overlay), then
+   320 (mobile nav) and 210 (FABs) — the review layer has to stay reachable even
+   with the overlay up, so it clears all of them by a wide margin.
+   ============================================================================ */
+
+/* On :root, NOT on .rv-root. The FAB, drawer and composer are appended to <body> as SIBLINGS of
+   .rv-root (they need their own stacking contexts), so scoping the variables to .rv-root left
+   them unresolved — `background: var(--rv-paper)` fell back to transparent and the drawer showed
+   the page straight through it. All names are --rv- prefixed, so nothing here can collide with
+   the site's tokens. */
+:root {
+  --rv-ink: #f9f6e6;
+  --rv-paper: #17171a;
+  --rv-accent: #00e592;
+  --rv-mono: "ABC Favorit Mono", ui-monospace, Menlo, monospace;
+}
+
+.rv-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;      /* the layer is inert; only its children opt in */
+}
+
+.rv-root * { box-sizing: border-box; }
+
+/* ----- launcher ----- */
+.rv-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9002;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 100px;
+  background: var(--rv-paper);
+  color: var(--rv-ink);
+  font: 400 12px/1 var(--rv-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
+.rv-fab:hover { background: #000; }
+.rv-fab.is-armed { background: var(--rv-accent); color: #000; }
+
+.rv-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  background: var(--rv-accent);
+  color: #000;
+  font-size: 11px;
+  display: grid;
+  place-items: center;
+}
+.rv-fab.is-armed .rv-count { background: #000; color: var(--rv-accent); }
+
+/* ----- click-capture layer, only while armed ----- */
+.rv-capture {
+  position: fixed;
+  inset: 0;
+  z-index: 9001;
+  pointer-events: auto;
+  cursor: crosshair;
+  background: rgba(0, 229, 146, 0.06);
+}
+
+/* ----- pins ----- */
+.rv-pin {
+  position: absolute;
+  z-index: 9001;
+  pointer-events: auto;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;      /* centre on the anchor point */
+  border: 0;
+  border-radius: 100px 100px 100px 2px;
+  background: var(--rv-accent);
+  color: #000;
+  font: 400 12px/1 var(--rv-mono);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+.rv-pin.is-resolved { background: #6b6b6b; color: var(--rv-ink); }
+.rv-pin.is-approx { outline: 2px dashed #ffff83; outline-offset: 2px; }
+
+/* ----- drawer ----- */
+.rv-drawer {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 9003;
+  pointer-events: auto;
+  width: min(360px, 92vw);
+  background: var(--rv-paper);
+  color: var(--rv-ink);
+  font: 400 13px/1.5 var(--rv-mono);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s ease;
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.4);
+}
+.rv-drawer.is-open { transform: none; }
+
+.rv-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #34343a;
+  flex-shrink: 0;
+}
+.rv-head strong { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; flex: 1; }
+.rv-head button {
+  border: 0; background: none; color: var(--rv-ink);
+  font: inherit; cursor: pointer; padding: 4px 6px;
+}
+.rv-head button:hover { color: var(--rv-accent); }
+
+.rv-list { flex: 1; overflow-y: auto; padding: 8px 0; margin: 0; list-style: none; }
+.rv-empty { padding: 20px 16px; opacity: 0.55; font-size: 12px; }
+
+.rv-item {
+  padding: 10px 16px;
+  border-bottom: 1px solid #26262b;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+.rv-item:hover { background: #202026; }
+.rv-item.is-resolved { opacity: 0.45; }
+.rv-item.is-resolved .rv-text { text-decoration: line-through; }
+.rv-num { color: var(--rv-accent); font-size: 12px; }
+.rv-text { word-break: break-word; }
+.rv-meta { display: block; margin-top: 4px; font-size: 10px; opacity: 0.5; }
+.rv-actions { display: flex; flex-direction: column; gap: 4px; }
+.rv-actions button {
+  border: 0; background: none; color: var(--rv-ink);
+  font: 400 11px/1 var(--rv-mono); cursor: pointer; padding: 3px 4px; opacity: 0.6;
+}
+.rv-actions button:hover { opacity: 1; color: var(--rv-accent); }
+
+/* ----- composer ----- */
+.rv-compose {
+  position: fixed;
+  z-index: 9004;
+  pointer-events: auto;
+  width: min(320px, 88vw);
+  background: var(--rv-paper);
+  color: var(--rv-ink);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.5);
+  display: none;
+}
+.rv-compose.is-open { display: block; }
+.rv-compose textarea {
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+  background: #0e0e11;
+  color: var(--rv-ink);
+  border: 1px solid #3a3a42;
+  border-radius: 6px;
+  padding: 8px;
+  font: 400 13px/1.45 var(--rv-mono);
+}
+.rv-compose textarea:focus { outline: 2px solid var(--rv-accent); outline-offset: 0; }
+.rv-compose-row { display: flex; gap: 8px; margin-top: 8px; }
+.rv-compose-row button {
+  flex: 1; height: 32px; border: 0; border-radius: 100px;
+  font: 400 11px/1 var(--rv-mono); text-transform: uppercase; letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.rv-save { background: var(--rv-accent); color: #000; }
+.rv-cancel { background: #34343a; color: var(--rv-ink); }
+.rv-ctx { margin-top: 6px; font-size: 10px; opacity: 0.5; }
+
+/* Printing / screenshots: the review layer should never appear. */
+@media print { .rv-root, .rv-fab, .rv-drawer, .rv-compose { display: none !important; } }
+
+/* A comment about a different screen (other simulator size, or the desktop view while the sim is
+   open). Still listed — hiding it is what made comments look lost — just visibly not-here. */
+.rv-item.is-elsewhere { opacity: 0.55; }
+.rv-item.is-elsewhere .rv-num { color: #6b6b6b; }
