@@ -61,6 +61,67 @@ the same hard-coded Kennards study until there is real per-project data (see *Kn
 
 ---
 
+### Changed — the sidebar is fluid, not stepped
+
+AD 2026-08-12: the sidebar must **shrink with the screen** rather than snap between two sizes.
+
+Previously it was `470px` above 1512 and hard-switched to `310px` at 1512 and below, with `--u`
+re-based from 1426 to 1586 in that state. Crossing 1513 → 1512 the sidebar jumped 470 → 310 **and**
+the h1 jumped 117px → 98px, because the width and the type scale changed in the same step.
+
+Now:
+
+```css
+@media (min-width: 1280px) {
+  #view-aldo .sidebar.w-470,
+  #view-aldo .fg-side.w-470 { width: clamp(310px, calc(25% - 6px), 470px); }
+}
+```
+
+**Where `25% - 6px` comes from.** The page is a 12-column grid, 8px gutters, 8px page padding, and
+the sidebar is the first three columns:
+
+```
+column  = (CW - 11*8) / 12          CW = .grid-wrap content box = layout width - 16
+sidebar = 3*column + 2*8  =  0.25*CW - 6
+```
+
+A percentage on a flex item resolves against the flex container's content box, so `calc(25% - 6px)`
+*is* that expression. **Per cent, not `vw`** — `100vw` includes the scrollbar and this page always
+has one, so a vw version sits ~4px off the real grid and the sidebar edge stops landing on a grid
+line, which is the one thing the grid overlay exists to prove.
+
+**Both old endpoints survive**, so no other value needed retuning:
+
+| Layout width | Sidebar | Note |
+| --- | --- | --- |
+| 1920 | 470.00 | unchanged |
+| 1600 | 390.00 | was 470 (snapped) |
+| 1513 | 368.25 | was 470 |
+| 1512 | 368.00 | **was 310** — the old cliff |
+| 1280 | 310.00 | the old 2-col width, now arrived at smoothly |
+
+3 columns at 1280 measure the same as 2 columns at 1920 (1280/1920 = 2/3), so the fluid sidebar
+passes through the AD's old small-screen number exactly at the bottom of the desktop range.
+
+**`--u` is no longer re-based, and that is half the fix.** It is a `cqw` coefficient, so it already
+tracks the main column continuously; the old 1586 re-basing is what made the type jump alongside
+the width. Removing it makes the type scale smoothly (h1 164 → 129 → 109 across 1920 → 1513 → 1280).
+
+**Side effect worth having:** sidebar columns and main columns are now *the same column* at every
+width in the range (measured identical at 1600 and 1350) — a true uniform 12-column grid. Before,
+they only agreed at exactly 1920.
+
+Two things deliberately unchanged:
+
+- **Capped at 470 above 1920**, so large screens are untouched and the "fixed sidebar, fluid main"
+  construction the grid-overlay note describes still holds up there. Dropping the cap would extend
+  the uniform grid above 1920 — an easy change, but not one the AD asked for.
+- **The `min-width: 1280px` floor is load-bearing**, for the reason the rule it replaced already
+  documented: it is specificity (1,2,0) and beats the stacked `#view-aldo .al-sidebar { width:100% }`
+  (1,1,0) further down the sheet. Without the floor it pins the stacked full-width header back to a
+  narrow column across the whole tablet and phone range.
+
 ### Added — page transition veil (`pageVeil()` / `window.__VEIL`)
 
 The headline change for anyone working on navigation. **Every route between two pages now goes
@@ -231,6 +292,20 @@ Regression-test these after any change to navigation, the rail, or transitions.
    0.5 is a judgement call and is the likely subject of the next round.
 5. **No per-project routing/URLs.** Tiles are `role="link"` `<div>`s with key handling, not anchors,
    because there is no per-project URL yet.
+6. **Rail: the first tile can keep the free space while a case study is open.** If a study is opened
+   while the scroll-spy's active section is HELLO (the *first* rail item), that tile keeps `.is-open`
+   and absorbs the sidebar's spare vertical height instead of the red Work tile — measured 98px at a
+   470 sidebar, 199px at 310, growing as the sidebar narrows and the parade lockup frees up height.
+   `pinWorkItem()` writes inline `flex-grow: 0` on it and the inline value is ignored: the element
+   carries a `CSSTransition` on `flex-grow` stuck at `currentTime: 0`, so computed style stays at the
+   `1` from the `.al-nav > .al-menu-item:first-child { flex-grow: 1 }` no-JS fallback. Even
+   `setProperty('flex-grow','0','important')` inline does not win.
+   **Pre-existing — verified against the previous release, which shows the identical 74.5px tile and
+   the same inline-0/computed-1 split.** Low real-world reach: the homepage work tiles sit inside the
+   Work section, so a reader who clicks one has already scrolled there and the spy has Work active
+   (which is the correct tile). It reproduces reliably via `__CASESTUDY.open('home')` from the top of
+   the page. Not fixed here because it is unrelated to the sidebar work and changes rail choreography
+   the AD reviews visually.
 
 ---
 

@@ -171,18 +171,51 @@ img, svg { display: block; max-width: 100%; }
 #view-proposed .main { --u: 0.063052cqw; } /* 100 / 1586 */
 #view-14col .main    { --u: 0.066845cqw; } /* 100 / 1496 */
 
-/* AD: sidebar is 3 columns (470px) normally, and drops to 2 columns (310px) at 1512px and below.
-   These are the exact numbers the old "Proposed" view used, folded in as Aldo's small-screen state:
-   narrower sidebar -> wider main (1586 ref) -> --u normalised to 1586. The grid overlay follows.
-   Hard switch at the breakpoint (not a smooth shrink) -- matches the AD's "1512 and below". */
-@media (min-width: 1280px) and (max-width: 1512px) {
-  /* min-width floor is 1280, i.e. the bottom of the DESKTOP range. This 2-col sidebar rule is
-     specificity (1,2,0) and beats the stacked `#view-aldo .al-sidebar {width:100%}` (1,1,0),
-     so any overlap with the stacked range pins the full-width header back to 310px. It used
-     to floor at 601 and did exactly that across the whole tablet range. */
-  #view-aldo .sidebar.w-470 { width: 310px; }
-  #view-aldo .main { --u: 0.063052cqw; } /* 100 / 1586, the 2-col main reference */
-  #view-aldo .fg-side.w-470 { width: 310px; grid-template-columns: repeat(2, 1fr); }
+/* AD 2026-08-12: THE SIDEBAR IS FLUID, NOT STEPPED.
+
+   It used to be 470px (3 columns) above 1512 and snap to 310px (2 columns) at 1512 and below.
+   The AD asked for it to shrink WITH the screen rather than jump between two sizes.
+
+   470 and 310 were never arbitrary numbers. The page is a 12-column grid with 8px gutters and
+   8px page padding, and the sidebar is the first THREE columns. Solving that for any width:
+
+       column  = (CW - 11*8) / 12        CW = .grid-wrap content box = layout width - 16
+       sidebar = 3*column + 2*8  =  0.25*CW - 6
+
+   ...which is exactly `calc(25% - 6px)`, because a percentage on a flex item resolves against
+   the flex container's content box.
+
+   PER CENT, NOT vw, ON PURPOSE. `100vw` includes the scrollbar and this page always has one, so
+   a vw-based version sits ~4px off the real grid and the sidebar edge stops landing on a grid
+   line — the one thing the overlay below exists to prove.
+
+   BOTH OLD ENDPOINTS SURVIVE, which is why nothing else had to be retuned:
+
+       at 1920 layout ->  0.25 * 1904 - 6  =  470   (unchanged)
+       at 1280 layout ->  0.25 * 1264 - 6  =  310   (the old 2-col width, now reached smoothly)
+
+   3 columns at 1280 measure the same as 2 columns at 1920 because 1280/1920 = 2/3. So the fluid
+   sidebar passes through the AD's old small-screen number exactly at the bottom of the desktop
+   range, where the stacked layout takes over anyway.
+
+   --u IS NO LONGER RENORMALISED, and that is half the fix. The 2-column state re-based it to
+   1586 (the old "Proposed" view's main width) so Figma px stayed exact in that state — and that
+   re-basing is what made the TYPE jump at the breakpoint alongside the width: crossing 1513->1512
+   the h1 went 117px -> 98px while the sidebar went 470 -> 310. --u is a cqw coefficient, so it
+   already tracks the main column continuously; with the width fluid there is nothing to re-base
+   and the type simply scales.
+
+   Capped at 470 above 1920 so nothing changes on large screens — that keeps the "fixed sidebar,
+   fluid main" construction the grid overlay note below describes. Dropping the cap would make
+   sidebar columns and main columns identical above 1920 too, but that is a change the AD has not
+   asked for. */
+@media (min-width: 1280px) {
+  /* THE 1280 FLOOR IS LOAD-BEARING, for the reason the old rule documented: this is specificity
+     (1,2,0) and beats the stacked `#view-aldo .al-sidebar { width: 100% }` (1,1,0) further down
+     the sheet. Without the floor it would pin the stacked full-width header back to a narrow
+     column across the whole tablet and phone range. */
+  #view-aldo .sidebar.w-470,
+  #view-aldo .fg-side.w-470 { width: clamp(310px, calc(25% - 6px), 470px); }
 }
 
 #view-aldo .main,
