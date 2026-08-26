@@ -1,0 +1,96 @@
+/* ENIGMA / 01 — Welcome
+   Requires _global/global.css (fonts, tokens, --u, .cap, .reg).
+   Extracted from styles.css:1460–1530. */
+
+.al-welcome {
+  width: 100%;
+  height: calc(927 * var(--u));
+  background: var(--dark-grey);
+  border-radius: var(--radius);
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  color: var(--cream);
+  flex-shrink: 0;
+}
+
+/* Big background "Unignorability(R)" — a slow, seamless looping horizontal pan.
+   The wrapper owns the vertical position (CSS transform), and the inner .bigbg
+   track (two copies) is panned by GSAP via xPercent so the transforms don't
+   collide. Two identical copies + a -50% loop = a seamless marquee at any size. */
+.al-welcome .bigbg-wrap {
+  position: absolute;
+  left: 0;
+  top: calc(879 * var(--u));
+  transform: translateY(-100%);
+  white-space: nowrap;
+  pointer-events: none;
+  overflow: visible;
+}
+.al-welcome .bigbg {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.al-welcome .bigbg > span {   /* direct children only (the 2 word copies) -- NOT the per-char .ch spans */
+  display: block;
+  padding-right: 0.18em;   /* gap between the two copies */
+  font-family: "Enigma Large", serif;
+  font-size: var(--bigbg-size);
+  line-height: 1;
+  color: var(--light-grey);
+  white-space: nowrap;
+}
+.al-welcome .bigbg .reg {
+  display: inline;
+  font-size: 0.3225em;      /* superscript registered mark */
+  vertical-align: super;
+  padding-right: 0;
+}
+
+.al-welcome h1 {
+  position: relative;
+  margin: 0;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: var(--h1-size);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.al-welcome h1 .reg { font-size: 0.3225em; vertical-align: super; }
+
+.al-welcome p {
+  position: relative;
+  margin: 0;
+  font-family: "ABC Gaisyr", serif;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 28px;
+  width: 438px;
+  max-width: 100%;
+
+/* ----- Mobile (from styles.css @container maincol < 480) ----- */
+@container (max-width: 479px) {
+  .en-welcome {
+    --h1-size: min(40px, 10.70cqw);
+    --bigbg-size: min(296.941px, 79.40cqw);
+  }
+  .al-welcome {
+    height: min(450px, 120.32cqw);
+    padding: 24px 16px 16px;
+  }
+  .al-welcome .bigbg-wrap { left: 0; top: 50%; bottom: auto; transform: translateY(-50%); }
+  .al-welcome p { font-size: 16px; line-height: normal; width: 100%; }
+}
+
+/* ----- Tablet ----- */
+@container (min-width: 480px) and (max-width: 1023px) {
+  .al-welcome { aspect-ratio: auto; height: 600px; padding: 64px 32px 32px; }
+  .al-welcome h1 { font-size: 83px; }
+  .al-welcome p  { font-size: 24px; line-height: 1.2; width: 438px; }
+}

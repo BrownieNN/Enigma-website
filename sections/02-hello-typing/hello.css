@@ -1,0 +1,72 @@
+/* ENIGMA / 02 — Hello (typewriter)
+   Requires _global/global.css (fonts, tokens, --u, .cap, .num70).
+   Extracted from styles.css:1565–1638 (.al-title base + c-pink + hello title).
+
+   Caret asset: /assets/aldo/cursor.svg (red I-beam), injected by hello.js. */
+
+.al-title {
+  width: 100%;
+  height: calc(800 * var(--u));
+  border-radius: var(--radius);
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.al-title h2 {
+  margin: 0;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: var(--h1-size);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.al-title.c-pink    { background: var(--pink); }
+.al-title.c-pink h2 { color: var(--red); }
+.al-title .num70    { color: var(--dark-grey); }
+
+/* Japanese (and other CJK) greetings fall back past Enigma Large. */
+.al-hello-title h2.jp { font-family: "Enigma Large", "Hiragino Mincho ProN", serif; }
+
+/* SVG I-beam caret. The cursor is taller than the copy's own line, so the h2 is a flex row that
+   vertically centers the word + cursor against each other rather than relying on
+   baseline/vertical-align. Blinking is JS-controlled (opacity), so no CSS animation. */
+.al-hello-title h2 {
+  display: flex;
+  align-items: center;
+}
+
+/* AD 2026-07-29 -- these two values were authored in PX against the 164px desktop headline:
+   `(1em + 12px) * 0.95` and `translateY(12px)`. The row is `align-items: center`, so the caret
+   is centred on the word and that 12px nudge is the ONLY thing dropping it back onto the
+   baseline. On mobile --h1-size falls to ~40px, so 12px went from ~7% of the type to ~30% --
+   the nudge no longer reached the baseline and the caret read as vertically centred.
+
+   Re-expressed in em so the same relationship holds at every size. The numbers are the desktop
+   ones converted, not retuned: 12/164 = 0.0732em, and (1em + 0.0732em) * 0.95 = 1.0195em --
+   which resolves back to 167.2px and 12px at a 164px headline, so desktop is untouched. */
+.al-hello-title h2 .type-cursor {
+  display: inline-block;
+  height: 1.0195em;          /* taller than the greeting's cap height, per the original intent */
+  width: auto;
+  margin-left: 0.08em;
+  transform: translateY(0.0732em);
+  transition: opacity 0.08s linear;
+}
+
+/* ----- Mobile ----- */
+@container (max-width: 479px) {
+  .en-hello { --h1-size: min(40px, 10.70cqw); }
+  .al-title { height: min(209.8px, 56.10cqw); padding: 24px 16px 16px; }
+}
+
+/* ----- Tablet ----- */
+@container (min-width: 480px) and (max-width: 1023px) {
+  .al-title { height: 450px; padding: 64px 32px 32px; }
+  .al-title h2 { font-size: 83px; }
+}

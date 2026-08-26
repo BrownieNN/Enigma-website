@@ -1,0 +1,107 @@
+/* ENIGMA / 05 — Let's Talk!
+   Requires _global/global.css (fonts, tokens, --u, .cap, .num70).
+   Extracted from styles.css:1029–1115.
+
+   Caret asset: /assets/aldo/cursor.svg, blacked out with brightness(0) —
+   the same shared red caret asset section 02 uses, no second file needed.
+   Dark mode swaps in /assets/aldo/cursor-cream.svg. */
+
+.al-lets {
+  width: 100%;
+  height: calc(800 * var(--u));
+  background: var(--cream);
+  border-radius: var(--radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  padding: calc(64 * var(--u)) calc(32 * var(--u)) calc(32 * var(--u));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.al-lets-head {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(70 * var(--u));
+  flex-shrink: 0;      /* the panel has a fixed height; without this the lines get squashed */
+}
+
+.al-lets-line {
+  margin: 0;
+  width: 100%;
+  flex-shrink: 0;
+  font-family: "Enigma Large", serif;
+  font-weight: 400;
+  font-size: calc(365 * var(--u));
+  line-height: 1;
+  color: var(--black);
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+/* Ranged right, but held clear of the panel edge so the caret parked after "Talk!" has room
+   to sit and blink in full view. The caret's own right margin only bought ~17px, which read
+   as clipped. */
+.al-lets-line.right {
+  text-align: right;
+  padding-right: calc(64 * var(--u));
+}
+
+/* Caret for the "Let's Talk!" typewriter. The line box is trimmed cap-to-baseline, so the
+   caret is sized off the cap height rather than the em (1em would tower over the caps).
+   `brightness(0)` blacks out the shared red caret asset -- same trick the dark-mode logo uses,
+   so it doesn't need its own file. */
+.al-lets-line .type-cursor {
+  display: inline-block;
+  height: 0.7em;        /* == the cap height the trimmed line box measures, so parking the
+                           caret on a line doesn't nudge that line taller */
+  width: auto;
+  margin: 0 0.05em;
+  vertical-align: baseline;
+  filter: brightness(0);
+  transition: opacity 0.08s linear;
+}
+
+/* The untyped remainder: holds its space so the line keeps full width and height. */
+.al-lets-rest { visibility: hidden; }
+
+/* Fixed-width run (width pinned by JS to the finished word + caret). The line's own
+   text-align places the run; inside it the text is always ranged left, so the word types
+   left-to-right no matter which way the line itself is ranged. */
+.al-lets-run {
+  display: inline-block;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.al-lets-num { color: var(--dark-grey); width: 100%; }
+
+/* AD 2026-07-29 -- dark mode. Black, per AD call: the panel drops its card edges and reads as
+   type sitting straight on the backdrop, the same way the Careers band does. (Dark grey was
+   tried first, to keep the squircle visible; the AD preferred the type standing alone.)
+   The caret swaps to a cream copy of the asset rather than being filtered: `brightness(0)
+   invert(1)` lands on pure white, and the AD has already called cream-not-white elsewhere.
+   Same asset-swap approach as the sidebar logo. */
+body.dark .al-lets { background: var(--black); }
+body.dark .al-lets-line { color: var(--cream); }
+body.dark .al-lets-num { color: var(--cream); }
+body.dark .al-lets-line .type-cursor {
+  filter: none;
+  content: url("/assets/aldo/cursor-cream.svg");
+}
+
+
+/* ----- Mobile ----- */
+@container (max-width: 479px) {
+  .al-lets { height: min(209.82px, 56.10cqw); padding: 24px 16px 16px; }
+  .al-lets-head { gap: 16px; }
+  .al-lets-line { font-size: min(84px, 22cqw); }
+}
+
+/* ----- Tablet ----- */
+@container (min-width: 480px) and (max-width: 1023px) {
+  .al-lets { height: 600px; }
+}

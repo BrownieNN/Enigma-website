@@ -1955,6 +1955,89 @@ body.dark .al-title.c-black { background: var(--dark-grey); }
   flex-shrink: 0;
 }
 
+/* ---------------- BIORESIN (Capabilities) ----------------
+   AD 2026-08-12: the section becomes cream with "Central Intelligence" set in Enigma Large behind
+   the resin, replacing the blue Figma sky the 3-part planet used.
+
+   The background here is CREAM AND NOTHING ELSE. Both the headline and the blob are painted by
+   the shader, which needs to own every pixel it composites through -- the resin's pale edges are
+   literally this background surviving absorption, and the type is refracted, so neither can be a
+   DOM layer underneath. The colour is duplicated into the shader as uBg; if this changes, change
+   CONFIG.background in js/bioresin.js to match or the edges will blend to the wrong colour. */
+/* CREAM. Must match CONFIG.background in js/droplets.js -- the shader paints the real background
+   (it samples the headline texture for every non-hit pixel), so this rule only shows for the
+   frame before WebGL starts. A mismatch reads as a flash on load. */
+.al-resin-host {
+  position: relative;
+  overflow: hidden;
+  background: var(--cream);
+  /* AD 2026-08-13: plain hand cursor. The custom crosshair belonged to the old planet's
+     press-and-hold interaction; dragging a blob reads as grabbing, so the hand is the right
+     affordance. assets/cursor-crosshair.svg is still used by .al-planet-host for the A/B. */
+  cursor: pointer;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.al-resin-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The real heading. Present for assistive tech and for any reader without WebGL; the visible
+   type is drawn into a texture so the resin can refract it. Not `display:none` -- that would take
+   it out of the accessibility tree, which is the entire reason it exists. */
+.al-resin-heading {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* CAPABILITY TAGS, re-anchored.
+   On the planet these were projected 3D->screen every frame by planetCapabilities() and hidden
+   until a piece exploded into view. There are no discrete pieces in a metaball to point at, and
+   chasing the blob would make them skitter, so they become fixed annotations on the material --
+   which suits the serial-number treatment they already carry. Positions are percentages so they
+   hold their composition as the section reflows.
+
+   They also have to be re-inked: every rule above sets `color: var(--cream)` for the blue sky,
+   which is invisible on cream. Scoped under .al-resin-host so the planet's own styling is
+   untouched and the A/B stays one markup change away. */
+/* Black on Enigma blue, matching the headline (AD). */
+.al-resin-host .al-planet-tag {
+  color: var(--black);
+  transform: none;
+  will-change: auto;
+}
+.al-resin-host .al-planet-tag[data-piece="creative"] { top: 16%; left: 7%;  }
+.al-resin-host .al-planet-tag[data-piece="ci"]       { top: 44%; left: auto; right: 8%; }
+.al-resin-host .al-planet-tag[data-piece="media"]    { top: auto; bottom: 20%; left: 12%; }
+
+/* Central Intelligence is the WHITE part in the organism (AD mockup), so the key dot is cream. */
+.al-resin-host .al-planet-tag[data-piece="ci"] .al-planet-dot { background: var(--blue); }
+
+/* The shader now draws the visible key into the headline texture so it refracts with the bodies.
+   This DOM twin stays for assistive tech and as a no-WebGL fallback, visually hidden. */
+.al-resin-host .al-planet-key {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.al-resin-host .al-planet-key .al-planet-dot.c-ci { background: var(--cream); }
+
+/* Kept for the A/B: the old planet's own rules still apply if .al-planet-host is put back. */
 .al-planet-host {
   position: relative;
   overflow: hidden;
@@ -2185,6 +2268,86 @@ body.dark .al-caps-tile h3 { color: var(--cream); }
 body.dark .al-caps-tile li {
   color: var(--cream);
   border-bottom-color: var(--cream);
+}
+
+/* ----- Capability twist (js/caps-twist.js) -----
+   A row carrying `data-case` turns over on hover to a sliver of that project, in two beats:
+   the row's rules pull out to the tile's edges, then the whole block turns and twists.
+
+   The block itself is a CANVAS, painted per column by the JS — a twist is not an affine
+   transform, so no arrangement of CSS 3D can draw one as a single solid surface. See the header
+   of js/caps-twist.js. This file therefore owns almost nothing of the effect: the hit area, the
+   two rules of beat 1, and the canvas box. Every px of geometry is written by the JS.
+
+   The tile is the clipping frame: it already has overflow:hidden and the squircle, so the block
+   runs off its rounded ends instead of stopping on a square edge. `position: relative` is the
+   only thing the tile itself needed. */
+.al-caps-tile { position: relative; }
+
+/* The hit area. Deliberately NOT the <li>: the block runs edge to edge of the tile while the li
+   is inset by the 24px text padding, so hovering the bled region would leave the li and the
+   gesture would chatter on and off at the ends. Transparent and always present — it is also what
+   carries role=link, so the row is clickable and focusable before anything has been painted. */
+.al-cap-flip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.al-cap-flip[hidden] { display: none; }
+.al-cap-flip:focus-visible { outline: 2px solid var(--black); outline-offset: -2px; }
+body.dark .al-cap-flip:focus-visible { outline-color: var(--cream); }
+
+/* Beat 1. Two rules that start life exactly on top of the list's own — same width, same place,
+   same colour — so the pull-out begins from what the reader is already looking at. The JS sets
+   left/width to the text column and scales them out to the tile's edges.
+
+   currentColor, so dark mode is inherited from the list rather than restated: the JS blanks the
+   real <li> border at the same moment these appear, and the two have to match exactly or the
+   swap shows. */
+   Transparent at rest, and that is not just tidiness. These sit exactly where the list's own
+   rules already are, and row boxes land on fractional pixels — two 1px lines half a pixel apart
+   stack into something visibly heavier, so every live row wore a slightly bolder pair than its
+   neighbours before anyone had touched it. Only one line is ever drawn now: the list's until the
+   gesture starts, these from then on. */
+.al-cap-rule {
+  position: absolute;
+  height: 1px;
+  background: currentColor;
+  color: var(--black);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+body.dark .al-cap-rule { color: var(--cream); }
+.al-cap-rule-t { top: 0; }
+.al-cap-rule-b { bottom: 0; }
+
+/* The block's host — an empty box, not the drawing surface. The WebGL canvas is shared by every
+   row (only one can be hovered at a time) and is re-parented into whichever row is running, so
+   what lives here permanently is the geometry and the opacity. Hidden until beat 2 takes over
+   from the rules; opacity rather than visibility because the JS drives it through GSAP alongside
+   everything else.
+
+   top and height are written by the JS and are deliberately NOT `inset: 0`. The bar is a solid, so
+   as it turns it stands taller than the row it started in (sqrt(H² + D²) at 45°) and the host has
+   to carry that headroom or the block gets guillotined at exactly the angles that make it read as
+   an object. Overflowing onto the neighbouring rows is the point; the tile's overflow:hidden still
+   keeps it inside the card. */
+.al-cap-stage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.al-cap-gl {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* ----- Talent grid (node 2015:2160) -----

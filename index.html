@@ -193,9 +193,15 @@
         </div>
       </div>
 
-      <!-- Capabilities: 3D planet (Central Intelligence / Creative / Media) -->
-      <div class="al-capabilities al-planet-host">
-        <canvas class="al-planet-canvas"></canvas>
+      <!-- Capabilities: BioResin metaball (Central Intelligence / Creative / Media)
+           The <h1> is the real, readable headline and stays in the document for accessibility and
+           for anything that reads the page without WebGL. It is visually hidden because the SHADER
+           draws the type: the resin has to refract and tint it, and it can only do that if the
+           type is a texture it can sample with a bent ray. A DOM heading behind a transparent
+           canvas would sit optically flat behind the blob and give the whole thing away. -->
+      <div class="al-capabilities al-resin-host" data-text="Central Intelligence">
+        <h1 class="al-resin-heading">Central Intelligence</h1>
+        <canvas class="al-resin-canvas"></canvas>
         <div class="al-planet-tag" data-piece="creative">
           <div class="al-planet-tag-text">
             <p class="al-planet-label"><span class="al-planet-dot"></span>Creative</p>
@@ -233,18 +239,24 @@
         <span class="al-caps-num">&#x24FF;&#x2777;</span>
       </div>
 
-      <!-- Capabilities list (node 37:8224) -->
+      <!-- Capabilities list (node 37:8224)
+
+           `data-case` marks a row as LIVE: js/caps-twist.js flips that cell over to a sliver of
+           the named project on hover and opens its case study on click. The key is looked up in
+           CASES in that file. Rows without the attribute are inert, exactly as before.
+           Adding the next study is one attribute here plus one CASES entry -- no indices, so the
+           list can be reordered or re-worded without touching the interaction. -->
       <div class="al-caps">
         <div class="al-caps-tile">
           <h3>Creative</h3>
           <ul>
             <li>Brand design</li>
-            <li>Brand &amp; Advertising Platforms</li>
+            <li data-case="ken-oath">Brand &amp; Advertising Platforms</li>
             <li>PR, Earned Media,<br>Creators &amp; Brand Experience</li>
-            <li>Content &amp; Social Creative</li>
+            <li data-case="ken-oath">Content &amp; Social Creative</li>
             <li>Retail &amp; Tactical Campaigns</li>
             <li>AI Design</li>
-            <li>Campaign Rollout</li>
+            <li data-case="ken-oath">Campaign Rollout</li>
             <li>UX/UI, Web Design<br>&amp; Web Production</li>
             <li>Video, Motion<br>&amp; Photography Production</li>
           </ul>
@@ -254,7 +266,7 @@
           <ul>
             <li>Market &amp; Competitor Analysis</li>
             <li>Business Strategy</li>
-            <li>Brand &amp; Creative Strategy</li>
+            <li data-case="ken-oath">Brand &amp; Creative Strategy</li>
             <li>Media Strategy</li>
             <li>Social &amp; Digital Strategy</li>
             <li>Brand &amp; Communications<br>Architecture</li>
@@ -268,7 +280,7 @@
           <ul>
             <li>Planning</li>
             <li>Negotiation &amp; Buying</li>
-            <li>Performance Media</li>
+            <li data-case="ken-oath">Performance Media</li>
             <li>Reporting &amp; Optimisation</li>
             <li>Digital, Data &amp; Tech</li>
             <li>Martech</li>
@@ -1075,6 +1087,21 @@
 <script src="js/ScrollToPlugin.min.js"></script>
 <script src="js/constel-data.js"></script>
 <script src="js/three.min.js"></script>
+<!-- Interactive droplet metaballs — faithful port of the Codrops tutorial. Uses the legacy UMD
+     three global loaded above, so there is no importmap and no second copy of three: the tutorial
+     needs nothing beyond RawShaderMaterial and a plane.
+     The BioResin passes (js/bioresin.js, js/bioresin.module.js, js/vendor/) are left on disk but
+     unreferenced -- this is the baseline to art-direct from, and they are worth keeping to
+     cannibalise once the material direction resumes. -->
+<script src="js/droplets.js"></script>
+<!-- Art-direction control panel for the droplets. NOT product code: self-contained, inline-styled,
+     writes only through window.__MOLTEN.set(). Delete this one line and js/droplets-panel.js to
+     strip it entirely. Toggle in the UI with the gear button or the G key. -->
+<script src="js/droplets-panel.js"></script>
+<!-- Capability rows carrying data-case flip over to their project on hover. Reads
+     window.__CASESTUDY at click time only, so load order against the inline block below does not
+     matter. Tuning: window.__CAPTWIST.set({ dur, stagger, strip, persp }). -->
+<script src="js/caps-twist.js"></script>
 <script>
 (function () {
   var params = new URLSearchParams(location.search);

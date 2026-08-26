@@ -1,0 +1,158 @@
+/* ============================================================
+   ENIGMA — GLOBAL
+   Paste once into the CMS site-wide CSS field. Every section
+   under sections/ assumes this is present.
+
+   Extracted from styles.css (grid-proof, branch enigma-buildout).
+   Asset paths are ROOT-RELATIVE: upload /fonts and /assets to the
+   site root, preserving the existing folder structure.
+   ============================================================ */
+
+/* ---------------- Typefaces ---------------- */
+@font-face {
+  font-family: "Enigma Large";
+  src: url("/fonts/Enigma-EnigmaLargeRoman.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Enigma Large";
+  src: url("/fonts/Enigma-EnigmaLargeItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Enigma Large Extended";
+  src: url("/fonts/Enigma-EnigmaLargeExtended.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "ABC Gaisyr";
+  src: url("/fonts/ABCGaisyr-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "ABC Gaisyr";
+  src: url("/fonts/ABCGaisyr-LightItalic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "ABC Favorit Mono";
+  src: url("/fonts/ABCFavoritMono-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* ---------------- Design tokens ---------------- */
+:root {
+  --cream: #f9f6e6;
+  --black: #000000;
+  /* AD: the site has NO pure white — the light ink/surface is --cream everywhere. This token is
+     retained only for the dev chrome (grid overlay, fab controls, simulator bar), which is not
+     shipped UI. Do not use it in an .al-* rule. */
+  --white: #ffffff;
+  --red: #ff0008;
+  --pink: #ff9eed;
+  --blue: #0029a4;
+  --yellow: #ffff83;
+  --green: #00e592;
+  --dark-grey: #2b2b2b;
+  --light-grey: #646464;
+  --off-white: #eeefe7;
+  /* Case-study result tiles (node 2629:3550) -- a warm grey that reads as a step down from
+     --off-white on the same panel. Only used there so far. */
+  --stone: #d3d1c7;
+
+  --gap: 8px;
+  /* Shared height for the top-bar controls: the All Work page's search field, its close
+     button, and the homepage's ALL WORK button + dark-mode toggle. The value comes from the
+     search field -- 2*16px padding + its 11.22px arrow icon, which is TALLER than the 9.8px
+     cap-trimmed label and is what actually sets that field's height. The homepage button
+     crossfades into the search field from an identical origin, so these must not drift. */
+  --ctl-h: 43.22px;
+  --radius: 15px;   /* AD: +3px, Illustrator vectors read smoother than the old 12px */
+
+  /* Display type scales proportionally with the viewport, capped at the
+     exact Figma sizes at the 1920px design width. Body/CTA/label sizes
+     (24/14px) stay fixed. 164/1920 = 8.5417vw, 60/1920 = 3.125vw,
+     70/1920 = 3.6458vw. */
+  --h1-size: min(8.5417vw, 164px);
+  --t60: min(3.125vw, 60px);
+  --t70: min(3.6458vw, 70px);
+}
+
+/* ---------------- The --u unit ----------------
+   --u is the Figma-pixel unit: every panel height, padding and display
+   size in these sections is written as calc(<figma px> * var(--u)).
+
+   0.070126cqw == 100/1426 — one Figma px when the section's own container
+   is 1426px wide (the width of the site's main column at the 1920 design
+   canvas). Because it is a CONTAINER unit, each section scales continuously
+   with the block it is placed in, and every section root below declares
+   `container-type: inline-size` so it measures ITSELF.
+
+   Consequence worth knowing: in a CMS a section block is often wider than
+   1426px, and the type scales up with it. To pin the sections to the exact
+   drawn size regardless of block width, override on the section root:
+       .en-section { --u: 1px; }
+   ...............................................................*/
+:root {
+  --u: 0.070126cqw;
+  --h1-size: calc(164 * var(--u));
+  --t60: calc(60 * var(--u));
+  --t70: max(14px, calc(70 * var(--u)));   /* numeral: never below 14px */
+  --bigbg-size: calc(1115.96 * var(--u));
+}
+
+/* ---------------- Shared primitives ----------------
+   Used by more than one section; safe to load globally. */
+
+* { box-sizing: border-box; }
+
+/* Cap-height trimming — Figma text boxes are cap/alphabetic trimmed.
+   Chrome 128+ / Safari 18.2+; falls back gracefully. */
+.cap {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.mono14 {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Section numeral (⓿❶ etc.) */
+.num70 {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: var(--t70);
+  line-height: 1;
+  letter-spacing: 0.08em;   /* 5.6px at 70px */
+  color: var(--cream);
+}
+.num70.right { width: 100%; text-align: right; }
+.num70:not(.right) { width: 100%; }
+
+/* Superscript registered mark */
+.reg   { font-size: 0.3225em; vertical-align: super; }
+.reg60 { font-size: 0.645em;  vertical-align: super; }
+
+/* Every section root: establishes the container --u measures against, and
+   opts the panel into Figma-style continuous corners (Chrome 139+). */
+.en-section {
+  container-type: inline-size;
+  width: 100%;
+  font-family: "ABC Favorit Mono", monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.en-section > * { corner-shape: squircle; }
+
+.en-section img,
+.en-section svg { display: block; max-width: 100%; }

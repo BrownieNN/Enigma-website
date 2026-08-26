@@ -1,0 +1,183 @@
+/* ENIGMA / 04 — Central Intelligence
+   Requires _global/global.css (fonts, tokens, --u).
+   Extracted from styles.css:1947–2039 and 2073–2135.
+
+   The panel background is CREAM AND NOTHING ELSE, and it must stay in sync
+   with CONFIG.background in central-intelligence.js — the shader paints every
+   pixel it does not hit, so a mismatch reads as a flash on the first frame. */
+
+.al-capabilities {
+  width: 100%;
+  height: calc(813 * var(--u));
+  background: var(--cream);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ---------------- BIORESIN (Capabilities) ----------------
+   AD 2026-08-12: the section becomes cream with "Central Intelligence" set in Enigma Large behind
+   the resin, replacing the blue Figma sky the 3-part planet used.
+
+   The background here is CREAM AND NOTHING ELSE. Both the headline and the blob are painted by
+   the shader, which needs to own every pixel it composites through -- the resin's pale edges are
+   literally this background surviving absorption, and the type is refracted, so neither can be a
+   DOM layer underneath. The colour is duplicated into the shader as uBg; if this changes, change
+   CONFIG.background in js/bioresin.js to match or the edges will blend to the wrong colour. */
+/* CREAM. Must match CONFIG.background in js/droplets.js -- the shader paints the real background
+   (it samples the headline texture for every non-hit pixel), so this rule only shows for the
+   frame before WebGL starts. A mismatch reads as a flash on load. */
+.al-resin-host {
+  position: relative;
+  overflow: hidden;
+  background: var(--cream);
+  /* AD 2026-08-13: plain hand cursor. The custom crosshair belonged to the old planet's
+     press-and-hold interaction; dragging a blob reads as grabbing, so the hand is the right
+     affordance. assets/cursor-crosshair.svg is still used by .al-planet-host for the A/B. */
+  cursor: pointer;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.al-resin-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The real heading. Present for assistive tech and for any reader without WebGL; the visible
+   type is drawn into a texture so the resin can refract it. Not `display:none` -- that would take
+   it out of the accessibility tree, which is the entire reason it exists. */
+.al-resin-heading {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* CAPABILITY TAGS, re-anchored.
+   On the planet these were projected 3D->screen every frame by planetCapabilities() and hidden
+   until a piece exploded into view. There are no discrete pieces in a metaball to point at, and
+   chasing the blob would make them skitter, so they become fixed annotations on the material --
+   which suits the serial-number treatment they already carry. Positions are percentages so they
+   hold their composition as the section reflows.
+
+   They also have to be re-inked: every rule above sets `color: var(--cream)` for the blue sky,
+   which is invisible on cream. Scoped under .al-resin-host so the planet's own styling is
+   untouched and the A/B stays one markup change away. */
+/* Black on Enigma blue, matching the headline (AD). */
+.al-resin-host .al-planet-tag {
+  color: var(--black);
+  transform: none;
+  will-change: auto;
+}
+.al-resin-host .al-planet-tag[data-piece="creative"] { top: 16%; left: 7%;  }
+.al-resin-host .al-planet-tag[data-piece="ci"]       { top: 44%; left: auto; right: 8%; }
+.al-resin-host .al-planet-tag[data-piece="media"]    { top: auto; bottom: 20%; left: 12%; }
+
+/* Central Intelligence is the WHITE part in the organism (AD mockup), so the key dot is cream. */
+.al-resin-host .al-planet-tag[data-piece="ci"] .al-planet-dot { background: var(--blue); }
+
+/* The shader now draws the visible key into the headline texture so it refracts with the bodies.
+   This DOM twin stays for assistive tech and as a no-WebGL fallback, visually hidden. */
+.al-resin-host .al-planet-key {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.al-resin-host .al-planet-key .al-planet-dot.c-ci { background: var(--cream); }
+
+
+/* ----- Tag + legend base rules (styles.css:2073–2135) ----- */
+/* Floating HUD tag per piece -- positioned via inline transform (JS, projected 3D->screen),
+   hidden until the piece explodes into view. */
+.al-planet-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--cream);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* (The HUD crosshair that sat left of each tag was removed 2026-07-29 per AD -- the dot on the
+   label already marks the piece, and on mobile it was eating width the labels needed.) */
+
+.al-planet-tag-text { display: flex; flex-direction: column; gap: 2px; }
+
+.al-planet-label,
+.al-planet-code {
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+  margin: 0;
+  opacity: 0;
+  transform: translateX(-6px);
+}
+
+.al-planet-label { display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
+
+.al-planet-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.al-planet-tag[data-piece="creative"] .al-planet-dot { background: var(--pink); }
+.al-planet-tag[data-piece="media"]    .al-planet-dot { background: var(--green); }
+.al-planet-tag[data-piece="ci"]       .al-planet-dot { background: var(--cream); }
+
+/* Always-visible bottom legend, matches the Default-view key in the reference. */
+.al-planet-key {
+  position: absolute;
+  left: 50%;
+  bottom: calc(32 * var(--u));
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  color: var(--cream);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.al-planet-key span { display: flex; align-items: center; gap: 8px; }
+.al-planet-key .al-planet-dot.c-ci       { background: var(--cream); }
+.al-planet-key .al-planet-dot.c-creative { background: var(--pink); }
+.al-planet-key .al-planet-dot.c-media    { background: var(--green); }
+
+/* ----- Mobile ----- */
+@container (max-width: 479px) {
+  .al-capabilities { height: min(450px, 120.32cqw); }
+  .al-planet-label,
+  .al-planet-code  { font-size: 10px; }
+  .al-planet-label { gap: 5px; }
+  .al-planet-tag .al-planet-dot { width: 7px; height: 7px; }
+  .al-planet-key { font-size: 9px; gap: 8px; bottom: 12px; }
+  .al-planet-key span { gap: 5px; }
+  .al-planet-key .al-planet-dot { width: 6px; height: 6px; }
+}
+
+/* ----- Tablet ----- */
+@container (min-width: 480px) and (max-width: 1023px) {
+  .al-capabilities { height: 600px; }
+}

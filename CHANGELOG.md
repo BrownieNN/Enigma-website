@@ -61,6 +61,99 @@ the same hard-coded Kennards study until there is real per-project data (see *Kn
 
 ---
 
+### Added — capability twist (`js/caps-twist.js` / `window.__CAPTWIST`)
+
+AD 2026-08-13: the capabilities list read as static. Hovering a **live** capability row now runs a
+two-beat move — the row's rules pull out from the text column to the tile's edges, then the whole
+block turns over and twists, landing on a sliver of the project it points at. Clicking it opens
+that case study through the veil (`__CASESTUDY.open("home")`).
+
+**Live rows are markup, not code.** A row opts in with `data-case="ken-oath"`, resolved against
+`CASES` in the module. Five are live today — three in Creative, one in Central Intelligence, one
+in Media — all pointing at Ken Oath, like every other route into the study. Adding the next one is
+an attribute plus a `CASES` entry; there are no row indices anywhere.
+
+**The block is real geometry, not a projection.** A twist is a helicoid: the rotation angle varies
+along the band. CSS 3D transforms are affine, so no arrangement of them draws one. Three cheaper
+builds preceded this and all three failed in the same place — DOM strips (~28 per row) gave a
+staircase silhouette where a twisted bar has a smooth curve; a per-column 2D warp fixed the
+silhouette and, once the cross-section was given depth, produced correct geometry, and it still did
+not read as an object.
+
+It could not, and the reason is structural. A per-column 2D warp is **orthographic**, so the far
+end of a turning bar never recedes. It has **no end caps**, because a column can only hold the two
+planes facing the viewer. And it shades **per column** rather than from a surface normal, so its
+lighting is flat across the width of every plane. Perspective, caps and normal-based shading are
+precisely the cues that say "solid", and none is reachable from that model.
+
+So the block is a subdivided `BoxGeometry`, twisted per vertex about its long axis, rendered by
+three.js (r160, already vendored here for the droplets) through a perspective camera with a real
+depth buffer. Box is the right primitive because its six material groups are ordered
+`+X, −X, +Y, −Y, +Z, −Z` — the row's type goes on `+Z`, the project on `−Z`, and the four remaining
+planes are the solid the earlier builds were only ever implying.
+
+**One renderer, shared.** Only one row can be hovered at a time, so the single WebGL canvas is
+re-parented into whichever row is running — one extra context on the page, not five, and it is
+detached entirely at rest.
+
+**The camera is dead-on, and one world unit is one device pixel.** At a distance of
+`chpx / (2·tan(fov/2))` measured *to the front face*, that face projects exactly 1:1 — verified:
+at p=0 the block occupies rows 88–197 of the padded canvas, exactly the row's 110px. So it lands
+pixel-identical to the DOM row it replaces and, at p=1, to the flat image band. Tilting the camera
+to look down on the block the way the reference does would break both ends; the twist supplies the
+perspective on its own, because the ends genuinely rotate away.
+
+Four things that are load-bearing and look like taste:
+
+- **`cfg.depthRatio` 0.8 is measured, not chosen.** The reference bar sits at 169px at rest and
+  peaks at 220px, never dropping below its resting height. A slab projects to
+  `H·|cosθ| + D·|sinθ|`, peaking at `sqrt(H² + D²)`, so `sqrt(169² + D²) = 220` gives D = 141 — a
+  ratio of **0.83**, nearly square in cross-section. Earlier builds ran 0.24.
+- **The rotation sign tips the front face DOWN.** That is what swings the *top* plane into view.
+  Negating it exposes the underside instead — the same geometry showing its dullest plane.
+- **Upward-facing planes darken; they do not brighten.** That reads backwards and is the difference
+  between the block registering and not: this object is cream on a cream tile, so a top plane lit
+  toward white is indistinguishable from the ground behind it. The reference does the same — its
+  top plane is a deeper red than its face. The term keys off the normal's `y`, which is exactly
+  zero for a forward-facing normal, so it cannot disturb the flush landing at either end.
+- **Dark mode gives the four solid planes a lifted base tone.** Not a tuning preference: the tile
+  is black, the lighting is a vertex colour, and a vertex colour *multiplies* — nothing multiplied
+  by black is anything but black, so the planes would have no silhouette at all. The two textured
+  faces are untouched and still land pixel-exact.
+
+**The back texture is turned a half revolution.** `BoxGeometry` lays out `−Z` to be read from behind
+the box, and the block arrives there by rotating 180° about its long axis, which flips it again.
+Both together are a half turn; without undoing it the photograph and the label land upside down and
+mirrored at the one moment the reader is actually reading them.
+
+**Access:** desktop and tablet-landscape only (`≥1024px` + `hover: hover` + `pointer: fine`).
+Below that the tiles are a one-at-a-time snap-scroller with no room for an edge-to-edge block, and
+no hover to trigger it. Reduced motion drops the twist and simply arrives.
+
+**Cost:** 3 elements per row (two rules and the block's host), 1.1 ms to paint both bitmaps, 0.67 ms
+per frame to render — cheaper than the 2D version it replaced, because the GPU is doing the work. Bitmaps are painted on tile entry (idle-scheduled) rather than row entry, so the
+cost does not land on the frame the gesture starts on.
+
+**One deliberate deviation from the reference.** Its bar never turns past about 80° — its height
+never falls below its resting 169px, and `H·|cosθ| + D·|sinθ| ≥ H` only holds for θ up to 79.6°.
+So it never shows a back face; it tips, twists and returns. This row has to *land* on the case
+study, so the base rotation completes to 180°. The first half of the gesture is the reference's
+move; past 90° it goes somewhere the reference does not.
+
+Two invalidation paths, deliberately not merged: `schedule()` (the box *might* have moved — fires
+constantly, since the sidebar re-widths this column while scrolling and `--u` is
+container-relative) compares before repainting; `repaint()` (theme toggled, or the webfont landed
+— no geometry test can see either) forces. Routing the observer through the forcing path repaints
+every row on every scroll-driven reflow.
+
+The row's ink goes `color: transparent` at beat 2 only, never `visibility: hidden` — the row rule
+is inset to the text column while the block runs edge to edge, so hiding the row would take the
+rule with it and visibly jump. Restoration does not depend on a tween completing (`onInterrupt`
+and a `visibilitychange` guard as well as `onReverseComplete`), for the reason `caseStudyNav()`
+documents at length.
+
+---
+
 ### Changed — the sidebar is fluid, not stepped
 
 AD 2026-08-12: the sidebar must **shrink with the screen** rather than snap between two sizes.

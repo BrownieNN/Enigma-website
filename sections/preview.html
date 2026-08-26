@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enigma — extracted sections preview</title>
+<!-- Global first, then each section's CSS: exactly the CMS load order. -->
+<link rel="stylesheet" href="/sections/_global/global.css">
+<link rel="stylesheet" href="/sections/01-welcome/welcome.css">
+<link rel="stylesheet" href="/sections/02-hello-typing/hello.css">
+<link rel="stylesheet" href="/sections/03-unignorability/unignorability.css">
+<link rel="stylesheet" href="/sections/04-central-intelligence/central-intelligence.css">
+<link rel="stylesheet" href="/sections/05-lets-talk/lets-talk.css">
+<style>
+  body { margin: 0; background: var(--cream); }
+  .harness { display: flex; flex-direction: column; gap: 8px; padding: 8px; }
+  .label { font: 12px/1 "ABC Favorit Mono", monospace; text-transform: uppercase;
+           color: #646464; padding: 12px 4px 0; }
+</style>
+</head>
+<body>
+<div class="harness">
+  <p class="label">01-welcome</p>
+<!-- ENIGMA / 01 — Welcome to the home of Unignorability®
+     Dark-grey panel. A giant "Unignorability®" pans slowly behind the headline;
+     a few of its characters randomly swap typeface on a loop (welcome.js). -->
+<div class="en-section en-welcome">
+  <div class="al-welcome">
+    <div class="bigbg-wrap" aria-hidden="true">
+      <div class="bigbg">
+        <span class="cap">Unignorability<span class="reg">&reg;</span></span>
+        <span class="cap">Unignorability<span class="reg">&reg;</span></span>
+      </div>
+    </div>
+    <h1 class="cap">Welcome<br>to the home of<br>Unignorability<span class="reg">&reg;</span></h1>
+    <p class="cap">Enigma is a creative agency and a media agency both driven by a singular focus:<br>to make our clients&rsquo; brands Unignorable.</p>
+  </div>
+</div>
+  <p class="label">02-hello-typing</p>
+<!-- ENIGMA / 02 — Hello (typewriter)
+     Pink panel. The greeting types itself in, holds, deletes, and moves to the
+     next language, with a blinking SVG I-beam caret. Starts when the panel
+     scrolls into view. -->
+<div class="en-section en-hello">
+  <div class="al-title c-pink al-hello-title">
+    <h2 class="cap jp">こんにちは</h2>
+    <div class="num70 right cap">&#x24FF;&#x2776;</div>
+  </div>
+</div>
+  <p class="label">03-unignorability</p>
+<!-- ENIGMA / 03 — Unignorability® (kinetic letter constellation)
+     Enigma-blue panel. Fifteen cream glyph outlines are damped point-mass
+     springs; fourteen verlet ropes thread them in reading order and sag
+     between them. Grab any letter and the whole string reacts.
+     The SVG is built entirely by unignorability.js — this div is the host. -->
+<div class="en-section en-unignorability">
+  <div class="al-cell">
+    <div class="al-constel" aria-hidden="true"></div>
+  </div>
+</div>
+  <p class="label">04-central-intelligence</p>
+<!-- ENIGMA / 04 — Central Intelligence (WebGL resin metaballs)
+     Cream panel. A RawShaderMaterial raymarches three coloured metaball
+     bodies and REFRACTS the headline through them — so "Central
+     Intelligence" and the legend are painted by the shader into a texture,
+     not laid out in the DOM. The <h1> and the key below are the accessible
+     twins: visually hidden, present for assistive tech and no-WebGL readers.
+     Drag anywhere in the panel to push the resin around. -->
+<div class="en-section en-central-intelligence">
+  <div class="al-capabilities al-resin-host" data-text="Central Intelligence">
+    <h1 class="al-resin-heading">Central Intelligence</h1>
+    <canvas class="al-resin-canvas"></canvas>
+    <div class="al-planet-tag" data-piece="creative">
+      <div class="al-planet-tag-text">
+        <p class="al-planet-label"><span class="al-planet-dot"></span>Creative</p>
+        <p class="al-planet-code al-planet-code-a">SDDS 55213 5518</p>
+        <p class="al-planet-code al-planet-code-b">////SE 2230</p>
+      </div>
+    </div>
+    <div class="al-planet-tag" data-piece="ci">
+      <div class="al-planet-tag-text">
+        <p class="al-planet-label"><span class="al-planet-dot"></span>Central Intelligence</p>
+        <p class="al-planet-code al-planet-code-a">SDDS 55213 5518</p>
+        <p class="al-planet-code al-planet-code-b">////SE 2230</p>
+      </div>
+    </div>
+    <div class="al-planet-tag" data-piece="media">
+      <div class="al-planet-tag-text">
+        <p class="al-planet-label"><span class="al-planet-dot"></span>Media</p>
+        <p class="al-planet-code al-planet-code-a">01235 55233 555488</p>
+        <p class="al-planet-code al-planet-code-b">////DA 2230</p>
+      </div>
+    </div>
+    <div class="al-planet-key">
+      <span><span class="al-planet-dot c-ci"></span>Central Intelligence</span>
+      <span><span class="al-planet-dot c-creative"></span>Creative</span>
+      <span><span class="al-planet-dot c-media"></span>Media</span>
+    </div>
+  </div>
+</div>
+  <p class="label">05-lets-talk</p>
+<!-- ENIGMA / 05 — Let's Talk!
+     Cream panel, 365px display type: first line ranged left, second ranged
+     right. Both words type themselves in with a blinking caret (lets-talk.js);
+     the untyped remainder stays in the DOM as a hidden span so neither line
+     shifts mid-type. -->
+<div class="en-section en-lets-talk">
+  <div class="al-lets">
+    <div class="al-lets-head">
+      <p class="al-lets-line">Let&rsquo;s</p>
+      <p class="al-lets-line right">Talk!</p>
+    </div>
+    <div class="num70 cap al-lets-num">&#x24FF;&#x277B;</div>
+  </div>
+</div>
+</div>
+<script src="/sections/_global/global.js"></script>
+<script src="/sections/01-welcome/welcome.js"></script>
+<script src="/sections/02-hello-typing/hello.js"></script>
+<script src="/sections/03-unignorability/unignorability.js"></script>
+<script src="/sections/04-central-intelligence/central-intelligence.js"></script>
+<script src="/sections/05-lets-talk/lets-talk.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+/* ENIGMA / 03 — Unignorability® strings
+   Requires _global/global.css (tokens, --u).
+   Extracted from styles.css:1877–1942. */
+
+.al-cell {
+  width: 100%;
+  height: calc(799.4 * var(--u));
+  border-radius: var(--radius);
+  background: var(--blue);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.al-cell img {
+  position: absolute;
+  left: 2.33%;
+  top: 2.44%;
+  width: 95.34%;
+  height: 94.66%;
+  max-width: none;
+  object-fit: contain;
+}
+
+/* Kinetic letter constellation (replaces the flat cell-concept.png).
+   Exact Figma vectors: node 45:882, viewBox 1494 x 799.4, cream #f9f6e6. */
+.al-constel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;    /* only the letter grab-handles are interactive */
+}
+.al-constel-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;    /* blank areas let the page scroll through */
+  /* Clip to the cell. A dragged letter can travel outside the viewBox, and `visible` drew it on
+     top of the rest of the page (a stray glyph appeared below the tile, over the page chrome). */
+  overflow: hidden;
+}
+.al-strand {
+  fill: none;
+  /* stroke-width set per strand (randomised weights) as an SVG attribute -- no CSS value here,
+     a CSS rule would override the attribute and flatten the variation. */
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.al-bond-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 34;         /* generous invisible hover target around the rope */
+  stroke-linecap: round;
+  pointer-events: stroke;
+}
+.al-glyph {
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+}
+.al-glyph path {
+  fill: #f9f6e6;
+  pointer-events: none;    /* the padded rect below is the grab target, not the thin outline */
+}
+.al-hit {
+  fill: transparent;
+  pointer-events: all;     /* generous invisible grab handle around each letter */
+}
+.al-glyph.is-grabbing { cursor: grabbing; }
+
+
+/* ----- Mobile ----- */
+@container (max-width: 479px) {
+  .al-cell { height: min(450px, 120.32cqw); }
+}
+
+/* ----- Tablet ----- */
+@container (min-width: 480px) and (max-width: 1023px) {
+  .al-cell { height: 450px; }   /* Html Cell Concept — 450 at both tablets */
+}
