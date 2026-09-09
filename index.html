@@ -9,8 +9,6 @@
 <link rel="preload" href="fonts/Enigma-EnigmaLargeRoman.otf" as="font" type="font/otf" crossorigin>
 <link rel="preload" href="fonts/Enigma-EnigmaLargeItalic.otf" as="font" type="font/otf" crossorigin>
 <link rel="stylesheet" href="styles.css" id="main-css" />
-<!-- REVIEW LAYER (AD annotation, not product code). Remove these 2 lines + review.js/.css to strip it. Disable at runtime with ?review=0 -->
-<link rel="stylesheet" href="review.css?v=9" />
 <script>
 /* Chrome caches styles.css hard, and a ?cb= on the PAGE url does not bust the STYLESHEET --
    so edited rules silently don't apply and everything measures as its default, which looks
@@ -38,6 +36,85 @@
 </head>
 <body>
 
+<!-- ================= SPLASH ================= 
+     A door in front of the homepage: the parade in Enigma black/cream, and hovering any of the
+     six characters flips the WHOLE frame to that arm's colour pairing. Two characters per arm --
+     croc+fish = media, fox+bush = property, cat+rabbit = creative -- so the six hit boxes below
+     collapse onto three states.
+
+     It is a sibling of #view-aldo and sits UNDER the page veil (z 500 vs 600) on purpose: the
+     veil is what covers the splash while it is torn down, so the reader never sees the swap.
+
+     Shown once per session. ?splash=1 forces it back for review, ?splash=0 skips it.
+
+     The artwork is ONE flat single-colour SVG (Figma has no per-character grouping to inherit --
+     it exports as ~400 loose vectors), so it is painted as a CSS mask rather than inline markup:
+     recolouring the whole parade is then one background-color, and index.html stays readable. -->
+<div class="sp" id="splash" data-arm="" hidden>
+  <div class="sp-stage" id="sp-stage">
+    <div class="sp-art" aria-hidden="true"></div>
+
+    <!-- Percentages are of the artwork box, measured against the SVG's own 1084x696 viewBox.
+         Boxes within one arm may overlap freely; where two ARMS meet the edges only touch
+         (fish|fox at 34.13%, bush|cat at 68.45%) so there is no dead strip and no ambiguity. -->
+    <div class="sp-hits">
+      <button type="button" class="sp-hit" data-arm="media"    style="left:0.65%;top:26.00%;width:32.29%;height:74.00%" aria-label="Enter Enigma — 03 Media"></button>
+      <button type="button" class="sp-hit" data-arm="media"    style="left:21.40%;top:43.25%;width:12.73%;height:56.75%" aria-label="Enter Enigma — 03 Media" tabindex="-1"></button>
+      <button type="button" class="sp-hit" data-arm="property" style="left:34.13%;top:46.12%;width:14.94%;height:53.88%" aria-label="Enter Enigma — 02 Property"></button>
+      <button type="button" class="sp-hit" data-arm="property" style="left:44.00%;top:38.94%;width:24.45%;height:61.06%" aria-label="Enter Enigma — 02 Property" tabindex="-1"></button>
+      <button type="button" class="sp-hit" data-arm="creative" style="left:68.45%;top:49.71%;width:14.30%;height:50.29%" aria-label="Enter Enigma — 01 Creative"></button>
+      <button type="button" class="sp-hit" data-arm="creative" style="left:73.99%;top:37.50%;width:26.01%;height:62.50%" aria-label="Enter Enigma — 01 Creative" tabindex="-1"></button>
+    </div>
+
+    <!-- Touch only. Hover cannot advertise itself on a phone, so the three arms get a visible
+         dot each instead, coloured with the pairing they open. -->
+    <div class="sp-dots" aria-hidden="true">
+      <span class="sp-dot" data-arm="media"    style="left:16%;top:78%"></span>
+      <span class="sp-dot" data-arm="property" style="left:56%;top:82%"></span>
+      <span class="sp-dot" data-arm="creative" style="left:81%;top:74%"></span>
+    </div>
+  </div>
+
+  <!-- On a mouse this IS the cursor (the native one is hidden over the stage); on touch it
+       anchors to the bottom of the screen as a normal button. -->
+  <div class="sp-pill" id="sp-pill" aria-hidden="true">
+    <!-- Cards are built by JS from #sp-pill-card-tpl and rolled through this viewport, one per
+         arm. Each card carries its OWN colours (see .sp-pill-card[data-arm]) so that mid-roll
+         the outgoing card keeps the pairing it belongs to instead of both cards snapping to
+         the incoming one. -->
+    <div class="sp-pill-roll" id="sp-pill-roll"></div>
+  </div>
+  <template id="sp-pill-card-tpl">
+    <div class="sp-pill-card">
+      <span class="sp-pill-label"></span>
+      <svg class="sp-pill-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+        <circle cx="12" cy="12" r="10.35"/>
+        <path d="M8.3 12h7.4M12.7 8.9 15.8 12l-3.1 3.1" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </template>
+</div>
+<script>
+/* Runs the instant the splash markup is parsed, BEFORE the homepage below it has painted.
+   Deciding this from the deferred script at the end of <body> would show a frame of homepage
+   first and then cover it -- which reads as a bug, not a door.
+
+   ?splash=1 forces it back for review, ?splash=0 skips it, and ?embed=1 (the device simulator's
+   iframe) never gets it -- every preview tile would otherwise be a splash screen. */
+(function splashGate() {
+  var el = document.getElementById("splash");
+  if (!el) return;
+  var q, seen = false;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  var force = q.get("splash");
+  if (force === "0" || q.get("embed") === "1") return;
+  try { seen = sessionStorage.getItem("enigma-splash-seen") === "1"; } catch (e) {}
+  if (force !== "1" && seen) return;
+  el.hidden = false;
+  document.body.classList.add("splash-on");
+})();
+</script>
+
 <!-- Single view (Aldo). Radio kept checked so the existing `#tab-aldo:checked ~ #view-aldo`
      visibility + dark-mode `:has(#tab-aldo:checked)` guard keep working unchanged. -->
 <input class="ctl" type="radio" name="tabs" id="tab-aldo" checked>
@@ -52,7 +129,10 @@
           <button type="button" class="al-cta al-cta-topbar" id="work-open"><span class="al-cta-fill" aria-hidden="true"></span><span class="cap">ALL WORK</span></button>
           <button type="button" class="al-toggle" aria-label="Toggle dark mode" aria-pressed="false"><span class="al-toggle-knob"></span></button>
         </div>
-        <div class="al-logo"><img class="logo-light" src="assets/aldo/parade-light.png" alt="Enigma"><img class="logo-dark" src="assets/aldo/parade-cream.png" alt="" aria-hidden="true"></div>
+        <!-- Pressable: the parade is the way back to the splash. role/tabindex rather than a real
+             <button> because .al-logo's spacing is baked into the artwork's own canvas (see
+             styles.css) and a button would bring its own box model to the argument. -->
+        <div class="al-logo" role="button" tabindex="0" aria-label="Back to the Enigma splash"><img class="logo-light" src="assets/aldo/parade-light.png" alt="Enigma"><img class="logo-dark" src="assets/aldo/parade-cream.png" alt="" aria-hidden="true"></div>
         <div class="al-date"><span class="cap" id="al-date-day" data-clock-day>&nbsp;</span><span class="cap" id="al-date-time" data-clock-time>&nbsp;</span></div>
       </div>
       <nav class="al-nav">
@@ -1081,7 +1161,6 @@
      Purely decorative and never announced: it is a covering, not content. -->
 <div class="al-veil" id="page-veil" aria-hidden="true"></div>
 
-<script src="review.js?v=9" defer></script>
 <script src="js/gsap.min.js"></script>
 <script src="js/ScrollTrigger.min.js"></script>
 <script src="js/ScrollToPlugin.min.js"></script>
@@ -3959,6 +4038,444 @@
   function veilRun(opts) {
     return !!(window.__VEIL && window.__VEIL.run(opts));
   }
+
+  /* ================= SPLASH =================
+     Six characters, three arms, one door. Hovering a character flips the whole frame to that
+     arm's pairing and the pill becomes the cursor; clicking any of them enters the homepage.
+
+     WHY THE PILL IS POSITION:FIXED AND MOVED BY TRANSFORM, not by left/top: it tracks the
+     pointer at 60fps, and left/top would relayout the splash on every mousemove. transform on a
+     fixed element is composited and touches nothing else.
+
+     WHY THE HIT BOXES ARE IN THE MARKUP AS PERCENTAGES: the artwork is one flat SVG with no
+     per-character grouping to hang listeners on, so the regions are authored by hand against its
+     1084x696 viewBox. Percentages of an aspect-ratio'd stage track the art at every width with
+     no measurement, so there is nothing here to keep in sync on resize.
+
+     The visible gate that decides whether this runs at all is splashGate(), inline next to the
+     markup -- by the time this function runs the decision is already made and painted. */
+  (function splashScreen() {
+    var el = document.getElementById("splash");
+    if (!el) return;
+    /* NOTE: no `el.hidden` bail. The splash used to be a one-shot -- shown or not, decided by
+       splashGate() before this ran -- so returning early when hidden cost nothing. The homepage
+       parade can now reopen the door, which means this module has to be wired up and waiting
+       even on the loads where the gate said no. Everything below is inert while hidden: the
+       listeners are all on .sp, which is display:none. */
+
+    var stage = document.getElementById("sp-stage");
+    var pill  = document.getElementById("sp-pill");
+    var roll  = document.getElementById("sp-pill-roll");
+    var tpl   = document.getElementById("sp-pill-card-tpl");
+    var hits  = el.querySelectorAll(".sp-hit");
+    var dots  = el.querySelectorAll(".sp-dot");
+
+    var LABELS = { creative: "01 Creative", property: "02 Property", media: "03 Media" };
+    /* Parade order, left to right -- NOT the 01/02/03 numbering, which runs the other way.
+       This is what gives the roll its direction: see rollTo(). */
+    var ORDER = ["media", "property", "creative"];
+
+    var coarse = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var canRoll = !reduce && !!window.gsap;
+    var leaving = false;
+
+    /* Hands the pill's opacity to GSAP and switches off the CSS transition that would otherwise
+       re-ease every frame it writes. See `.sp-anim .sp-pill` in the stylesheet. */
+    if (canRoll) el.classList.add("sp-anim");
+
+    /* ----- the rolodex -----
+       Each arm is a card. Changing arm rolls the old one out and the new one in like a face of
+       a cylinder turning: they travel together, one entering as the other leaves, so there is
+       never a moment of empty pill.
+
+       DIRECTION FOLLOWS THE PARADE. Sweeping right along the animals rolls the cards up, like a
+       counter incrementing; sweeping back left rolls them down. Tie the direction to travel and
+       the pill feels like an odometer being driven by the mouse. Always roll the same way and
+       it reads as a canned animation playing at you. */
+    var card = null;      // the card currently in the window
+    var tl = null;        // the roll in flight, if any
+
+    function makeCard(name) {
+      var c = tpl.content.firstElementChild.cloneNode(true);
+      c.dataset.arm = name;
+      c.querySelector(".sp-pill-label").textContent = LABELS[name];
+      return c;
+    }
+
+    /* The pill's own background is the seam colour -- read it off the incoming card rather than
+       keeping a second copy of the palette in JS. One forced style read per arm change. */
+    function seam(c) { pill.style.background = getComputedStyle(c).backgroundColor; }
+
+    function showCard(name) {
+      if (tl) { tl.kill(); tl = null; }
+      roll.textContent = "";
+      card = makeCard(name);
+      roll.appendChild(card);
+      if (window.gsap) {
+        gsap.set(card, { yPercent: 0, rotateX: 0, opacity: 1 });
+        gsap.set(pill, { scaleY: 1 });   // in case a roll was killed on the way out
+      }
+      seam(card);
+    }
+
+    function rollTo(name) {
+      var from = card ? ORDER.indexOf(card.dataset.arm) : -1;
+      var to = ORDER.indexOf(name);
+      /* Up when moving right along the parade, down when moving back. */
+      var sign = to > from ? 1 : -1;
+
+      if (tl) tl.kill();
+      /* Sweeping fast across all six characters fires these back to back. Anything still on
+         its way out is dropped rather than left to finish -- two stale cards tumbling behind
+         the current one is the failure mode here.
+
+         slice() FIRST: roll.children is a live collection, and removing straight out of it
+         renumbers the remaining entries mid-loop, so every second stale card survives. */
+      Array.prototype.slice.call(roll.children).forEach(function (c) {
+        if (c !== card) c.remove();
+      });
+      /* A killed roll leaves the shell wherever its squash had got to. Nothing else ever
+         restores it, so a fast sweep would silently leave the pill a few percent short. */
+      gsap.set(pill, { scaleY: 1 });
+
+      var out = card;
+      var next = makeCard(name);
+      roll.appendChild(next);
+      card = next;
+      seam(next);
+
+      gsap.set(next, { yPercent: 100 * sign, rotateX: -70 * sign, opacity: 0 });
+      tl = gsap.timeline({
+        defaults: { duration: 0.44, ease: "power3.inOut" },
+        onComplete: function () { if (out) out.remove(); tl = null; }
+      });
+      tl.to(out,  { yPercent: -100 * sign, rotateX: 70 * sign, opacity: 0 }, 0)
+        .to(next, { yPercent: 0, rotateX: 0, opacity: 1 }, 0)
+        /* A short counter-scale on the shell. The cylinder is a lie told with two flat divs;
+           letting the pill give very slightly as the card lands is what sells the mass. */
+        .to(pill, { scaleY: 0.94, duration: 0.16, ease: "power2.out" }, 0)
+        .to(pill, { scaleY: 1, duration: 0.28, ease: "back.out(2.2)" }, 0.16);
+    }
+
+    /* ----- entry / exit -----
+       The pill arrives at the pointer and leaves from it, rather than blinking on and off.
+
+       scaleX/scaleY are written SEPARATELY and the `scale` shorthand is never used: the roll's
+       squash owns scaleY, and GSAP's shorthand writes both axes, so a shorthand here would
+       fight the squash for the same slot. Kept apart, an exit that interrupts a mid-roll squash
+       just picks scaleY up wherever it had got to and carries it out.
+
+       The pill is centred on the pointer, so scaling from its own centre means it grows out of
+       and collapses back into the cursor position -- which is the whole conceit. */
+    var fadeTl = null;
+
+    function pillIn() {
+      pill.classList.add("is-on");
+      if (!canRoll) return;                       // CSS opacity handles the fallback
+      /* Catching an exit mid-flight is the common case, not the rare one -- clipping the corner
+         of a character on the way to the next one does it every time. Resuming from wherever
+         the exit had got to avoids the snap back to a hard 0.7 that a fromTo would force. */
+      var interrupting = !!(fadeTl && fadeTl.isActive());
+      if (fadeTl) fadeTl.kill();
+      fadeTl = gsap.timeline();
+      if (interrupting) {
+        fadeTl.to(pill, { scaleX: 1, scaleY: 1, opacity: 1,
+                          duration: 0.26, ease: "back.out(1.8)" });
+      } else {
+        fadeTl.fromTo(pill,
+          { scaleX: 0.7, scaleY: 0.7, opacity: 0 },
+          { scaleX: 1, scaleY: 1, opacity: 1, duration: 0.34, ease: "back.out(2)" });
+      }
+    }
+
+    function pillOut() {
+      if (!canRoll) { pill.classList.remove("is-on"); return; }
+      if (fadeTl) fadeTl.kill();
+      /* Faster than the entry and with no overshoot. Leaving should get out of the way; a pill
+         that bounces on its way out reads as indecision. */
+      fadeTl = gsap.timeline({
+        onComplete: function () { pill.classList.remove("is-on"); }
+      });
+      fadeTl.to(pill, { scaleX: 0.7, scaleY: 0.7, opacity: 0,
+                        duration: 0.2, ease: "power2.in" });
+    }
+
+    /* ----- state ----- */
+    function arm(name) {
+      if (leaving) return;
+      var prev = el.dataset.arm || "";
+      if (prev === (name || "")) return;      // re-entering the second character of one arm
+      el.dataset.arm = name || "";
+
+      if (!name) { pillOut(); return; }
+
+      /* Arriving from nothing: the pill is animating in, so there is no outgoing card to roll
+         off and a roll here would just be motion nobody asked for. Roll only arm to arm. */
+      if (!prev || !card || !canRoll) { showCard(name); pillIn(); }
+      else rollTo(name);
+    }
+
+    /* ----- the pill as cursor -----
+       One rAF per frame at most: pointermove fires far more often than the screen refreshes, and
+       writing a transform per event is work the compositor throws away. */
+    var px = 0, py = 0, queued = false;
+    function place() {
+      queued = false;
+      var w = pill.offsetWidth, h = pill.offsetHeight;
+      /* Centred on the pointer -- in the Figma frames the pill sits ON the character, not beside
+         it -- then clamped so it can never hang off a viewport edge and clip its own label. */
+      var x = Math.max(8, Math.min(window.innerWidth  - w - 8, px - w / 2));
+      var y = Math.max(8, Math.min(window.innerHeight - h - 8, py - h / 2));
+      /* GSAP has to OWN this transform. The roll squashes the shell on scaleY, and if the
+         follow wrote `style.transform` directly the two would take turns clobbering each
+         other -- GSAP re-asserting its cached x/y of 0 and flinging the pill to the corner
+         mid-roll. Going through gsap.set composes translate and scale in one matrix. */
+      if (window.gsap) gsap.set(pill, { x: x, y: y });
+      else pill.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+    }
+    function track(x, y) {
+      /* Coarse pointers anchor the pill to the bottom of the screen, so a follow position is
+         meaningless -- and writing x/y would drag it off that anchor. Leaving transform
+         untouched here is what lets the entry/exit scale work on touch. */
+      if (coarse) return;
+      px = x; py = y;
+      if (!queued) { queued = true; requestAnimationFrame(place); }
+    }
+
+    /* ----- entering ----- */
+    function teardown() {
+      el.hidden = true;
+      document.body.classList.remove("splash-on");
+      /* ScrollTrigger measured the page while body was overflow:hidden and the splash was over
+         it. Every pinned section on the homepage is wrong until it re-measures. */
+      if (window.ScrollTrigger && window.ScrollTrigger.refresh) window.ScrollTrigger.refresh();
+    }
+
+    /* ----- the way back -----
+       teardown() is destructive and the DOM is reused, so reopening has to undo all of it by
+       hand. This is the price of the module being long-lived; the alternative -- rebuilding the
+       splash markup on every reopen -- would re-download nothing but would drop the mask's
+       decode and flash. */
+    function restage() {
+      leaving = false;
+      el.dataset.arm = "";                   // back to the resting black/cream
+
+      if (tl) { tl.kill(); tl = null; }
+      if (fadeTl) { fadeTl.kill(); fadeTl = null; }
+      roll.textContent = "";
+      card = null;
+      pill.classList.remove("is-on");
+      pill.style.background = "";
+      /* GSAP caches the last transform it wrote. Without clearing it the pill returns exactly
+         where its exit left it: 0.7 scale, zero opacity, parked at the pointer position from
+         the previous visit -- and then the next pillIn() eases out of that stale pose. */
+      if (window.gsap) gsap.set(pill, { clearProps: "transform,opacity" });
+      else pill.style.transform = "";
+
+      /* Same problem, worse: the hint's last tween leaves the dots at scale 0 / opacity 0
+         inline. hintDots() opens with a .from(), which animates FROM those values TO whatever
+         is current -- and current would still be zero, so a replayed hint would be invisible. */
+      if (hintTl) { hintTl.kill(); hintTl = null; }
+      var wrap = el.querySelector(".sp-dots");
+      if (wrap) wrap.classList.remove("is-spent");
+      if (window.gsap && dots.length) gsap.set(dots, { clearProps: "all" });
+    }
+
+    function show() {
+      if (!el.hidden) return;
+      restage();
+      el.hidden = false;
+      document.body.classList.add("splash-on");
+      /* body.splash-on is overflow:hidden, which clamps the viewport to a zero scroll range
+         anyway -- so this is not what resets the scroll, it just makes it explicit and puts it
+         under the veil. Re-entering therefore lands at the top of the homepage, which is the
+         behaviour the door implies: you arrived, you did not resume. */
+      window.scrollTo(0, 0);
+      if (coarse) hintDots();
+    }
+
+    /* What the homepage parade calls. Dressed in the standard veil -- NOT the arm colour the
+       way enter() is, because there is no arm on the way back: the splash reopens in its
+       resting black/cream, and the veil should read as the same route change every other link
+       on the site makes. */
+    function reopen() {
+      if (!el.hidden) return;
+      if (!veilRun({ swap: show })) show();
+    }
+
+    function enter() {
+      if (leaving) return;
+      leaving = true;
+      try { sessionStorage.setItem("enigma-splash-seen", "1"); } catch (e) {}
+      pill.classList.remove("is-on");
+
+      /* Carry the arm's colour through the transition: the veil is cream (or black in dark mode)
+         for every other route, but here it is the last thing the reader saw, so it closes in the
+         pairing they were looking at and opens on the homepage. Restored afterwards -- this
+         element is shared with every other route on the site. */
+      var veil = window.__VEIL;
+      var prev = veil ? veil.el.style.background : "";
+      /* Read the TOKEN, not the rendered background. background-color is mid-transition for
+         0.28s after the arm changes, so a fast click -- enter the character and click straight
+         away -- would hand the veil a half-blended colour. The custom property is not animated
+         and is already the final value on the frame the arm is set. */
+      if (veil) {
+        var tone = getComputedStyle(el).getPropertyValue("--sp-bg").trim();
+        veil.el.style.background = tone || getComputedStyle(el).backgroundColor;
+      }
+
+      var ran = veilRun({
+        swap: teardown,
+        done: function () { if (veil) veil.el.style.background = prev; }
+      });
+      /* veilRun returns false if the veil is missing or already busy. The door still has to
+         open -- an undressed entry beats a splash that swallows the click. */
+      if (!ran) { teardown(); if (veil) veil.el.style.background = prev; }
+    }
+
+    /* ----- wiring ----- */
+    Array.prototype.forEach.call(hits, function (hit) {
+      var name = hit.dataset.arm;
+
+      if (coarse) {
+        /* On touch the characters ONLY set the colour -- they are never a way in. The pill is
+           the single door, and it says so in words.
+
+           The old behaviour was tap-to-arm then tap-again-to-commit, and it made the parade a
+           minefield: the second tap of a double-tap, or a tap that landed on the arm already
+           showing, entered the homepage when the reader was still choosing. A hover preview can
+           be taken back by moving the mouse away; a tap cannot, so the two gestures must not
+           share a target. Arming and entering are now different things you touch. */
+        hit.addEventListener("click", function () {
+          /* A tap has made the hint's point better than the hint could. */
+          spendHint();
+          arm(name);
+        });
+        return;
+      }
+
+      hit.addEventListener("click", enter);
+
+      /* Keyboard gets the same two states a mouse does: focus previews the pairing and parks the
+         pill over the character, Enter/Space activates the button natively. */
+      hit.addEventListener("focus", function () {
+        var r = hit.getBoundingClientRect();
+        track(r.left + r.width / 2, r.top + r.height / 2);
+        arm(name);
+      });
+      hit.addEventListener("blur", function () { arm(""); });
+    });
+
+    /* ONE handler on the stage, hit-testing the event target -- not pointerenter/pointermove
+       bound to each hit box.
+
+       Per-hit tracking left the pill stranded. The gaps between characters, the sky above them,
+       the banner: all of that is stage but not hit, and moving into it fired nothing at all, so
+       the pill kept the last arm's colour and sat frozen at the last coordinate it had been
+       given. Only leaving the entire stage cleared it. Reading the arm off e.target on every
+       move means entering and leaving a character are the same code path, and the pill is
+       always following the pointer even while invisible -- so it fades in already in the right
+       place instead of flying in from wherever it was last seen. */
+    if (!coarse) {
+      stage.addEventListener("pointermove", function (e) {
+        track(e.clientX, e.clientY);
+        var hit = e.target && e.target.closest ? e.target.closest(".sp-hit") : null;
+        arm(hit ? hit.dataset.arm : "");
+      });
+      /* Belt and braces: leaving the stage fast enough can skip the last pointermove, and the
+         splash-level one catches a pointer that leaves the window entirely. */
+      stage.addEventListener("pointerleave", function () {
+        if (!el.contains(document.activeElement)) arm("");
+      });
+      el.addEventListener("pointerleave", function () {
+        if (!el.contains(document.activeElement)) arm("");
+      });
+    }
+
+    /* ----- the touch affordance -----
+       A phone has no hover to discover the parade with, so the three arms announce themselves
+       once on load: pop in, pulse, shrink away. It is a hint, not a control -- it says "these
+       are tappable" and then gets out of the way of the artwork, which is the point of the
+       screen.
+
+       Staggered along the parade rather than fired together, so it reads as the line of them
+       being counted off left to right instead of three unrelated things blinking. */
+    var hintTl = null;
+
+    function spendHint() {
+      if (hintTl) { hintTl.kill(); hintTl = null; }
+      var wrap = el.querySelector(".sp-dots");
+      if (wrap) wrap.classList.add("is-spent");
+    }
+
+    function hintDots() {
+      var d = Array.prototype.slice.call(dots);
+      if (!d.length) return;
+      /* Without GSAP, or with motion turned down, the dots simply sit there until tapped --
+         a static affordance is still an affordance. The CSS hides them once an arm is set. */
+      if (!canRoll) return;
+
+      hintTl = gsap.timeline({ delay: 0.45, onComplete: spendHint });
+      hintTl
+        .from(d, { scale: 0, opacity: 0, duration: 0.42,
+                   ease: "back.out(2.6)", stagger: 0.1 })
+        .to(d, { scale: 1.3, duration: 0.44, ease: "sine.inOut",
+                 yoyo: true, repeat: 3, stagger: 0.1 }, ">-0.1")
+        .to(d, { scale: 0, opacity: 0, duration: 0.34,
+                 ease: "back.in(2)", stagger: 0.07 }, ">-0.05");
+    }
+
+
+    /* The way out for anyone who cannot work out that the animals are the door. */
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") enter();
+    });
+
+    if (coarse) {
+      /* Only when the splash is actually on screen. On a load the gate skipped, this module is
+         still wired up (see the top) and firing the hint here would spend it against a splash
+         nobody has seen -- so it is show() that plays it, and show() runs on first paint too. */
+      if (!el.hidden) hintDots();
+      /* The pill is a real button here, not a cursor -- and on touch it is the ONLY way in.
+         The characters arm it; this enters. Announced to assistive tech only on touch: on a
+         mouse it is decoration that follows the pointer, and the hit boxes carry the labels. */
+      pill.removeAttribute("aria-hidden");
+      pill.setAttribute("role", "button");
+      pill.setAttribute("tabindex", "0");
+      pill.addEventListener("click", enter);
+      pill.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enter(); }
+      });
+    }
+
+    /* ----- the handle on the homepage side -----
+       The sidebar lockup is the same parade, so it is the obvious thing to press to get back to
+       it. Bound here rather than in its own module because the door only has one implementation
+       and this is it; .al-logo keeps its markup and its carefully baked spacing untouched.
+
+       Guarded on el.hidden so a stray press while the splash is already up does nothing. */
+    var homeParade = document.querySelector(".al-logo");
+    if (homeParade) {
+      homeParade.addEventListener("click", reopen);
+      homeParade.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reopen(); }
+      });
+    }
+
+    /* Console handle, matching __VEIL: __SPLASH.enter() dismisses it, __SPLASH.show() reopens
+       it, .reset() puts it back on the next load without clearing session storage by hand. */
+    window.__SPLASH = {
+      el: el,
+      enter: enter,
+      show: reopen,
+      arm: arm,
+      reset: function () {
+        try { sessionStorage.removeItem("enigma-splash-seen"); } catch (e) {}
+        return "reload to see the splash";
+      }
+    };
+  })();
 
 
   (function workPageNav() {

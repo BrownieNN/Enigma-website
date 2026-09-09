@@ -4503,3 +4503,239 @@ body.dark .al-veil { background: var(--black); }
      shared 24px bottom padding sits below it exactly as it does on every other component --
      keeping the 108px would have stacked that air UNDER the number instead of replacing it. */
 }
+
+
+/* ================= SPLASH =================
+   The door in front of the homepage. Three colour pairings, one per arm of the business, plus
+   the resting black/cream. Every state is the SAME two tokens -- --sp-bg and --sp-ink -- so the
+   whole frame flips on one attribute change and nothing has to be kept in step by hand.
+
+   The parade is painted as a MASK, not an <img> or inline SVG. The artwork is a single flat
+   colour with no internal grouping, so a mask lets --sp-ink recolour all 400-odd paths at once
+   and keeps a 240KB asset out of index.html. An <img> could not be recoloured at all.
+
+   z-index 500 puts this UNDER .al-veil (600) deliberately -- the veil has to be able to cover
+   the splash while it is removed, or the reader sees the homepage snap in behind it. */
+.sp {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  /* minmax(0,1fr) is load-bearing. With an `auto` column the track is sized from the stage's
+     max-content contribution, the stage's own `100%` then resolves against that same track,
+     and the circularity settles on the artwork's intrinsic 1084px -- which overflows every
+     phone. A definite column breaks the loop. */
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: 8px;
+  background: var(--sp-bg);
+  color: var(--sp-ink);
+  --sp-bg: #000000;
+  --sp-ink: var(--cream, #F9F6E6);
+  /* Long enough to read as a deliberate flip rather than a flicker, short enough that sweeping
+     across the parade never feels like it is lagging behind the mouse. */
+  transition: background-color 0.28s ease, color 0.28s ease;
+}
+.sp[hidden] { display: none; }
+
+/* The default touch furniture is what made this feel glitchy on a phone: a grey flash over
+   every hit box, a ~300ms wait while the browser decides whether a tap is a double-tap zoom,
+   and a long press selecting the artwork or raising the callout menu. None of it belongs on a
+   full-screen graphic whose only interaction is a single tap. */
+.sp {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* The three pairings. Sampled from the Figma frames, not eyeballed:
+     01 Creative  red    ground, black  parade, blue  pill / cream label
+     02 Property  blue   ground, cream  parade, red   pill / black label
+     03 Media     green  ground, yellow parade, pink  pill / red   label */
+.sp[data-arm="creative"] { --sp-bg: #FF0008; --sp-ink: #000000; }
+.sp[data-arm="property"] { --sp-bg: #0029A4; --sp-ink: #F9F6E6; }
+.sp[data-arm="media"]    { --sp-bg: #00E592; --sp-ink: #FFFF83; }
+
+/* 1084x696 is the artwork's own viewBox. Sizing the stage to that aspect ratio is what lets the
+   hit boxes below be plain percentages -- they then track the art through every viewport width
+   without a single JS measurement. */
+.sp-stage {
+  position: relative;
+  /* HEIGHT-DRIVEN. The lockup fills the viewport top to bottom with only the 8px gutter left,
+     and grows past its native 1084px on a big screen -- it is artwork, not a fixed asset.
+
+     Width is what is declared and height falls out of aspect-ratio, never the other way round.
+     Setting `height: 100%` instead and letting max-width clamp the width would break the ratio:
+     aspect-ratio only fills in an AUTO dimension, so a clamped width against a definite height
+     just stretches the parade. Expressing both limits as widths inside min() keeps the ratio
+     intact on every viewport.
+
+     The two terms are the two ways it can be bound: 100% when the viewport is narrower than the
+     lockup is wide (phones, where it fits to width and the 8px gutter moves to the sides), and
+     the dvh term when there is width to spare (every laptop, where it fits to height as asked).
+     dvh, not vh, so mobile browser chrome collapsing does not crop it. */
+  width: min(100%, calc((100vh - 16px) * 1084 / 696));
+  width: min(100%, calc((100dvh - 16px) * 1084 / 696));
+  aspect-ratio: 1084 / 696;
+}
+.sp-art {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  -webkit-mask: url("assets/splash/parade-lockup.svg") center / contain no-repeat;
+          mask: url("assets/splash/parade-lockup.svg") center / contain no-repeat;
+}
+
+.sp-hits { position: absolute; inset: 0; }
+.sp-hit {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  /* The pill replaces the pointer over the artwork, so the native arrow would be a second,
+     conflicting cursor sitting on top of it. */
+  cursor: none;
+}
+/* Keyboard only. Tab reaches one hit per arm (the second of each pair is tabindex="-1", since
+   landing on the same state twice is just noise), and focus drives the same state hover does. */
+.sp-hit:focus { outline: none; }
+.sp-hit:focus-visible { outline: 2px solid var(--sp-ink); outline-offset: -2px; }
+
+/* ----- the pill ----- */
+.sp-pill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 235px;
+  height: 42px;
+  border-radius: 999px;
+  /* Backdrop only. The cards cover it, but a roll leaves a seam band across the middle where
+     one card has left and the next has not arrived -- without this you would see the parade
+     through it. JS keeps it on the INCOMING colour, which is what the seam should read as. */
+  background: var(--cream, #F9F6E6);
+  overflow: hidden;
+  font-family: "ABC Favorit Mono", monospace;
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  /* Sits ON the pointer, so it must never be what the pointer is judged to be over. */
+  will-change: transform;
+  /* OPACITY ONLY. Crossfading the pill's colour as well sounds right and is not: sliding from
+     one arm to the next, a 0.28s colour fade drags the pill through a muddy in-between while
+     the ground behind it has already committed. The pill is small, moving, and sitting under
+     the pointer -- it should change with the same snap a cursor does. */
+  transition: opacity 0.18s ease;
+}
+.sp-pill.is-on { opacity: 1; }
+
+/* When GSAP is driving (see splashScreen), it writes inline opacity frame by frame and the CSS
+   transition above must get out of the way. Left on, every value GSAP wrote was itself eased
+   over another 0.18s -- two curves stacked on one property, which is what a mushy, laggy fade
+   is made of. The rule stays for the fallback path: no GSAP, or reduced motion, and the class
+   is never added. */
+.sp-anim .sp-pill { transition: none; }
+
+/* ----- the rolodex -----
+   The whole content rolls as ONE card -- label and arrow together -- rather than the label
+   alone. The arrow belongs to its pairing as much as the words do, and a label that rolls
+   while the arrow sits still reads as a glitch rather than a mechanism. */
+.sp-pill-roll {
+  position: absolute;
+  inset: 0;
+  /* Shallow on purpose. Enough that the cards read as faces of a cylinder rather than two
+     sliding rectangles; deep enough to distort the mono caps and it starts to look broken. */
+  perspective: 420px;
+}
+.sp-pill-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 12px 0 20px;
+  border-radius: inherit;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+/* The three pill pairings, declared ONCE and keyed off the card's own arm -- not the ground's.
+   Reading them from the ground would repaint the outgoing card to the incoming colour halfway
+   through its own exit. */
+.sp-pill-card[data-arm="creative"] { background: #0029A4; color: #F9F6E6; }
+.sp-pill-card[data-arm="property"] { background: #FF0008; color: #000000; }
+.sp-pill-card[data-arm="media"]    { background: #FF9EED; color: #FF0008; }
+
+.sp-pill-label { flex: none; }
+.sp-pill-arrow { width: 22px; height: 22px; flex: none; }
+
+/* ----- touch ----- */
+/* Hover cannot announce itself on a phone, so the arms get a visible dot each and the pill stops
+   chasing a pointer that does not exist and anchors to the bottom of the screen instead. */
+/* pointer-events:none is deliberate. The dots are a hint, not a control -- every tap should
+   land on the hit box underneath regardless of whether a dot happens to be over it. Without
+   this, a dot that happened to be over a character would swallow the tap meant to arm it. */
+.sp-dots { position: absolute; inset: 0; display: none; pointer-events: none; }
+.sp-dot {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  background: var(--dot);
+  /* The glow from the comp: a hard-edged halo of the same colour at 30%, not a blur. Measured
+     off the Figma frame -- core 27px, halo 39px, so the ring is ~0.44 of the core radius.
+     box-shadow spread rather than a second element, so it scales with the pulse for free. */
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--dot) 30%, transparent);
+}
+.sp-dot[data-arm="creative"] { --dot: #0029A4; }
+.sp-dot[data-arm="property"] { --dot: #FF0008; }
+.sp-dot[data-arm="media"]    { --dot: #00E592; }
+/* Spent once the hint has played out, or once a tap has made the point. */
+.sp-dots.is-spent { display: none !important; }
+
+@media (hover: none), (pointer: coarse) {
+  .sp-dots { display: block; }
+  /* An armed splash has already made its point with the colour flip; the dots would just be
+     three stale targets sitting on top of it. */
+  .sp[data-arm]:not([data-arm=""]) .sp-dots { display: none; }
+  .sp-hit { cursor: pointer; }
+  /* On a mouse the pill IS the cursor and must never be hit-testable. On touch there is no
+     cursor to be, so it goes back to being what it looks like: a button to the homepage. */
+  .sp-pill { pointer-events: auto; cursor: pointer; }
+  .sp-pill {
+    position: absolute;
+    top: auto;
+    bottom: 24px;
+    left: 24px;
+    right: 24px;
+    width: auto;
+    /* NOT `transform: none !important`. That was here to stop the pointer-follow shifting a
+       bottom-anchored pill, but it also killed the entry/exit scale and the roll's squash on
+       exactly the devices that need the feedback most. track() bails on coarse instead, so
+       nothing writes x/y here and transform is left free for the animation. */
+  }
+}
+
+/* Reduced motion keeps the colour flip -- it is the entire point of the screen, and a flat swap
+   is not motion -- but drops the easing so nothing travels. */
+@media (prefers-reduced-motion: reduce) {
+  .sp, .sp-pill { transition: none; }
+}
+
+/* The homepage must not scroll behind the splash. ScrollTrigger is refreshed on the way out --
+   it measures during load, while this class is still on. See splashScreen(). */
+body.splash-on { overflow: hidden; }
+
+/* The homepage parade is the handle on the splash's other side -- see the .al-logo wiring in
+   splashScreen(). Cursor and focus ring only; every dimension here is still owned by the block
+   above, where the spacing is baked into the artwork's canvas. */
+.al-logo[role="button"] { cursor: pointer; }
+.al-logo[role="button"]:focus { outline: none; }
+.al-logo[role="button"]:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
